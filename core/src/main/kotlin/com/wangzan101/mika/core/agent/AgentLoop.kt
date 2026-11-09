@@ -20,6 +20,8 @@ import com.wangzan101.mika.core.action.Origin
 import com.wangzan101.mika.core.action.Presented
 import com.wangzan101.mika.core.action.Refusals
 import com.wangzan101.mika.core.access.AppAccessDenied
+import com.wangzan101.mika.core.quota.QuotaAwareRouter
+import com.wangzan101.mika.core.quota.QuotaRequirement
 import com.wangzan101.mika.core.model.Author
 import com.wangzan101.mika.core.gate.ConfirmationGate
 import com.wangzan101.mika.core.gate.ConfirmationRequest
@@ -172,6 +174,16 @@ class AgentLoop(
     /** 同一网站、App 里连着做对外动作(发送、提交)时两次之间的间隔;默认不等。 */
     private val outwardPacing: OutwardPacing = OutwardPacing.Off,
     private val trace: RunTrace? = null,
+    /**
+     * 可选的额度池路由器(见 [QuotaAwareRouter]):给了就在一次调用里按候选链换服务商,
+     * 免费档／限流用完不再终止任务。默认 null,老调用方行为完全不变。
+     */
+    private val quotaRouter: QuotaAwareRouter? = null,
+    /**
+     * 每一步对候选的能力／隐私要求。App 应在这里标记敏感步骤(密码、支付、私密聊天),
+     * 让会把输入用于训练的免费档被跳过;默认按主角色的最坏情况处理。
+     */
+    private val quotaRequirement: (List<Message>) -> QuotaRequirement = { QuotaRequirement() },
 ) {
     init {
         require(maxSteps > 0) { "maxSteps must be positive" }
@@ -189,7 +201,7 @@ class AgentLoop(
         tools.observer = { record { order.observed(RunEvent.Observed.of(it)) } }
     }
 
-    private val caller = ModelCaller(model, tools, router, flags, retry, ::emit, ::now, autonomous, trace)
+    private val caller = ModelCaller(model, tools, router, flags, retry, ::emit, ::now, autonomous, trace, quotaRouter, quotaRequirement)
     private val intentGate = intentJudge?.let { IntentGate(it, model.takeUnless { main -> main === it }) }
     private val routeMatcher = routes
     /** 本任务的上下文生成器(外壳、预算、已给过的参考资料)。 */

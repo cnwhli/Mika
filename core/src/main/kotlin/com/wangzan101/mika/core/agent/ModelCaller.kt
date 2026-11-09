@@ -11,6 +11,9 @@ import com.wangzan101.mika.core.model.Role
 import com.wangzan101.mika.core.model.StreamingChatModel
 import com.wangzan101.mika.core.model.ToolSpec
 import com.wangzan101.mika.core.model.Usage
+import com.wangzan101.mika.core.quota.AllQuotaCandidatesExhausted
+import com.wangzan101.mika.core.quota.QuotaAwareRouter
+import com.wangzan101.mika.core.quota.QuotaRequirement
 import com.wangzan101.mika.core.record.Redactor
 import com.wangzan101.mika.core.record.RunEvent
 import com.wangzan101.mika.core.tool.ToolDispatcher
@@ -38,6 +41,17 @@ internal class ModelCaller(
     private val now: () -> Long,
     private val autonomous: Boolean = false,
     private val trace: RunTrace? = null,
+    /**
+     * 可选的额度池路由器:给了就在一次调用里按候选链换服务商,额度／限流不终止任务。
+     * 不给时行为与原来完全一致(默认关闭,老调用方零改动)。
+     * 录制回放时([trace] 非空)为保证记录能按同一模型重放,不启用候选链。
+     */
+    private val quotaRouter: QuotaAwareRouter? = null,
+    /**
+     * 这一步对候选的能力／隐私要求;App 应在此标记敏感步骤(密码、支付、私密聊天),
+     * 好让会把输入用于训练的免费档被跳过。默认按主角色的最坏情况处理。
+     */
+    private val quotaRequirement: (List<Message>) -> QuotaRequirement = { QuotaRequirement() },
 ) {
     /** 每个模型一份压缩状态:各自的上下文、各自发出的那份历史,轻量模型那次压缩不连累主模型的请求前缀。 */
     private val compressors = java.util.IdentityHashMap<ChatModel, ContextCompressor>()
@@ -101,13 +115,13 @@ internal class ModelCaller(
         history: List<Message>, specs: List<ToolSpec>, track: StepTrack, step: Int, restarted: (Long) -> Unit,
         onText: ((String) -> Unit)? = null,
     ): Pair<ModelReply, ChatModel> {
-        val r = router?.takeIf { routing } ?: return ask(history, specs, step, onText = onText) to model
+        val r = router?.takeIf { routing } ?: return askWithModel(history, specs, step, onText = onText)
         val picked = r.pick(track.context(step, history.any { m -> m.parts.any { it is Part.Image } }))
-        if (!r.isLight(picked)) return ask(history, specs, step, onText = onText) to model
+        if (!r.isLight(picked)) return askWithModel(history, specs, step, onText = onText)
         // 轻量模型的上下文可能更小:它报超长、它那次折叠多少,都不连累主模型(压缩状态按模型分开记)
         val asked = now()
         val light = try {
-            complete(viewFor(history, picked), specs, picked, RetryPolicy.NONE, step, onText)
+            complete(viewFor(history, picked), specs, picked, RetryPolicy.NONE, step, onText).first
         } catch (e: CancellationException) {
             throw e
         } catch (e: ModelError.TaskBudgetExceeded) {
@@ -133,7 +147,7 @@ internal class ModelCaller(
         emit(RunEvent.State(now(), "light_to_main", first?.name ?: if (light == null) "light_error" else "no_tool"))
         onText?.invoke("")
         restarted(now())
-        return ask(history, specs, step, onText = onText) to model
+        return askWithModel(history, specs, step, onText = onText)
     }
 
     private fun needsMain(call: Part.ToolCall): Boolean =
@@ -142,6 +156,14 @@ internal class ModelCaller(
 
     /** 问 [using](默认主模型):发出的是给它看的那份历史([viewFor])压缩后的副本。 */
     suspend fun ask(history: List<Message>, specs: List<ToolSpec>, step: Int, using: ChatModel = model, onText: ((String) -> Unit)? = null): ModelReply =
+        askWithModel(history, specs, step, using, onText).first
+
+    /**
+     * 同 [ask],但一并返回真正承接这次请求的模型。接了额度池时它可能不是 [using],
+     * [routed] 用它记用量锚点和运行记录,否则切换服务商后用量会错记到主模型头上。
+     */
+    suspend fun askWithModel(history: List<Message>, specs: List<ToolSpec>, step: Int, using: ChatModel = model,
+        onText: ((String) -> Unit)? = null): Pair<ModelReply, ChatModel> =
         complete(viewFor(history, using), specs, using, retry, step, onText)
 
     /**
@@ -165,7 +187,7 @@ internal class ModelCaller(
     }
 
     private suspend fun complete(history: List<Message>, specs: List<ToolSpec>, using: ChatModel, policy: RetryPolicy, step: Int,
-        onText: ((String) -> Unit)? = null): ModelReply {
+        onText: ((String) -> Unit)? = null): Pair<ModelReply, ChatModel> {
         var retries = 0
         lastRetryWaitMs = 0
         val began = now()
@@ -191,12 +213,31 @@ internal class ModelCaller(
                 if (tools.inlineScreen) tools.setVisibleObservations(visibleReads(sent.messages))
                 // 这一次之前花掉的(失败的请求、退避)都算重试等待
                 lastRetryWaitMs = now() - began
-                suspend fun send(): ModelReply = if (onText == null) using.complete(systemPrompt, sent.messages, specs)
-                    else if (using is StreamingChatModel) using.completeStreaming(systemPrompt, sent.messages, specs, onText)
-                    else using.complete(systemPrompt, sent.messages, specs).also { result ->
+                /** 真正承接这次请求的模型;没接额度池时就是 [using]。 */
+                var used: ChatModel = using
+                suspend fun plain(target: ChatModel): ModelReply =
+                    if (onText == null) target.complete(systemPrompt, sent.messages, specs)
+                    else if (target is StreamingChatModel) target.completeStreaming(systemPrompt, sent.messages, specs, onText)
+                    else target.complete(systemPrompt, sent.messages, specs).also { result ->
                         result.parts.filterIsInstance<Part.Text>().joinToString("") { it.text }
                             .takeIf(String::isNotEmpty)?.let(onText)
                     }
+                // 录制回放要求按同一模型可重放:录制中一律不换候选
+                val pool = quotaRouter.takeIf { trace == null }
+                suspend fun send(): ModelReply = if (pool == null) plain(using) else {
+                    val hasImages = sent.messages.any { m -> m.parts.any { it is Part.Image } }
+                    val base = quotaRequirement(sent.messages)
+                    val req = base.copy(
+                        needsTools = base.needsTools && specs.isNotEmpty(),
+                        hasImages = base.hasImages && hasImages,
+                        preferFamily = base.preferFamily ?: pool.familyFor(using),
+                    )
+                    val (result, picked) = pool.run(req) { c -> plain(c.model) }
+                    used = picked.model
+                    result.usage?.let { pool.noteUsage(picked.id, it.inputTokens.toLong(), it.outputTokens.toLong()) }
+                    if (picked.model !== using) emit(RunEvent.State(now(), "quota_switch", "${using.name} -> ${picked.model.name}"))
+                    result
+                }
                 val reply = if (trace == null) send() else {
                     val change = when {
                         overflowRewrote -> "overflow_compaction folded=" + raw.foldedSteps
@@ -206,10 +247,21 @@ internal class ModelCaller(
                     overflowRewrote = false
                     trace.modelCall(step, using, tools::verb, change, sent.messages) { send() }
                 }
-                return reply.also { r ->
-                    lastOverhead[using] = overhead
+                // 压缩状态仍按配置里的角色模型算;候选的能力过滤保证接得住这次请求,
+                // 换服务商只用于额度兜底,属低频路径,不另开一份压缩器。
+                return (reply to used).also { (r, _) ->
+                    lastOverhead[used] = overhead
                     r.usage?.let { compressor.calibrate(sent.estimate + overhead, it.inputTokens) }
                 }
+            } catch (e: AllQuotaCandidatesExhausted) {
+                // 整池都在冷却:预算内等到最早那个恢复时刻再试一次(额度会自己恢复,不必终止任务),
+                // 超出预算就交出去,让界面按 e.recoveryAtMs 显示「约 x 分钟后自动重试」。
+                onText?.invoke("")
+                val remaining = e.recoveryAtMs?.let { it - now() } ?: -1L
+                if (remaining <= 0 || taskRetryWaitMs + remaining > retry.taskWaitBudgetMs) throw e
+                emit(RunEvent.State(now(), "quota_pool_wait", "all_candidates_cooling ${remaining}ms"))
+                taskRetryWaitMs += remaining
+                delay(remaining)
             } catch (e: ModelError.ContextTooLong) {
                 onText?.invoke("")
                 val (after, again) = CompactionPolicy.overflow(compaction, overflowRetried) {

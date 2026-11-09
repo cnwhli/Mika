@@ -147,7 +147,9 @@ class AnthropicModel(
 
     private fun mapError(status: Int, retryAfter: String?, body: String): ModelError = ModelAccessErrors.of(status, body, model) ?: when {
         status == 401 || status == 403 -> ModelError.Auth()
-        status == 402 || body.contains("credit balance is too low") -> ModelError.QuotaExceeded()
+        // 429 正文里提到余额也不能盖掉 Retry-After:那是配额窗口,过一会儿会自己恢复
+        status == 402 || (status != 429 && body.contains("credit balance is too low")) ->
+            ModelError.QuotaExceeded(HttpSupport.retryAfterMs(retryAfter))
         status == 429 -> ModelError.RateLimited(HttpSupport.retryAfterMs(retryAfter))
         status == 413 || body.contains("prompt is too long") || ModelHttp.contextTooLong(status, body) -> ModelError.ContextTooLong()
         status == 404 -> ModelError.ModelNotFound(model, ModelAccessErrors.jsonDetail(body))

@@ -204,7 +204,7 @@ class ResponsesModel(
             status == 401 -> ModelError.Auth()
             status == 403 -> if (chatGptPlan) ModelError.ChatGptNotEligible(err?.message.orEmpty().take(200)) else ModelError.Auth()
             status == 429 -> if (chatGptPlan) ModelError.ChatGptLimitReached() else ModelError.RateLimited(HttpSupport.retryAfterMs(retryAfter))
-            status == 402 -> ModelError.QuotaExceeded()
+            status == 402 -> ModelError.QuotaExceeded(HttpSupport.retryAfterMs(retryAfter))
             ModelHttp.contextTooLong(status, body) -> ModelError.ContextTooLong()
             status == 404 -> ModelError.ModelNotFound(model, ModelAccessErrors.jsonDetail(body))
             status in 500..599 -> ModelError.Server(status)

@@ -63,7 +63,11 @@ internal object StopRules {
 
 internal fun userReason(e: ModelError): String = when (e) {
     is ModelError.Auth -> "模型服务拒绝了请求:API Key 无效或没有权限。请在设置里检查 API Key 是否填写正确、是否有权使用该模型。"
-    is ModelError.QuotaExceeded -> "模型账户额度已用完,请检查服务商账户的余额或套餐。"
+    // 免费档按分钟/按日重置、套餐按小时重置:不是「永远用不了」,说清什么时候可以再试
+    is ModelError.QuotaExceeded -> if (e.retryAfterMs == null)
+        "模型账户额度已用完,请检查服务商账户的余额或套餐。免费档的额度通常按分钟或按天重置,到时候会自动恢复;也可以在设置里换一个模型。"
+    else
+        "这个服务商的额度暂时用完了,约 ${(e.retryAfterMs + 59_999) / 60_000} 分钟后可以再试。也可以先在设置里换一个模型。"
     is ModelError.TaskBudgetExceeded -> "已达到本任务 ${e.limit} Token 的预算上限,任务没有完成。"
     is ModelError.DailyBudgetExceeded ->
         "服务商「${e.providerName}」已达到今天 ${e.limit} Token 的预算上限,任务没有完成。本地日期变更后会自动恢复。"

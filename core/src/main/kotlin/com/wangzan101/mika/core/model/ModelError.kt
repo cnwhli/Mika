@@ -4,7 +4,12 @@ import com.wangzan101.mika.core.net.ProxyFailure
 
 sealed class ModelError(message: String, cause: Throwable? = null) : Exception(message, cause) {
     class Auth : ModelError("API Key 无效或没有权限")
-    class QuotaExceeded : ModelError("额度已用完")
+    /**
+     * 账户额度不足(402 / insufficient_quota)。[retryAfterMs] 是服务端明确说的「多久以后可以再试」,
+     * 没有为 null。它不改变「这次不要再重试同一个请求」的语义,但让调用方知道这不是一个没有期限的结论:
+     * 免费档按分钟／按日重置、套餐按小时重置,窗口过去就该自动复活,而不是一直显示额度用尽。
+     */
+    class QuotaExceeded(val retryAfterMs: Long? = null) : ModelError("额度已用完")
     /** 本任务的已报告用量达到预算；不再发起任何收尾或重试请求。 */
     class TaskBudgetExceeded(val limit: Long, val used: Long) : ModelError("本任务的 Token 预算已用完")
     /** 这家服务商今天在本地已报告的用量达到预算；[providerName] 只用于给用户说明是哪一家。 */

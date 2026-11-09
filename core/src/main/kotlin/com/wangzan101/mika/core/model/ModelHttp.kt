@@ -25,7 +25,10 @@ object ModelHttp {
     fun openAiError(status: Int, retryAfter: String?, body: String, model: String): ModelError =
         ModelAccessErrors.of(status, body, model) ?: reasoningEffortRejected(status, body) ?: when {
             status == 401 -> ModelError.Auth()
-            status == 402 || body.contains("insufficient_quota") -> ModelError.QuotaExceeded()
+            // 429 是限流/配额窗口,服务端常带 Retry-After;正文里提到 insufficient_quota 也不能当成
+            // 「账户余额不足」(那样会不重试、还让人去查余额),一律按可恢复的限流处理。
+            status == 402 || (status != 429 && body.contains("insufficient_quota")) ->
+                ModelError.QuotaExceeded(HttpSupport.retryAfterMs(retryAfter))
             status == 429 -> ModelError.RateLimited(HttpSupport.retryAfterMs(retryAfter))
             contextTooLong(status, body) -> ModelError.ContextTooLong()
             status == 404 -> ModelError.ModelNotFound(model, ModelAccessErrors.jsonDetail(body))

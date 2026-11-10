@@ -25,6 +25,10 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 
 <br/>
 
+[Official site & downloads](https://noy.127068.xyz/) · [Source & releases](https://github.com/cnwhli/nuoyi) · [Issues](https://github.com/cnwhli/nuoyi/issues/new)
+
+<br/>
+
 <img src="docs/media/wechat-send-side.gif" alt="From one sentence, Nuoyi opens WeChat on its background screen, finds the contact and sends the message" width="640" />
 
 <sub>"Send a message to File Transfer": Nuoyi's chat on the left, each step on its background screen on the right (4× speed; chat list blurred)</sub>
@@ -74,14 +78,14 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 
 ## Get started in three steps
 
-1. **Install**: install the 诺伊 APK from your own distribution channel (own site or app store). 自有发布渠道接入后下载链接会放在这里；不要从上游 Mika 仓库下载，那是另一个应用。
+1. **Install**: download the signed 诺伊 APK from the [official site](https://noy.127068.xyz/download/) (or its [GitHub Releases](https://github.com/cnwhli/nuoyi/releases)) and check the SHA-256 on that page first. Do not install APKs from the upstream Mika repository — that is a different app with a different signature.
 2. **Connect a model**: in Settings › Model, pick a provider and enter an API key, or just sign in with an account ([models and sign-in](docs/models.en.md)).
 3. **To operate phone apps**: follow the "Set up phone control" wizard in Settings and pair wireless debugging on the phone once ([setup guide](docs/setup-guide.en.md)). Skip this if you only want chat, web and files.
 
 Then try saying: "Set alarms for 9:40 and 10:00 tomorrow morning" or "Check the weather at 8 every morning and tell me only if it will rain".
 
 > 💡 Have a computer handy? Send this to the AI agent on it and it will set everything up for you:<br/>
-> `Follow https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.en.md to install Nuoyi on the Android phone connected over USB.`
+> `Follow https://github.com/cnwhli/nuoyi/blob/main/docs/install-with-agent.en.md to install Nuoyi on the Android phone connected over USB.`
 
 ## What it can do
 
@@ -136,12 +140,12 @@ You can also skip the key and sign in with a ChatGPT (Plus / Pro), xAI / Grok or
 | Operating phone apps | Android 12 or later; **Android 14+ recommended** (the background screen has its own focus, so it doesn't get in the way of your typing on the main screen) |
 | Linux sandbox | arm64 devices |
 
-Not sure your phone is up to it? Run Settings › Recovery & repair › **Compatibility self-check**: 12 checks in about a minute, and you can [send us the results](https://github.com/wangzan101/Mika/issues/new?template=device-report.yml) in one tap.
+Not sure your phone is up to it? Run Settings › Recovery & repair › **Compatibility self-check**: 12 checks in about a minute, and you can [send us the results](https://github.com/cnwhli/nuoyi/issues/new?template=device-report.yml) in one tap.
 
 ## Privacy & safety
 
 - **There is no Nuoyi server**: what you say and what's on your screen go only to the model provider you set up.
-- API keys and memories are stored encrypted on the phone; conversations and run records stay on the device; update checks only contact GitHub.
+- API keys and memories are stored encrypted on the phone; conversations and run records stay on the device; update checks contact the official site and its own GitHub mirror only.
 - Operating third-party apps and websites automatically may break their terms of service, so use your own judgment. For anything important, use Ask mode and check the results. See the [disclaimer](docs/disclaimer.en.md).
 
 <details>
@@ -157,7 +161,7 @@ Not sure your phone is up to it? Run Settings › Recovery & repair › **Compat
 
 **Is the app in English?** Yes. The app UI comes in English, Arabic, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, Portuguese, Russian and Indonesian, follows your system language, and can be switched in Settings › Language. The built-in app and website knowledge is written in Chinese, but that doesn't limit you: the model reads it fine, and you can talk to Nuoyi in English.
 
-**Where do updates come from?** 自有发布渠道接入前，App 不会自动检查更新，也不会从别处下载安装包；升级由分发渠道提供。接入自有渠道后可在 About › Check for updates 中开启。
+**Where do updates come from?** The [official site](https://noy.127068.xyz/) publishes the version manifest and the checksums; APK files are hosted on this repository's Releases. The app verifies the download host, size, SHA-256, package name, version and signing certificate before installing. If the site is unreachable it reads the same manifest from the repository mirror.
 
 More answers are in the [FAQ](docs/faq.en.md).
 
@@ -168,7 +172,7 @@ More answers are in the [FAQ](docs/faq.en.md).
 诺伊基于 [Mika](https://github.com/wangzan101/Mika)（Apache-2.0, Copyright 2026 wangzan101）
 二次开发，与上游项目无隶属或背书关系。上游的 [LICENSE](LICENSE)、[NOTICE](NOTICE) 与
 [第三方组件声明](licenses/THIRD_PARTY_NOTICES.md) 一并保留；上游文档见
-[docs index](docs/README.en.md)，问题反馈请先联系本产品的分发渠道。
+[docs index](docs/README.en.md)，问题反馈请到 [本仓库 Issues](https://github.com/cnwhli/nuoyi/issues/new)。
 
 ## Star History
 

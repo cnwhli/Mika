@@ -38,7 +38,8 @@ class NuoyiLinksTest {
     @Test
     fun issueUrlIsEncoded() {
         val url = NuoyiLinks.issueUrl(device)
-        assertTrue(url.startsWith("https://github.com/wangzan101/Mika/issues/new?title=&body="))
+        assertTrue(url.startsWith("${NuoyiLinks.NEW_ISSUE}?title=&body="))
+        assertTrue(url.startsWith("https://github.com/cnwhli/nuoyi/issues/new?"))
         val query = url.substringAfter('?')
         assertFalse("no raw spaces or newlines", query.any { it == ' ' || it == '\n' || it == '+' })
         assertFalse("no raw non-ASCII", query.any { it.code > 127 })
@@ -46,5 +47,26 @@ class NuoyiLinksTest {
         URI(url)
         val body = URLDecoder.decode(query.substringAfter("body="), "UTF-8")
         assertEquals(NuoyiLinks.issueBody(device), body)
+    }
+
+    /** 公版与个人版的清单分开:两个版本 applicationId 不同,不能互相覆盖安装。 */
+    @Test
+    fun eachEditionHasItsOwnManifestAndMirror() {
+        assertEquals("https://noy.127068.xyz/api/latest.json", NuoyiLinks.latestReleaseApi("public"))
+        assertEquals("https://noy.127068.xyz/api/latest-personal.json", NuoyiLinks.latestReleaseApi("personal"))
+        assertTrue(NuoyiLinks.latestReleaseMirror("public").endsWith("/site/api/latest.json"))
+        assertTrue(NuoyiLinks.latestReleaseMirror("personal").endsWith("/site/api/latest-personal.json"))
+    }
+
+    /** 上游只作 Apache-2.0 署名,发布与更新绝不再指向它。 */
+    @Test
+    fun upstreamIsAttributionOnly() {
+        assertEquals("https://github.com/wangzan101/Mika", NuoyiLinks.UPSTREAM_REPO)
+        for (url in listOf(NuoyiLinks.SITE, NuoyiLinks.REPO, NuoyiLinks.RELEASES, NuoyiLinks.NEW_ISSUE,
+            NuoyiLinks.LATEST_RELEASE_API, NuoyiLinks.PERSONAL_LATEST_RELEASE_API)) {
+            assertFalse(url.contains("wangzan101"))
+        }
+        assertEquals("https://noy.127068.xyz", NuoyiLinks.SITE)
+        assertEquals("https://github.com/cnwhli/nuoyi/releases", NuoyiLinks.RELEASES)
     }
 }

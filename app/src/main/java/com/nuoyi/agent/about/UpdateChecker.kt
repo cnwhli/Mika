@@ -51,7 +51,8 @@ object UpdateSchedule {
 }
 
 /**
- * 检查更新,没有自己的服务器:只问 GitHub 发布页接口;连不上、限流、读不懂都算这次没查到。
+ * 检查更新:先问自有官网的版本清单(GitHub releases/latest 字段格式),官网不可用再读仓库里
+ * 同一份清单的镜像。连不上、读不懂都算这次没查到;绝不去上游仓库查它的发布。
  * 查到的版本和上次自动检查的时间存在 [file],App 重开后红点还在;装了新版后当前版本不再落后,红点自然消失。
  * 这里只检查版本；用户主动下载、安装由 [ApkUpdater] 处理。
  */
@@ -59,7 +60,7 @@ class UpdateChecker(
     private val file: File,
     private val currentVersion: String,
     private val client: OkHttpClient = defaultClient(),
-    private val releaseApi: String = NuoyiLinks.LATEST_RELEASE_API,
+    private val releaseApi: String = NuoyiLinks.latestReleaseApi(),
     private val now: () -> Long = System::currentTimeMillis,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     /** 本机支持的 ABI(Build.SUPPORTED_ABIS),用来挑发布里合适的 APK;为空时取全架构包。 */
@@ -110,13 +111,20 @@ class UpdateChecker(
     }
 
     /**
-     * 最新的发布;没查到为空。自有发布渠道未接好前不去上游仓库查：
-     * 上游的 release 是另一个应用，查到了会让用户下载安装上游 APK。
-     * 测试/自有渠道传入的自定义 [releaseApi] 不受此限制。
+     * 最新的发布;没查到为空。只有默认渠道(官网清单)才追加镜像兜底,测试注入的地址一律只问它自己。
+     * 上游仓库的 release 是另一个应用,任何情况下都不作来源。
      */
     internal fun fetchLatest(): ReleaseInfo? {
-        if (!NuoyiLinks.UPDATES_CHANNEL_READY && releaseApi == NuoyiLinks.LATEST_RELEASE_API) return null
-        return runCatching { Releases.fromGitHub(get(releaseApi), deviceAbis) }.getOrNull()
+        val personal = releaseApi == NuoyiLinks.PERSONAL_LATEST_RELEASE_API
+        val official = releaseApi == NuoyiLinks.LATEST_RELEASE_API || personal
+        if (!NuoyiLinks.UPDATES_CHANNEL_READY && official) return null
+        val sources = buildList {
+            add(releaseApi)
+            if (official) add(NuoyiLinks.latestReleaseMirror(if (personal) "personal" else "public"))
+        }
+        return sources.firstNotNullOfOrNull { url ->
+            runCatching { Releases.fromGitHub(get(url), deviceAbis) }.getOrNull()
+        }
     }
 
     private fun get(url: String): String {
@@ -160,7 +168,7 @@ class UpdateChecker(
     }
 
     companion object {
-        /** 有的网络连 GitHub 时快时慢:超时放短,失败就换备用来源。走设置 › 网络代理。 */
+        /** 有的网络连官网或 GitHub 时快时慢:超时放短,失败就换备用来源。走设置 › 网络代理。 */
         fun defaultClient(): OkHttpClient = NetProxy.shared.client(OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(8, TimeUnit.SECONDS)

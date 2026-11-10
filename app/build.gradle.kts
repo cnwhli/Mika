@@ -1,8 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+}
+
+// 正式版签名只从本机 keystore.properties 读取(已 gitignore);没有它的机器编出未签名的
+// release 包,不会把密钥或密码带进仓库、CI 日志或分发包。
+val releaseKeystoreProps: Properties? = rootProject.file("keystore.properties").takeIf { it.isFile }?.let { f ->
+    Properties().apply { f.inputStream().use(::load) }
 }
 
 // 自有品牌。换名字只改这三行。namespace 与 applicationId 都已是自有包名
@@ -21,6 +29,17 @@ val gitHash: String = runCatching {
 android {
     namespace = "com.nuoyi.agent"
     compileSdk = 36
+
+    signingConfigs {
+        releaseKeystoreProps?.let { p ->
+            create("release") {
+                storeFile = rootProject.file(p.getProperty("storeFile"))
+                storePassword = p.getProperty("storePassword")
+                keyAlias = p.getProperty("keyAlias")
+                keyPassword = p.getProperty("keyPassword")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = brandApplicationId
@@ -89,6 +108,10 @@ android {
     sourceSets.getByName("androidTest").assets.srcDir(rootProject.file("eval/tasks"))
 
     buildTypes {
+        getByName("release") {
+            // 对外分发的包一律用自有证书;证书轮换会让用户无法覆盖安装,务必保管好本机密钥库。
+            signingConfig = signingConfigs.findByName("release")
+        }
         // 真机验收时并排安装,保留发行版和用户数据;默认构建标识不变。
         if (providers.gradleProperty("devInstall").isPresent) getByName("debug") {
             applicationIdSuffix = ".dev"

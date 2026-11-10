@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>隐私说明 · 诺伊 Nuoyi</title>
+<meta name="description" content="诺伊 Nuoyi 的数据存放位置、模型请求流向、语音与屏幕内容处理、更新请求与第三方组件许可说明。" />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://noy.127068.xyz/privacy/" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+    <button class="menu-toggle" aria-label="展开导航" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="../">首页</a><a href="../download/">下载</a><a href="../guide/">使用指南</a><a class="active" href="./">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
+      <a class="btn btn-primary btn-sm" href="../download/">获取 APK</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head"><div class="wrap">
+    <span class="eyebrow">隐私说明</span>
+    <h1>你的手机，你的数据</h1>
+    <p class="lead">这份说明讲清楚诺伊把什么留在本机、什么会发给谁、以及哪些动作需要你先同意。它不是法律文件，具体以应用内实际权限与开源代码为准。</p>
+  </div></section>
+
+  <section class="section tight"><div class="wrap article">
+    <h2>留在本机的内容</h2>
+    <ul>
+      <li>会话记录、任务记录、设置、唤醒词（个人版）、你填入的模型 Key 与各服务商额度状态，保存在应用私有数据目录。</li>
+      <li>检查更新的结果、自动更新下载的安装包，也只存在应用自己的外部专属目录，安装完成或取消后清理。</li>
+      <li>诊断信息不会自动上传：需要你在「关于 → 反馈问题 → 复制诊断信息」里主动复制，再自行决定是否贴到 Issues。</li>
+    </ul>
+    <p>卸载应用会一并删除这些本机数据；更换设备不会自动同步。</p>
+
+    <h2>会发出的网络请求</h2>
+    <ul>
+      <li><strong>模型请求：</strong>发往你在设置里配置的服务商。请求内容取决于任务本身，可能包含对话文字、你提供的文本；当任务需要模型理解屏幕时，可能包含屏幕上的文字或画面描述。<strong>发送前请确认你所用服务商的数据处理条款。</strong></li>
+      <li><strong>网页访问：</strong>任务要求打开某个网页时，会像浏览器一样访问该站点。</li>
+      <li><strong>更新检查：</strong>只请求官网版本清单与其仓库镜像；下载安装包时访问自有 GitHub Releases 附件。这些请求不携带你的会话内容或设备标识清单。</li>
+    </ul>
+    <div class="callout">问「诺伊你是谁」这类身份问题由本地代码直接回答，不发网络请求、不消耗额度。额度路由也只使用官方公开免费档与你自己的 Key，不向第三方共享额度服务发请求。</div>
+
+    <h2>麦克风、语音与屏幕</h2>
+    <ul>
+      <li>公版不含常驻热词代码，只有你通过系统语音入口或应用内按钮主动发起时才使用麦克风。</li>
+      <li>个人版的本地常驻热词需要你明确开启并授权麦克风；热词模型在本机运行，不上传音频流，随时可关闭。</li>
+      <li>识别与播报为半双工：播报时关麦，避免录到自己的声音；确认词命中才会继续执行敏感动作。</li>
+      <li>后台屏幕的画面理解优先在本机完成；只有任务确实需要模型判断时，相关文字或画面描述才会随模型请求发往你配置的服务商。</li>
+    </ul>
+
+    <h2>权限与最小化</h2>
+    <p>麦克风、通知、无障碍/辅助功能与系统调试权限都按需申请，可以单独关闭；关闭后相应能力会明确提示不可用，不会在后台偷偷重试。敏感动作（发消息、下单、删除等）需要你二次确认后才执行。</p>
+
+    <h2>安装包完整性</h2>
+    <p>App 内更新只接受官网与自有仓库的 HTTPS 附件地址，下载后校验大小、SHA-256、包名、版本与签名证书；签名不一致会拒绝安装。<a href="../download/">下载页</a>公布每个安装包的摘要与证书指纹，便于人工核对。</p>
+
+    <h2>第三方组件与许可</h2>
+    <p>项目基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发；PRoot 采用 GPL-2.0-or-later，talloc 采用 LGPL，其余第三方库许可见仓库 <code>LICENSE</code>、<code>NOTICE</code> 与 <code>licenses/THIRD_PARTY_NOTICES.md</code>。源码公开，可自行审读与构建。</p>
+
+    <h2>反馈与更正</h2>
+    <p>如果发现本说明与实际行为不一致，请在 <a href="https://github.com/cnwhli/nuoyi/issues/new" target="_blank" rel="noopener">GitHub Issues</a> 提出；提交设备信息前请先删掉个人内容。</p>
+    <p style="margin-top:24px;color:var(--faint);font-size:13px">最后更新：2026-11-10 · 适用于 v0.1.38</p>
+  </div></section>
+</main>
+
+<footer class="footer"><div class="wrap footer-grid">
+  <div><a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a><p style="color:var(--faint);font-size:13px;margin-top:12px">喊一声，事情就办完了。</p></div>
+  <div class="footer-links"><a href="../">首页</a><a href="../download/">下载</a><a href="../guide/">使用指南</a><a href="./">隐私</a><a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a></div>
+</div><div class="wrap"><p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · 基于 Apache-2.0 项目二次开发</p></div></footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

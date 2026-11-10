@@ -10,21 +10,29 @@ class ApkIntegrityTest {
     @get:Rule val temp = TemporaryFolder()
 
     @Test fun acceptsOfficialApk() {
-        ApkIntegrity.requireOfficialUrl("https://github.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk")
+        ApkIntegrity.requireOfficialUrl("https://github.com/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi-v0.2.0-public.apk")
+    }
+
+    @Test fun acceptsOfficialSiteApk() {
+        ApkIntegrity.requireOfficialUrl("https://noy.127068.xyz/download/Nuoyi-v0.2.0-public.apk")
+        ApkIntegrity.requireOfficialUrl("https://noy.127068.xyz/releases/download/v0.2.0/Nuoyi-v0.2.0-arm64.apk")
     }
 
     @Test fun rejectsUntrustedDownloads() {
         for (url in listOf(
-            "http://github.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
-            "https://github.com.evil.test/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
+            "http://github.com/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.apk",
+            "https://github.com.evil.test/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.apk",
             "https://github.com/other/Nuoyi/releases/download/v0.2.0/Nuoyi.apk",
-            "https://github.com/wangzan101/Mika/releases/download/../../other.apk",
-            "https://github.com/wangzan101/Mika/releases/download/%2e%2e/%2E%2e/%2e%2e/%2e%2e/other/x.apk",
-            "https://objects.githubusercontent.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
-            "https://github.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.zip",
-            "https://github.com/wangzan101/Mika/releases/tag/v0.2.0",
-            "https://user:pass@github.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
-            "https://github.com:8443/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
+            "https://noy.127068.xyz.evil.test/download/Nuoyi.apk",
+            "https://github.com/cnwhli/nuoyi/releases/download/../../other.apk",
+            "https://github.com/cnwhli/nuoyi/releases/download/%2e%2e/%2E%2e/%2e%2e/%2e%2e/other/x.apk",
+            "https://objects.githubusercontent.com/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.apk",
+            "https://github.com/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.zip",
+            "https://github.com/cnwhli/nuoyi/releases/tag/v0.2.0",
+            "https://user:pass@github.com/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.apk",
+            "https://github.com:8443/cnwhli/nuoyi/releases/download/v0.2.0/Nuoyi.apk",
+            // 上游仓库是另一个应用,它的附件一律不作为本应用的更新
+            "https://github.com/wangzan101/Mika/releases/download/v0.2.0/Nuoyi.apk",
         )) rejects { ApkIntegrity.requireOfficialUrl(url) }
     }
 

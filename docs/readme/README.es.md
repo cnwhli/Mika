@@ -1,4 +1,4 @@
-<!-- translated-from: README.md @ 82d999343cec -->
+<!-- translated-from: README.md @ e764dd61c413 -->
 <div align="center">
 
 <img src="../media/logo.png" alt="Nuoyi" width="88" />

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>诺伊 Nuoyi · 喊一声，事情就办完了</title>
+<meta name="description" content="诺伊是可语音唤醒的 Android 智能体：说出要办的事，它在后台屏幕上把应用和网页操作完，再把结果念给你听。公版与个人版下载、安装指南、更新渠道与隐私说明。" />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://noy.127068.xyz/" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></g></symbol>
+  <symbol id="i-screen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M9 6.5h6M9 10h6M9 13.5h3"/><circle cx="12" cy="18" r="1"/></g></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9z"/></g></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.5v6c0 4.7 3.2 8.4 7.5 10 4.3-1.6 7.5-5.3 7.5-10v-6z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></g></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M13.5 2 5 13.5h6l-1 8.5L19 10.5h-6z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></g></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 18.5V21h16v-2.5"/></g></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-5.5-5.5M19 12l-5.5 5.5"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="./"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+    <button class="menu-toggle" aria-label="展开导航" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="主导航">
+      <a class="active" href="./">首页</a>
+      <a href="download/">下载</a>
+      <a href="guide/">使用指南</a>
+      <a href="privacy/">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
+      <a class="btn btn-primary btn-sm nav-cta" href="download/"><svg><use href="#i-download"/></svg>获取 APK</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Android 11+ · 语音优先的手机智能体</span>
+        <h1>喊一声<span class="grad">「诺伊」</span><br />事情就办完了</h1>
+        <p class="lead">说出要办的事，诺伊会在后台屏幕上把应用和网页一步步操作完，再把结果念给你听。不用盯着屏幕，也不用一直用手点。</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="download/"><svg><use href="#i-download"/></svg>下载公版 v0.1.38</a>
+          <a class="btn btn-ghost" href="guide/">先看怎么设置 <svg><use href="#i-arrow"/></svg></a>
+        </div>
+        <div class="hero-meta">
+          <span><span class="dot"></span>官网发布渠道 noy.127068.xyz</span>
+          <span>Apache-2.0 开源</span>
+          <span>2026-11-10 构建</span>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="wave" aria-hidden="true">
+          <i style="height:32px;animation-delay:0s"></i><i style="height:58px;animation-delay:.1s"></i><i style="height:82px;animation-delay:.2s"></i><i style="height:46px;animation-delay:.3s"></i><i style="height:70px;animation-delay:.4s"></i><i style="height:38px;animation-delay:.5s"></i><i style="height:64px;animation-delay:.6s"></i><i style="height:28px;animation-delay:.7s"></i><i style="height:52px;animation-delay:.8s"></i><i style="height:76px;animation-delay:.9s"></i><i style="height:40px;animation-delay:1s"></i><i style="height:60px;animation-delay:1.1s"></i>
+        </div>
+        <div class="voice-line">
+          <div class="bubble user"><small>你说</small>诺伊，帮我看看今天的群聊说了什么</div>
+          <div class="bubble bot"><small>诺伊在后台屏幕上</small>打开应用 → 翻完消息 → 整理要点</div>
+          <div class="bubble bot"><small>念给你听</small><strong>今天主要聊了三件事：……</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap">
+      <div class="identity reveal">
+        <p class="q">问：诺伊你是谁？</p>
+        <p class="a">「我是李万禧的女儿，数字女儿」</p>
+        <p class="note">这句回答写死在代码里：无论从打字、语音、通知回复还是任务中插话问起，都由本地直接应答，不经过模型、不消耗额度、不联网。唤醒词与品牌同名也不会被误剥成「是谁」。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <span class="eyebrow">能做什么</span>
+      <h2 class="title">不用一直盯着手机，也不用一直用手</h2>
+      <p class="lead">诺伊把「听懂一句话」变成一串可检查的动作，每一步都能在后台屏幕上看见，敏感动作会先停下来问你。</p>
+      <div class="grid grid-3" style="margin-top:38px">
+        <article class="card reveal"><div class="ico"><svg><use href="#i-mic"/></svg></div><h3>语音唤起，结果念出来</h3><p>通过系统数字助手入口叫起；个人版另有本地常驻热词，唤醒词可自定义。识别、播报与确认都在本机完成，说话时自动关麦避免自己听自己。</p></article>
+        <article class="card reveal"><div class="ico"><svg><use href="#i-screen"/></svg></div><h3>后台屏幕上替你操作</h3><p>在独立的后台显示区域打开应用、点击、输入、滚动，你的前台屏幕照常用；想看进度随时点开小窗。</p></article>
+        <article class="card reveal"><div class="ico"><svg><use href="#i-globe"/></svg></div><h3>任意 App 与网页</h3><p>按屏幕上的实际画面找按钮，不依赖每个应用的私有接口；内置浏览器里可以直接就当前网页提要求。</p></article>
+        <article class="card reveal"><div class="ico"><svg><use href="#i-shield"/></svg></div><h3>敏感动作二次确认</h3><p>发消息、付款、删除这类动作会先复述并等你确认；半双工语音设计，听的时候不抢话，确认词有明确边界。</p></article>
+        <article class="card reveal"><div class="ico"><svg><use href="#i-bolt"/></svg></div><h3>免费档自动接力</h3><p>额度感知路由只使用各家官方公开免费档与你自己的 Key；遇到 429 / 额度耗尽自动冷却切换，到期自愈，不碰来路不明的共享额度。</p></article>
+        <article class="card reveal"><div class="ico"><svg><use href="#i-layers"/></svg></div><h3>可验证的更新链路</h3><p>官网发布版本清单，安装包托管在 GitHub Releases；下载前校验官方域名，下载后校验大小、SHA-256、包名、版本与签名证书。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight" id="flow">
+    <div class="wrap">
+      <span class="eyebrow">免手流程</span>
+      <h2 class="title">三步，从一句话到办完</h2>
+      <div class="steps" style="margin-top:36px">
+        <div class="step reveal"><h3>叫起诺伊</h3><p>公版设为系统数字助手后，用系统语音入口唤起；个人版可直接喊自定义唤醒词，热词只在本地跑。</p></div>
+        <div class="step reveal"><h3>说要办的事</h3><p>一句话说清目标，诺伊把它拆成可执行步骤；需要登录、授权或涉及敏感操作时先问你。</p></div>
+        <div class="step reveal"><h3>听结果</h3><p>后台屏幕逐步执行，完成后语音播报要点；中途随时插话改方向或叫停。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="editions">
+    <div class="wrap">
+      <span class="eyebrow">两个发行版本</span>
+      <h2 class="title">公版对外，个人版自用</h2>
+      <p class="lead">两份 APK 用同一份代码、同一套签名体系分别构建，包名不同，可以并排安装、数据互不覆盖。</p>
+      <div class="table-wrap" style="margin-top:32px">
+        <table>
+          <thead><tr><th>对比项</th><th>公版 <span class="tag">对外分发</span></th><th>个人版 <span class="tag">自用侧载</span></th></tr></thead>
+          <tbody>
+            <tr><td><strong>唤醒词</strong></td><td class="yes">固定「诺伊」</td><td class="yes">可自定义，出厂也是「诺伊」</td></tr>
+            <tr><td><strong>本地常驻热词</strong></td><td class="no">不包含（公版编译期就不带这段代码）</td><td class="yes">包含，真正免手唤起</td></tr>
+            <tr><td><strong>语音入口</strong></td><td>系统数字助手 / App Actions</td><td>系统数字助手 + 本地热词</td></tr>
+            <tr><td><strong>常驻麦克风</strong></td><td class="no">无</td><td>仅在热词服务运行时，需用户明确授权</td></tr>
+            <tr><td><strong>应用包名</strong></td><td><code>com.nuoyi.agent</code></td><td><code>com.nuoyi.agent.personal</code></td></tr>
+            <tr><td><strong>更新清单</strong></td><td>官网 <code>api/latest.json</code></td><td>官网 <code>api/latest-personal.json</code></td></tr>
+            <tr><td><strong>适用对象</strong></td><td>对外发布、应用商店合规路径</td><td>自用设备，需自行侧载安装</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="lead" style="margin-top:18px;font-size:14.5px">公版受 Android 系统限制：系统级常驻热词接口不对普通应用开放，常驻麦克风也受系统与应用市场政策约束，因此把常驻热词只放在个人版。</p>
+    </div>
+  </section>
+
+  <section class="section tight" id="trust">
+    <div class="wrap grid grid-2">
+      <div>
+        <span class="eyebrow">发布与安全</span>
+        <h2 class="title">从官网下载，验完再装</h2>
+        <p class="lead">官网是唯一对外发布渠道；版本清单、校验值与安装说明都在这里。安装包文件托管在自有 GitHub Releases，App 内更新只认官网清单与自有仓库附件。</p>
+        <div class="hero-actions" style="margin-top:26px">
+          <a class="btn btn-primary" href="download/">查看全部下载与校验值</a>
+          <a class="btn btn-ghost" href="api/latest.json">版本清单 JSON</a>
+        </div>
+      </div>
+      <div class="card" style="padding:30px">
+        <h3>四道校验</h3>
+        <p style="margin-bottom:16px">下载前和下载后各有一层，任何一层不过就拒绝安装。</p>
+        <ul style="color:var(--muted);font-size:14.5px;padding-left:20px;margin:0">
+          <li style="margin:8px 0">下载地址只允许官网与自有仓库的 HTTPS 附件路径</li>
+          <li style="margin:8px 0">文件大小与 SHA-256 摘要必须和清单一致</li>
+          <li style="margin:8px 0">包名必须等于当前应用，版本必须更新</li>
+          <li style="margin:8px 0">签名证书必须与已安装版本一致，系统安装器还会再验一次</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap" style="max-width:860px">
+      <span class="eyebrow">常见问题</span>
+      <h2 class="title">装之前你可能想问</h2>
+      <div class="faq" style="margin-top:30px">
+        <details><summary>需要 Root 吗？</summary><p>不需要 Root 也能安装并使用对话、语音问答、网页阅读等能力。部分「替你操作其它 App」的自动化执行能力依赖系统 shell 权限，需要按指南通过无线调试 / USB 调试或设备已提供的 root 通道开启；未开启时 App 会明确提示，不会假装执行成功。</p></details>
+        <details><summary>公版能改唤醒词吗？</summary><p>不能。公版唤醒词固定为「诺伊」，运行时也会拒绝修改；自定义唤醒词与常驻热词是个人版能力。这样公版可以不含常驻麦克风能力，方便对外分发与合规审核。</p></details>
+        <details><summary>模型 Key 和额度怎么处理？</summary><p>Key 由你自己填入并保存在本机。额度路由只使用服务商官方公开的免费档和你自己的 Key，遇到限流或额度耗尽会自动冷却并切换到下一个可用候选，恢复后自愈；不提供、也不使用来路不明的共享额度。</p></details>
+        <details><summary>为什么官网和 GitHub 都要用？</summary><p>官网 <code>noy.127068.xyz</code> 是发布渠道：版本清单、下载页、文档与校验值都在这里。GitHub 仓库 <code>cnwhli/nuoyi</code> 存源码、发布附件与问题反馈。官网暂时不可达时，App 会从仓库里同一份清单的镜像读取版本信息。</p></details>
+        <details><summary>这个项目是开源的吗？</summary><p>是，按 Apache-2.0 许可发布，基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a> 二次开发，保留原项目版权与许可声明。PRoot 等第三方组件按其各自许可（GPL / LGPL）单独声明，详见仓库 LICENSE、NOTICE 与 licenses 目录。</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap center">
+      <h2 class="title">现在就把诺伊装上</h2>
+      <p class="lead">下载公版，设为系统数字助手，说一句试试。想真正免手，看下载页里的个人版。</p>
+      <div class="hero-actions" style="justify-content:center">
+        <a class="btn btn-primary" href="download/"><svg><use href="#i-download"/></svg>前往下载页</a>
+        <a class="btn btn-ghost" href="https://github.com/cnwhli/nuoyi/releases" target="_blank" rel="noopener">GitHub Releases ↗</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="brand" href="./"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+      <p style="color:var(--faint);font-size:13px;margin-top:12px">喊一声，事情就办完了。</p>
+    </div>
+    <div class="footer-links">
+      <a href="download/">下载</a>
+      <a href="guide/">使用指南</a>
+      <a href="privacy/">隐私说明</a>
+      <a href="api/latest.json">版本清单</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a>
+      <a href="https://github.com/cnwhli/nuoyi/issues/new" target="_blank" rel="noopener">反馈问题</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="footer-note">诺伊 Nuoyi 基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。本站为唯一对外发布渠道，请只从本页或自有 GitHub Releases 下载安装包并核对 SHA-256。</p>
+    <p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · 版本 v0.1.38</p>
+  </div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

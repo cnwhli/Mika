@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>使用指南 · 诺伊 Nuoyi</title>
+<meta name="description" content="诺伊 Nuoyi 安装、设为系统数字助手、语音唤起、模型 Key、执行权限与更新校验的完整指南。" />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://noy.127068.xyz/guide/" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+    <button class="menu-toggle" aria-label="展开导航" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="../">首页</a><a href="../download/">下载</a><a class="active" href="./">使用指南</a><a href="../privacy/">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
+      <a class="btn btn-primary btn-sm" href="../download/">获取 APK</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head"><div class="wrap">
+    <span class="eyebrow">上手指南</span>
+    <h1>从安装到真正免手</h1>
+    <p class="lead">按下面顺序做一遍就能用。公版走系统数字助手入口，个人版多一步本地热词设置；两者的差别在<a href="../#editions">版本对比</a>里写清楚了。</p>
+  </div></section>
+
+  <section class="section tight"><div class="wrap article">
+    <h2>一、安装与授权</h2>
+    <ol>
+      <li>到 <a href="../download/">下载页</a> 取对应 APK，核对页面上的 SHA-256 后安装（Android 11 及以上）。</li>
+      <li>首次打开时按界面提示授予<strong>麦克风</strong>与<strong>通知</strong>权限；语音播报、识别与二次确认都需要它们。</li>
+      <li>涉及在后台屏幕操作其它应用的能力，会提示开启<strong>无障碍 / 辅助功能</strong>；不开启时相关能力不可用，其它能力照常。</li>
+      <li>在系统「设置 → 应用 → 默认应用 → 数字助手应用」中选择诺伊，之后就能从系统语音入口叫起。</li>
+    </ol>
+    <div class="callout">不要把从别处拿到的 APK 覆盖安装到诺伊上。App 会校验包名、版本与签名证书，签名不同的包一律拒绝；系统安装器也会再拦一次。</div>
+
+    <h2>二、语音唤起</h2>
+    <h3>公版</h3>
+    <p>唤醒词固定为「诺伊」，不可自定义，也不含常驻热词代码。通过系统数字助手入口（长按电源键、系统语音助手、App Actions）叫起后，直接说要办的事。</p>
+    <h3>个人版</h3>
+    <p>在应用内「语音设置」里可以改唤醒词并开启本地常驻热词。热词模型只在本机运行，服务需要你明确授权麦克风；随时可以关掉，关掉后回到系统助手入口的方式。</p>
+    <h3>说话与确认</h3>
+    <ul>
+      <li>识别与播报采用半双工：诺伊说话时会关麦，不会把自己的播报当成你的指令。</li>
+      <li>发消息、下单、删除等敏感动作会复述一遍并等你确认，明确的肯定/否定词才会继续。</li>
+      <li>任务运行中也能插话改方向或叫停；问「你是谁」不会打断正在做的事。</li>
+    </ul>
+
+    <h2>三、身份问答</h2>
+    <p>无论打字、语音、通知回复、定时任务，还是任务中途插话，只要问「诺伊你是谁」，都会由本地代码直接回答：</p>
+    <div class="pre"><code>我是李万禧的女儿，数字女儿</code></div>
+    <p>这条应答不经过模型、不消耗额度、不发起网络请求，也不会被品牌名与唤醒词同名的分词问题影响。</p>
+
+    <h2>四、模型与额度</h2>
+    <ul>
+      <li>在设置里填入<strong>你自己的</strong>服务商 Key，Key 保存在本机。</li>
+      <li>额度路由只使用服务商<strong>官方公开的免费档</strong>与你自己的 Key；不内置、不借用任何来路不明的共享额度。</li>
+      <li>遇到 429 / 402 / 额度耗尽会自动给该候选降温并切换，冷却结束后自愈重试；所有候选都不可用时明确告知，而不是静默失败。</li>
+      <li>把网络请求发往哪家服务商由你的配置决定，详见 <a href="../privacy/">隐私说明</a>。</li>
+    </ul>
+
+    <h2>五、自动化执行能力的前提</h2>
+    <p>让诺伊「替你点开其它 App、按屏幕上的按钮操作」，需要设备提供系统 shell 级别的执行权限。当前可用路径包括：设备已 root、通过无线调试 / USB 调试启动的 shell 会话，或厂商开放的同等级通道。</p>
+    <div class="notice">没有上述权限时，对话、语音问答、网页阅读、知识整理等能力仍可用；自动化执行会明确提示缺少权限，不会假装执行成功。面向所有普通用户的「无 root 降级执行路径」仍在开发中，本站不会把它描述成已具备的能力。</div>
+
+    <h2>六、更新与校验</h2>
+    <p>App 每次打开读取官网版本清单（<a href="../api/latest.json">公版</a> / <a href="../api/latest-personal.json">个人版</a>），官网不可达时读仓库里同一份清单的镜像。下载前只允许官网与自有仓库的 HTTPS 附件路径；下载后校验大小、SHA-256、包名、版本和签名证书。</p>
+    <p>自动更新是否自动下载，由「设置 → 自动更新」开关决定，默认关闭；下载完成也只会提示你安装，系统安装器仍会要求你确认。</p>
+
+    <h2>七、遇到问题</h2>
+    <ul>
+      <li><strong>叫不起来：</strong>确认已设为默认数字助手应用，麦克风权限已开；个人版再检查热词服务是否在运行。</li>
+      <li><strong>识别不准：</strong>说话前等提示音，尽量短句；嘈杂环境可以改用打字入口。</li>
+      <li><strong>更新一直提示失败：</strong>检查能否访问官网与 GitHub；也可以在关于页手动检查更新，或到 <a href="https://github.com/cnwhli/nuoyi/releases" target="_blank" rel="noopener">Releases</a> 手动下载。</li>
+      <li><strong>要反馈：</strong>关于页可以复制诊断信息（不会自动上传），贴到 <a href="https://github.com/cnwhli/nuoyi/issues/new" target="_blank" rel="noopener">Issues</a> 前请先删掉个人信息。</li>
+    </ul>
+  </div></section>
+</main>
+
+<footer class="footer"><div class="wrap footer-grid">
+  <div><a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a><p style="color:var(--faint);font-size:13px;margin-top:12px">喊一声，事情就办完了。</p></div>
+  <div class="footer-links"><a href="../">首页</a><a href="../download/">下载</a><a href="./">使用指南</a><a href="../privacy/">隐私</a><a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a></div>
+</div><div class="wrap"><p class="footer-note">基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。</p><p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi</p></div></footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

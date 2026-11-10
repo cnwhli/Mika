@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>下载诺伊 · 诺伊 Nuoyi</title>
+<meta name="description" content="下载诺伊 Nuoyi 公版与个人版正式签名 APK，含 SHA-256 校验值、签名证书指纹、安装步骤与更新渠道说明。" />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://noy.127068.xyz/download/" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 18.5V21h16v-2.5"/></g></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+    <button class="menu-toggle" aria-label="展开导航" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="../">首页</a>
+      <a class="active" href="./">下载</a>
+      <a href="../guide/">使用指南</a>
+      <a href="../privacy/">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
+      <a class="btn btn-primary btn-sm nav-cta" href="#apks"><svg><use href="#i-download"/></svg>选择安装包</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">官方发布渠道</span>
+      <div class="release-head"><h1>下载诺伊</h1><span class="tag">v__VERSION__</span><span class="tag">__DATE__</span></div>
+      <p class="lead">只从本页或自有 GitHub Releases 下载。下面每个安装包都给出大小与 SHA-256，装之前请核对；App 内更新也会做同样的校验。</p>
+    </div>
+  </section>
+
+  <section class="section tight" id="apks">
+    <div class="wrap">
+      <h2 class="title" style="font-size:28px">选择安装包</h2>
+      <p class="lead">普通用户选「公版 · 全架构」。设备是 arm64（绝大多数现代安卓机）可以选体积更小的专用包。个人版仅供自用侧载。</p>
+      <div class="apk-grid" id="apk-grid"><p class="lead">正在读取版本清单…… 若长时间没有内容，请前往 <a href="__RELEASE_URL__" target="_blank" rel="noopener">GitHub Releases</a> 下载。</p></div>
+      <div class="notice">公版与个人版包名不同，可以并排安装；但请用同一版本系列的更新包覆盖安装，不要拿另一版的 APK 当更新，App 会拒绝包名不符的安装包。</div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap article">
+      <h2>核对签名与校验值</h2>
+      <p>本版使用自有证书签名。签名证书 SHA-256 指纹：</p>
+      <div class="pre mono">__SIGNER__</div>
+      <p>下载完成后，在电脑上核对文件摘要（把文件名换成你下载的那一个）：</p>
+      <div class="pre"><code>shasum -a 256 Nuoyi-v__VERSION__-public.apk</code><br /><code>apksigner verify --print-certs Nuoyi-v__VERSION__-public.apk</code></div>
+      <p>摘要应与卡片上的 SHA-256 一致，证书指纹应与上面一致。App 内更新会自动完成大小、摘要、包名、版本与签名证书校验，任何一项不符都会拒绝安装。</p>
+      <div class="callout">系统要求：Android 11（API 30）及以上。安装包为正式签名 release 包，未开启调试；首次侧载需要在系统设置里允许「安装未知应用」。</div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap article">
+      <h2>安装与首次设置</h2>
+      <ol>
+        <li>下载对应 APK，核对 SHA-256 后点击安装。</li>
+        <li>打开诺伊，按界面提示授予麦克风、通知与必要的辅助功能权限。</li>
+        <li>在系统「默认数字助手应用」里选择诺伊，即可从系统语音入口叫起；个人版还可在应用内设置自定义唤醒词并开启本地热词。</li>
+        <li>需要使用「替你操作其它 App」的自动化能力时，按 <a href="../guide/">使用指南</a> 开启系统调试权限；未开启时相应能力会明确提示，不会静默失败。</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap article">
+      <h2>更新渠道</h2>
+      <p>官网是唯一对外发布渠道。App 每次打开会读取版本清单，官网暂时不可达时改读仓库里同一份清单的镜像；安装包文件始终来自自有 GitHub Releases。</p>
+      <ul>
+        <li>公版清单：<a href="../api/latest.json">api/latest.json</a></li>
+        <li>个人版清单：<a href="../api/latest-personal.json">api/latest-personal.json</a></li>
+        <li>镜像：<code>raw.githubusercontent.com/cnwhli/nuoyi/main/site/api/</code></li>
+        <li>发布页：<a href="__RELEASE_URL__" target="_blank" rel="noopener">GitHub Releases</a></li>
+      </ul>
+      <p>两个版本各用各的清单，避免个人版被公版 APK 覆盖。清单里的 APK 直链只允许落在官网下载目录或自有仓库的发布附件路径，其它域名的链接一律拒绝。</p>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap article">
+      <h2>本版更新说明</h2>
+      <ul>
+        <li>品牌与唤醒词统一为「诺伊」，公版唤醒词固定、个人版可自定义。</li>
+        <li>任何入口问「诺伊你是谁」，都由本地固定回答「我是李万禧的女儿，数字女儿」，不经过模型。</li>
+        <li>新增免手语音入口、系统数字助手会话、半双工关麦与敏感动作二次确认。</li>
+        <li>新增额度感知路由：官方公开免费档与自有 Key 之间自动切换、冷却与恢复。</li>
+        <li>发布渠道切到官网，App 内更新、下载校验与签名全部改为自有链路。</li>
+      </ul>
+      <p style="margin-top:16px">完整变更请看 <a href="__RELEASE_URL__" target="_blank" rel="noopener">Release 说明</a> 或 <a href="https://github.com/cnwhli/nuoyi/commits/main" target="_blank" rel="noopener">提交历史</a>。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div><a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a><p style="color:var(--faint);font-size:13px;margin-top:12px">喊一声，事情就办完了。</p></div>
+    <div class="footer-links">
+      <a href="../">首页</a><a href="./">下载</a><a href="../guide/">使用指南</a><a href="../privacy/">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a><a href="https://github.com/cnwhli/nuoyi/issues/new" target="_blank" rel="noopener">反馈问题</a>
+    </div>
+  </div>
+  <div class="wrap"><p class="footer-note">基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。请只从本页或自有 GitHub Releases 下载并核对 SHA-256。</p><p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · v__VERSION__</p></div>
+</footer>
+
+<script id="release-data" type="application/json">__RELEASE_DATA__</script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

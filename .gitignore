@@ -3,6 +3,11 @@ build/
 .gradle/
 local.properties
 *.apk
+
+# 正式版签名密钥与密码只留在本机,绝不入库
+keystore.properties
+*.jks
+*.keystore
 .idea/
 *.iml
 .DS_Store

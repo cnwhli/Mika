@@ -17,18 +17,27 @@ class ApkRejected(val reason: Reason) : Exception(reason.name) {
 }
 
 /**
- * 下载地址只接受官方仓库的 HTTPS 发布附件。之后的跳转(到 GitHub 的附件存储)由系统下载服务处理、我们管不到,
- * 所以下载完的文件一律再验:大小与 SHA-256(发布元数据给了才验)、包名、版本号、签名证书。
+ * 下载地址只接受自有渠道的 HTTPS 安装包:官网 [NuoyiLinks.SITE] 的下载目录,或自有
+ * 仓库 [NuoyiLinks.RELEASES] 的发布附件。之后的跳转(到 GitHub 的附件存储)由系统下载
+ * 服务处理、我们管不到,所以下载完的文件一律再验:大小与 SHA-256(发布元数据给了才验)、
+ * 包名、版本号、签名证书。上游仓库的附件不在白名单里,不会被误当成本应用的更新。
  */
 internal object ApkIntegrity {
-    private val official = "${NuoyiLinks.RELEASES}/download/".toHttpUrl()
+    /** host 与路径前缀成对匹配:只看 host 会把同域下的其它仓库/页面也放进来。 */
+    private val officialPrefixes = listOf(
+        "${NuoyiLinks.RELEASES}/download/".toHttpUrl(),
+        "${NuoyiLinks.SITE}/download/".toHttpUrl(),
+        "${NuoyiLinks.SITE}/releases/download/".toHttpUrl(),
+    )
 
     fun requireOfficialUrl(url: String) {
         val parsed = url.toHttpUrl()
-        require(parsed.isHttps && parsed.host == official.host && parsed.port == 443)
+        require(parsed.isHttps && parsed.port == 443)
         require(parsed.username.isEmpty() && parsed.password.isEmpty())
-        require(parsed.encodedPath.startsWith(official.encodedPath))
         require(parsed.encodedPath.endsWith(".apk", ignoreCase = true))
+        require(officialPrefixes.any { p ->
+            parsed.host == p.host && parsed.encodedPath.startsWith(p.encodedPath)
+        })
     }
 
     /** 给了摘要就必须是 sha256 且对得上;别的写法也算对不上,不放过。 */

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_service_description">Izin sistem ini memungkinkan Mika membaca dan mengoperasikan isi layar apa pun. Mika hanya memakainya di layar virtualnya sendiri untuk mengerjakan tugas dari Anda, dan baru bertindak di layar utama saat Anda memberinya tugas di sana.</string>
+    <string name="a11y_service_description">Izin sistem ini memungkinkan Nuoyi membaca dan mengoperasikan isi layar apa pun. Nuoyi hanya memakainya di layar virtualnya sendiri untuk mengerjakan tugas dari Anda, dan baru bertindak di layar utama saat Anda memberinya tugas di sana.</string>
     <string name="channel_attention">Perlu Anda</string>
     <string name="takeover_title">Perlu Anda</string>
     <string name="takeover_title_reason">Perlu Anda: %1$s</string>

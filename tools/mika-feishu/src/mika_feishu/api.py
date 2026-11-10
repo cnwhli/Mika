@@ -1,4 +1,4 @@
-"""Versioned public Mika API; no dependency on upstream Python internals."""
+"""Versioned public Nuoyi API; no dependency on upstream Python internals."""
 import ipaddress
 import http.client
 import json
@@ -66,7 +66,7 @@ class PrivateHTTPSConnection(http.client.HTTPSConnection, PrivateHTTPConnection)
     pass
 
 
-class MikaApi:
+class NuoyiApi:
     def __init__(self, url, token, timeout=12):
         self.base = validate_url(url)
         self.target = urllib.parse.urlsplit(self.base)

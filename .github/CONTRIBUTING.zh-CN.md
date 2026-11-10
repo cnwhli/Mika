@@ -2,17 +2,17 @@
 
 [English](CONTRIBUTING.md) | 简体中文
 
-欢迎一起把 Mika 做得更好。最简单的是补一份 App、网站的使用知识，不用写代码；也欢迎报告问题、贡献代码。
+欢迎一起把 Nuoyi 做得更好。最简单的是补一份 App、网站的使用知识，不用写代码；也欢迎报告问题、贡献代码。
 
 ## 补充 App / 网站知识（不用写代码）
 
 最简单的贡献：给某个 App 写一份 `APP.md`、给某个网站写一份 `SITE.md`，或者改进已有的。它们是带头部的 Markdown 纯文本，放在 [`core/src/main/resources/knowledge/`](../core/src/main/resources/knowledge/) 下；几类事情的通用做法（技能）在 [`core/src/main/resources/skills/`](../core/src/main/resources/skills/) 下。格式见 [`docs/dev/knowledge-format.md`](../docs/dev/knowledge-format.md)。
 
-没有任何说明，Mika 也能看着屏幕把事办成；写了使用知识（入口在哪、常见做法、要注意什么）的 App 和网站，Mika 用到时自动查阅，少走弯路。现有清单见 [README](../docs/readme/README.zh-CN.md) 里「能做什么」下面的折叠段。
+没有任何说明，Nuoyi 也能看着屏幕把事办成；写了使用知识（入口在哪、常见做法、要注意什么）的 App 和网站，Nuoyi 用到时自动查阅，少走弯路。现有清单见 [README](../docs/readme/README.zh-CN.md) 里「能做什么」下面的折叠段。
 
 ## 报告问题
 
-开 Issue 时请写上：**手机型号、安卓版本、Mika 版本**（设置里的「关于 Mika」），做了什么、期望什么、实际发生了什么。能附上「查看过程」里的截图更好（注意先遮掉隐私）。App 里「关于 › 反馈问题」可以复制诊断信息贴进 Issue；设置 › 恢复与修复 › 兼容性自检的结果可以用[设备报告](https://github.com/wangzan101/Mika/issues/new?template=device-report.yml)提交。
+开 Issue 时请写上：**手机型号、安卓版本、Nuoyi 版本**（设置里的「关于 Nuoyi」），做了什么、期望什么、实际发生了什么。能附上「查看过程」里的截图更好（注意先遮掉隐私）。App 里「关于 › 反馈问题」可以复制诊断信息贴进 Issue；设置 › 恢复与修复 › 兼容性自检的结果可以用[设备报告](https://github.com/wangzan101/Mika/issues/new?template=device-report.yml)提交。
 
 ## 贡献代码
 
@@ -66,11 +66,11 @@ PR 和合入 `main` 的提交会在 GitHub Actions 上跑（[`ci.yml`](workflows
 - [`docs/dev/roadmap.md`](../docs/dev/roadmap.md)：已完成、接下来、已知问题与暂缓。
 - [`docs/dev/knowledge-format.md`](../docs/dev/knowledge-format.md)（[English](../docs/dev/knowledge-format.en.md)）：App、网站知识与技能的格式。
 - [`docs/dev/skill-scripts.md`](../docs/dev/skill-scripts.md)：知识与技能自带的沙箱脚本。
-- 面向用户的说明：[功能详细说明](../docs/features.md)、[模型与登录](../docs/models.md)、[询问与自主](../docs/modes.md)、[手机操作设置指南](../docs/setup-guide.md)、[常见问题](../docs/faq.md)、[从电脑使用 Mika](../docs/computer.md)、[电脑端 CLI / Skill](../docs/computer-install.md)、[电脑连接（MCP）](../docs/mcp.md)、[免责声明与数据隐私](../docs/disclaimer.md)。
+- 面向用户的说明：[功能详细说明](../docs/features.md)、[模型与登录](../docs/models.md)、[询问与自主](../docs/modes.md)、[手机操作设置指南](../docs/setup-guide.md)、[常见问题](../docs/faq.md)、[从电脑使用 Nuoyi](../docs/computer.md)、[电脑端 CLI / Skill](../docs/computer-install.md)、[电脑连接（MCP）](../docs/mcp.md)、[免责声明与数据隐私](../docs/disclaimer.md)。
 
 ### 发布与更新（维护者）
 
 - 发布在 GitHub Releases，tag 用 `vX.Y.Z`，APK 作为附件挂在这个版本上。
-- 发布包用 `perf` 构建类型打，它用项目的正式签名。每个版本挂两个 APK，版本号和签名相同：`./gradlew :app:assemblePerf` 在 `app/build/outputs/apk/perf/` 下出 `app-universal-perf.apk`（全架构）和 `app-arm64-v8a-perf.apk`（只带 arm64-v8a 原生库，更小）。**先传 `app-universal-perf.apk`**，改名为 `Mika-vX.Y.Z.apk`；再传 `app-arm64-v8a-perf.apk`，改名为 `Mika-vX.Y.Z-arm64.apk`。旧版 App 取附件里第一个 `.apk`；新版 App 在支持 arm64-v8a 的设备上取 `-arm64.apk`，其他设备取全架构包。全架构包的名字不要改，用电脑装的说明和旧版 App 都按这个名字找。
+- 发布包用 `perf` 构建类型打，它用项目的正式签名。每个版本挂两个 APK，版本号和签名相同：`./gradlew :app:assemblePerf` 在 `app/build/outputs/apk/perf/` 下出 `app-universal-perf.apk`（全架构）和 `app-arm64-v8a-perf.apk`（只带 arm64-v8a 原生库，更小）。**先传 `app-universal-perf.apk`**，改名为 `Nuoyi-vX.Y.Z.apk`；再传 `app-arm64-v8a-perf.apk`，改名为 `Nuoyi-vX.Y.Z-arm64.apk`。旧版 App 取附件里第一个 `.apk`；新版 App 在支持 arm64-v8a 的设备上取 `-arm64.apk`，其他设备取全架构包。全架构包的名字不要改，用电脑装的说明和旧版 App 都按这个名字找。
 - 检查更新：每次打开 App 查一次 `https://api.github.com/repos/wangzan101/Mika/releases/latest`，不经别的地址。
-- 关于页点「下载更新」后由系统下载服务在后台下载 APK，可查看进度、删除下载或失败后重试，重开应用仍可继续查看。下载完成后点「安装更新」，首次按提示允许 Mika 安装未知应用，再在系统安装页确认。安装前检查 APK 大小、发布附件提供的 SHA-256、包名、版本号和签名证书，系统安装器还会再验一次签名；自行编译、签名不同的版本不能直接覆盖成官方版，要先卸载。发布未包含 APK 时仍打开发布页。
+- 关于页点「下载更新」后由系统下载服务在后台下载 APK，可查看进度、删除下载或失败后重试，重开应用仍可继续查看。下载完成后点「安装更新」，首次按提示允许 Nuoyi 安装未知应用，再在系统安装页确认。安装前检查 APK 大小、发布附件提供的 SHA-256、包名、版本号和签名证书，系统安装器还会再验一次签名；自行编译、签名不同的版本不能直接覆盖成官方版，要先卸载。发布未包含 APK 时仍打开发布页。

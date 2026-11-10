@@ -31,7 +31,7 @@ def until(read, seconds=60):
 
 def run(serial):
     adb = ["adb", "-s", serial]
-    package = "com.wangzan101.mika"
+    package = "com.nuoyi.agent"
 
     def shell(*args, check=True):
         return subprocess.run(adb + ["shell", *args], check=check, capture_output=True, text=True, timeout=12)

@@ -52,7 +52,7 @@ class TranslationCliTest(unittest.TestCase):
     def test_fixed_strings_file_moves_and_configuration_overlays(self):
         self.write_resources(
             "values",
-            '<string name="app_name" translatable="false">Mika</string>'
+            '<string name="app_name" translatable="false">Nuoyi</string>'
             '<string name="save">Save</string>',
         )
         self.write_resources("values-zh", '<string name="save">保存</string>', "strings_ui.xml")
@@ -201,7 +201,7 @@ class TranslationCliTest(unittest.TestCase):
             "values",
             '<!-- Confirmation action. --><string name="save">Save, &quot;now&quot;\n'
             '<b>please</b>\\n%1$s</string>'
-            '<string name="fixed" translatable="false">Mika</string>'
+            '<string name="fixed" translatable="false">Nuoyi</string>'
             '<plurals name="tasks"><item quantity="one">One</item>'
             '<item quantity="other">Many</item></plurals>'
             '<string-array name="choices"><item>Yes</item><item>No</item></string-array>',

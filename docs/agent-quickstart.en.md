@@ -2,7 +2,7 @@
 
 [简体中文](agent-quickstart.md) | English
 
-For AI agents on a computer: follow these fixed steps to install Mika and connect the phone, without weighing options. Full details: [Install](computer-install.en.md) and [CLI](cli.en.md).
+For AI agents on a computer: follow these fixed steps to install Nuoyi and connect the phone, without weighing options. Full details: [Install](computer-install.en.md) and [CLI](cli.en.md).
 
 ## 1. Resolve the latest release tag
 
@@ -30,7 +30,7 @@ POSIX:
 ```sh
 curl -L -o mika.zip https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip
 unzip -q mika.zip -d mika-src
-mkdir -p <skills-directory> && cp -R mika-src/Mika-<ver>/tools/mika <skills-directory>/mika
+mkdir -p <skills-directory> && cp -R mika-src/Nuoyi-<ver>/tools/mika <skills-directory>/mika
 python3 <skills-directory>/mika/scripts/mika_cli.py --version
 ```
 
@@ -40,7 +40,7 @@ Windows PowerShell:
 Invoke-WebRequest https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip -OutFile mika.zip
 Expand-Archive mika.zip -DestinationPath mika-src
 New-Item -ItemType Directory -Force "<skills-directory>" | Out-Null
-Copy-Item -Recurse mika-src\Mika-<ver>\tools\mika "<skills-directory>\mika"
+Copy-Item -Recurse mika-src\Nuoyi-<ver>\tools\mika "<skills-directory>\mika"
 py -3 "<skills-directory>\mika\scripts\mika_cli.py" --version
 ```
 
@@ -61,7 +61,7 @@ Use the connection method the user picked on the phone (Settings › Connect a c
    mika --url http://PHONE:8765 --token-file /path/to/token doctor --json
    ```
 
-State `unauthorized`: ask the user to allow USB debugging on the phone. `offline`: ask them to replug the cable. Connection information unreadable (`connection_info`): ask them to unlock the phone and open Mika once, then run `connect` again.
+State `unauthorized`: ask the user to allow USB debugging on the phone. `offline`: ask them to replug the cable. Connection information unreadable (`connection_info`): ask them to unlock the phone and open Nuoyi once, then run `connect` again.
 
 ## Export a run record
 

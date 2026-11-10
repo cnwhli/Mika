@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">诺伊</string>
-    <string name="a11y_service_description">This system permission lets 诺伊 read and operate what\'s on any screen. 诺伊 uses it only on its own virtual screen to do the tasks you give it, and acts on your main screen only when you hand it a task there.</string>
+    <string name="a11y_service_description">This system permission lets Nuoyi read and operate what\'s on any screen. Nuoyi uses it only on its own virtual screen to do the tasks you give it, and acts on your main screen only when you hand it a task there.</string>
     <string name="channel_attention">Needs you</string>
     <string name="takeover_title">Needs you</string>
     <string name="takeover_title_reason">Needs you: %1$s</string>

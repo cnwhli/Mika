@@ -338,7 +338,7 @@ func TestCliMethodsQueryAndClientMetadataAreTransparent(t *testing.T) {
 	}()
 	for _, method := range []string{"GET", "POST", "DELETE"} {
 		req, _ := http.NewRequest(method, f.server.URL+"/api/v1/tasks?limit=2&source=remote%20test", strings.NewReader(`{}`))
-		req.Header.Set("X-Mika-Client", "cli-test")
+		req.Header.Set("X-Nuoyi-Client", "cli-test")
 		req.Header.Set("Origin", "https://browser.example")
 		r, err := f.client.Do(req)
 		if err != nil {

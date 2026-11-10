@@ -72,7 +72,7 @@ mika --url https://mika.example.com --token-file /path/to/token task list --limi
 
 `RemoteAccess.handle` 统一鉴权和协议错误，再进入 `RemoteEndpoints`；本地监听与远程通道共用任务服务。LAN 私有地址检查保留。远程请求使用非回环来源，不获得 USB 权限。失败冷却按调用方分开记：网关把它看到的调用方地址（IPv4 地址或 IPv6 的 /64 前缀）随请求带给手机，手机按「网关 + 调用方」计数，与本地监听的地址分开。一个调用方连续猜错只冷却它自己，冷却期间连正确令牌也不放行，不会把「猜对了」透露给它。网关在反向代理后面时所有连接都来自代理，须加 `-trust-proxy`，让网关从代理追加的最后一个 X-Forwarded-For 取调用方（只在直接对端是回环或私有地址时读取）；两份 Compose 文件已加上，Nginx 示例用 `$remote_addr` 覆盖该头。网关自己的管理密钥、配对和转发限流也按同一调用方计数。`McpRuntime` 为远程通道提供手机统一令牌，远程关闭时拒绝访问；配对本身不启用远程。
 
-`RelayGateway` 校验 HTTPS 地址和配对响应，不跟随重定向。`RelayClient` 白名单放行 `/mcp`、`/api/v1` 和 `/api/v1/…` 的 GET/POST/DELETE，独立保留 query 及 Authorization、Origin、X-Mika-Client 和协议头；各端点方法、参数和任务权限由手机继续检查。网关不代理任意 URL 或 TCP。
+`RelayGateway` 校验 HTTPS 地址和配对响应，不跟随重定向。`RelayClient` 白名单放行 `/mcp`、`/api/v1` 和 `/api/v1/…` 的 GET/POST/DELETE，独立保留 query 及 Authorization、Origin、X-Nuoyi-Client 和协议头；各端点方法、参数和任务权限由手机继续检查。网关不代理任意 URL 或 TCP。
 
 `RelaySettings` 使用独立 Keystore 密钥加密、原子保存设备配置，状态流仅含非秘密字段。`RelayNetwork` 感知网络切换，`McpService` 沿用前台服务和通知关闭动作。App 引导使用现有组件、中英繁体资源，切换引导不改变权限，复制时才读取令牌。
 

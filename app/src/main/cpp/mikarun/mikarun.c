@@ -1,5 +1,5 @@
 /*
- * mikarun — Mika 沙箱启动器。
+ * mikarun — Nuoyi 沙箱启动器。
  * SPDX-License-Identifier: Apache-2.0
  * Copyright (c) 2026 Mika authors
  *
@@ -383,7 +383,7 @@ static int still_descendant(pid_t pid)
 }
 
 /*
- * 扫描与发信号之间,进程号可能已被回收并复用给同一身份(Mika 自己)的别的进程。
+ * 扫描与发信号之间,进程号可能已被回收并复用给同一身份(Nuoyi 自己)的别的进程。
  * 有 pidfd 时:先 pidfd_open 钉住进程身份,再确认它仍是后代,然后经 pidfd 发信号——不会误杀。
  * 没有 pidfd 时只能在 kill 前再确认一次(窗口很小);kill_tree 另外先 SIGSTOP 整棵树再重扫,
  * 停住的进程不会再回收子进程,重扫后的进程号就稳定了。
@@ -579,7 +579,7 @@ static void set_oom_score_adj(const char *value)
 	}
 }
 
-/* 关掉 0/1/2 以外继承来的描述符,命令拿不到 Mika 的任何文件或套接字。 */
+/* 关掉 0/1/2 以外继承来的描述符,命令拿不到 Nuoyi 的任何文件或套接字。 */
 static void close_inherited_fds(void)
 {
 	DIR *dir;
@@ -621,7 +621,7 @@ static int prepare(const struct options *opts)
 		return fail("PR_SET_CHILD_SUBREAPER", strerror(errno));
 
 	/*
-	 * 优先级与 OOM 分数只是保护 Mika 自身,做不到不拦命令。启动器自己 900、命令 1000(子进程里再调):
+	 * 优先级与 OOM 分数只是保护 Nuoyi 自身,做不到不拦命令。启动器自己 900、命令 1000(子进程里再调):
 	 * 内存不够时先杀命令,启动器活着才能清场。
 	 */
 	setpriority(PRIO_PROCESS, 0, (int)opts->nice);
@@ -630,7 +630,7 @@ static int prepare(const struct options *opts)
 	if (set_limit(RLIMIT_FSIZE, (rlim_t)opts->max_file_mb << 20, "RLIMIT_FSIZE") != 0)
 		return -1;
 	/*
-	 * RLIMIT_NPROC 由内核按身份(uid)整体计数:Mika 的线程、同时在跑的其它沙箱命令都占同一个额度,
+	 * RLIMIT_NPROC 由内核按身份(uid)整体计数:Nuoyi 的线程、同时在跑的其它沙箱命令都占同一个额度,
 	 * 所以上限 = 设置时本身份已有的任务数 + max-procs,而不是单给这条命令 max-procs 个。
 	 */
 	used = count_user_tasks();
@@ -671,7 +671,7 @@ static int run(const struct options *opts)
 		sigprocmask(SIG_SETMASK, &orig_set, NULL);
 		/*
 		 * 启动器被直接 SIGKILL 时没机会清场:PRoot 靠 PDEATHSIG 跟着死,PRoot 打了补丁带
-		 * PTRACE_O_EXITKILL,它一死所有被跟踪的进程都被内核杀掉。Mika 整个进程被系统杀掉时,
+		 * PTRACE_O_EXITKILL,它一死所有被跟踪的进程都被内核杀掉。Nuoyi 整个进程被系统杀掉时,
 		 * 安卓按 App 的 cgroup 把同一 cgroup 里的进程(包括这里所有沙箱进程)一起杀掉,这是最后一道。
 		 */
 		prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);

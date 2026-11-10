@@ -1,4 +1,4 @@
-"""A loopback-only browser desk for one Mika phone, using the existing CLI transport."""
+"""A loopback-only browser desk for one Nuoyi phone, using the existing CLI transport."""
 
 import argparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -199,7 +199,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.headers.get("Host") != self.server.host or self.headers.get("Origin") != self.server.origin:
             return self.send(403, b"Invalid source")
-        header = self.headers.get("X-Mika-Desk", "")
+        header = self.headers.get("X-Nuoyi-Desk", "")
         if not secrets.compare_digest(header.encode(), self.server.key.encode()):
             return self.send(403, b"Invalid desk session")
         if self.path == "/desk/upload":
@@ -240,7 +240,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(415, b"Expected a file")
         try:
             size = int(self.headers["Content-Length"])
-            name = unquote(self.headers["X-Mika-Filename"], errors="strict")
+            name = unquote(self.headers["X-Nuoyi-Filename"], errors="strict")
             if not name or len(name) > 255:
                 raise ValueError
         except (KeyError, ValueError, TypeError):
@@ -280,13 +280,13 @@ def serve(args):
     try:
         server = Desk(args)
     except OSError as exc:
-        print(f"Could not start the local Mika desk: {exc}", file=sys.stderr)
+        print(f"Could not start the local Nuoyi desk: {exc}", file=sys.stderr)
         return 2
     with server:
         link = server.origin + "/#" + server.key
         if args.no_open or not webbrowser.open(link):
             print(link, flush=True)
-        print("Mika task desk is open locally. Press Ctrl+C to close it.", file=sys.stderr, flush=True)
+        print("Nuoyi task desk is open locally. Press Ctrl+C to close it.", file=sys.stderr, flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_service_description">Este permiso del sistema permite a Mika leer y manejar lo que hay en cualquier pantalla. Mika lo usa solo en su propia pantalla virtual para hacer las tareas que le das, y actúa en tu pantalla principal solo cuando le encargas una tarea allí.</string>
+    <string name="a11y_service_description">Este permiso del sistema permite a Nuoyi leer y manejar lo que hay en cualquier pantalla. Nuoyi lo usa solo en su propia pantalla virtual para hacer las tareas que le das, y actúa en tu pantalla principal solo cuando le encargas una tarea allí.</string>
     <string name="channel_attention">Te necesita</string>
     <string name="takeover_title">Te necesita</string>
     <string name="takeover_title_reason">Te necesita: %1$s</string>

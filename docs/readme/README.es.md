@@ -1,9 +1,9 @@
-<!-- translated-from: README.md @ 46f11aa3f1a8 -->
+<!-- translated-from: README.md @ 82d999343cec -->
 <div align="center">
 
-<img src="../media/logo.png" alt="Mika" width="88" />
+<img src="../media/logo.png" alt="Nuoyi" width="88" />
 
-# Mika
+# Nuoyi
 
 **Un asistente de IA en tu móvil: dile lo que necesitas y usará tus apps y la web hasta dejarlo hecho.**
 
@@ -30,9 +30,9 @@ Trabaja en una pantalla en segundo plano que no ves, así que puedes seguir usan
 
 <br/>
 
-<img src="../media/wechat-send-side.gif" alt="Con una sola frase, Mika abre WeChat en su pantalla en segundo plano, busca el contacto y envía el mensaje" width="640" />
+<img src="../media/wechat-send-side.gif" alt="Con una sola frase, Nuoyi abre WeChat en su pantalla en segundo plano, busca el contacto y envía el mensaje" width="640" />
 
-<sub>Con la frase «Envía un mensaje a Transferencia de archivos»: a la izquierda, la conversación con Mika; a la derecha, cada paso en su pantalla en segundo plano (a velocidad 4×, con la lista de chats difuminada)</sub>
+<sub>Con la frase «Envía un mensaje a Transferencia de archivos»: a la izquierda, la conversación con Nuoyi; a la derecha, cada paso en su pantalla en segundo plano (a velocidad 4×, con la lista de chats difuminada)</sub>
 
 </div>
 
@@ -64,9 +64,9 @@ Trabaja en una pantalla en segundo plano que no ves, así que puedes seguir usan
 
 </details>
 
-<sub>En varias demos aparecen WeChat, una app de mensajería, y Xiaohongshu (RED), una red social de estilo de vida. Mika no depende de ellas: funciona con cualquier app o sitio web de tu móvil.</sub>
+<sub>En varias demos aparecen WeChat, una app de mensajería, y Xiaohongshu (RED), una red social de estilo de vida. Nuoyi no depende de ellas: funciona con cualquier app o sitio web de tu móvil.</sub>
 
-## Por qué Mika
+## Por qué Nuoyi
 
 | | |
 |---|---|
@@ -74,7 +74,7 @@ Trabaja en una pantalla en segundo plano que no ves, así que puedes seguir usan
 | 🧩 **Funciona con cualquier app** | Mira la pantalla y encuentra los botones como lo haría una persona: no necesita APIs de la app ni integraciones previas |
 | 🌐 **Llámalo desde cualquier página web** | En el navegador integrado, di lo que quieres en la página que estás leyendo y trabajará ahí mismo; si tocas la página, se detiene |
 | 🧠 **Mejora con el uso** | Recuerda las preferencias que le cuentas y convierte las tareas que completa en habilidades, para hacerlas más rápido y con más fiabilidad la próxima vez |
-| 🔒 **Tus datos se quedan en tu móvil** | No hay ningún servidor de Mika; usa tu propia clave de API del modelo o inicia sesión con una cuenta de ChatGPT, xAI u OpenRouter |
+| 🔒 **Tus datos se quedan en tu móvil** | No hay ningún servidor de Nuoyi; usa tu propia clave de API del modelo o inicia sesión con una cuenta de ChatGPT, xAI u OpenRouter |
 | 🆓 **Código abierto y gratis** | Apache-2.0, todo el código es público |
 
 ## Empieza en tres pasos
@@ -86,7 +86,7 @@ Trabaja en una pantalla en segundo plano que no ves, así que puedes seguir usan
 Después, prueba a decirle: «Pon alarmas mañana a las 9:40 y a las 10:00» o «Mira el tiempo cada mañana a las 8 y avísame solo si va a llover».
 
 > 💡 ¿Tienes un ordenador a mano? Envía esta frase al agente de IA de tu ordenador y lo instalará todo por ti:<br/>
-> `Sigue los pasos de https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.en.md para instalar Mika en el móvil Android conectado por USB.`
+> `Sigue los pasos de https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.en.md para instalar Nuoyi en el móvil Android conectado por USB.`
 
 ## Qué puede hacer
 
@@ -99,9 +99,9 @@ Después, prueba a decirle: «Pon alarmas mañana a las 9:40 y a las 10:00» o �
 | **Interrúmpelo o páralo cuando quieras** | Sigue hablándole mientras trabaja para añadir o corregir cosas (mantén pulsado un mensaje que aún no haya recogido para retirarlo o editarlo); al parar te dice hasta dónde llegó, y con «sigue» retoma desde ahí |
 | **Mantén pulsado para hablar** | Mantén pulsado el cuadro de texto para dictar y corrige antes de enviar; mantén pulsada la cápsula flotante para hablar y suelta para enviarlo directamente. Usa el reconocimiento de voz del teléfono o, si no tiene, un modelo de voz de tu proveedor |
 | **Archivos y cálculo** | Un sandbox de Linux por conversación ejecuta Python, Node y shell sobre los archivos que le envías (arm64) |
-| **Desde tu ordenador** | Las herramientas de IA de tu ordenador pueden encargarle tareas a Mika mediante CLI + Skill o MCP ([usar Mika desde un ordenador](../computer.en.md)) |
+| **Desde tu ordenador** | Las herramientas de IA de tu ordenador pueden encargarle tareas a Nuoyi mediante CLI + Skill o MCP ([usar Nuoyi desde un ordenador](../computer.en.md)) |
 
-Por defecto, Mika funciona en **modo Preguntar**: solo te consulta antes de gastar dinero (hacer pedidos, pagar) y todo lo demás lo hace sin más. También puedes cambiar al **modo Autónomo**. Consulta [Preguntar y Autónomo](../modes.en.md).
+Por defecto, Nuoyi funciona en **modo Preguntar**: solo te consulta antes de gastar dinero (hacer pedidos, pagar) y todo lo demás lo hace sin más. También puedes cambiar al **modo Autónomo**. Consulta [Preguntar y Autónomo](../modes.en.md).
 
 Para ver cómo funciona cada cosa y los detalles, consulta las [funciones en detalle](../features.en.md).
 
@@ -133,24 +133,24 @@ También puedes prescindir de la clave e iniciar sesión con una cuenta de ChatG
 
 ## Privacidad y seguridad
 
-- **No hay ningún servidor de Mika**: lo que dices y lo que hay en tu pantalla solo se envía al proveedor de modelos que tú configuras.
+- **No hay ningún servidor de Nuoyi**: lo que dices y lo que hay en tu pantalla solo se envía al proveedor de modelos que tú configuras.
 - Las claves de API y los recuerdos se guardan cifrados en el móvil; las conversaciones y los registros de ejecución se quedan en el dispositivo; para buscar actualizaciones solo se contacta con GitHub.
 - Manejar automáticamente apps y sitios web de terceros puede ir en contra de sus condiciones de uso, así que decide tú. Para lo importante, usa el modo Preguntar y revisa los resultados. Consulta el [aviso legal](../disclaimer.en.md).
 
 <details>
 <summary><b>Preguntas frecuentes</b></summary>
 
-**¿La depuración inalámbrica se desactiva sola?** Android la desactiva al cambiar de Wi-Fi o al reiniciar. Si se lo permites, Mika la vuelve a activar por su cuenta; si aun así no conecta, vuelve a «Set up phone control» y empareja de nuevo.
+**¿La depuración inalámbrica se desactiva sola?** Android la desactiva al cambiar de Wi-Fi o al reiniciar. Si se lo permites, Nuoyi la vuelve a activar por su cuenta; si aun así no conecta, vuelve a «Set up phone control» y empareja de nuevo.
 
 **¿No encuentras la depuración inalámbrica en tu móvil?** Algunos sistemas no la incluyen. En ese caso puedes iniciar el asistente del móvil desde un ordenador por USB; consulta la [guía de configuración](../setup-guide.en.md).
 
-**¿Hay pantallas que no se pueden leer ni capturar?** Las pantallas de pago o de introducción de contraseñas bloquean las capturas, así que Mika te pide que te encargues tú.
+**¿Hay pantallas que no se pueden leer ni capturar?** Las pantallas de pago o de introducción de contraseñas bloquean las capturas, así que Nuoyi te pide que te encargues tú.
 
 **¿Puedo usar un modelo que se ejecuta en mi propio ordenador?** Sí: elige «Custom» como proveedor e introduce su dirección en tu red local.
 
-**¿La app está en español?** Sí. La interfaz está en español, inglés, árabe, chino simplificado, chino tradicional, japonés, coreano, portugués, ruso e indonesio, sigue el idioma del sistema y se puede cambiar en Ajustes › Idioma. Puedes hablarle a Mika en español sin problema. El conocimiento integrado sobre apps y sitios web está escrito en chino, y el modelo lo entiende sin dificultad.
+**¿La app está en español?** Sí. La interfaz está en español, inglés, árabe, chino simplificado, chino tradicional, japonés, coreano, portugués, ruso e indonesio, sigue el idioma del sistema y se puede cambiar en Ajustes › Idioma. Puedes hablarle a Nuoyi en español sin problema. El conocimiento integrado sobre apps y sitios web está escrito en chino, y el modelo lo entiende sin dificultad.
 
-**¿De dónde vienen las actualizaciones?** Solo de los [Releases](https://github.com/wangzan101/Mika/releases) de este repositorio; también puedes actualizar desde la app en Acerca de Mika › Buscar actualizaciones.
+**¿De dónde vienen las actualizaciones?** Solo de los [Releases](https://github.com/wangzan101/Mika/releases) de este repositorio; también puedes actualizar desde la app en Acerca de Nuoyi › Buscar actualizaciones.
 
 Hay más respuestas en las [preguntas frecuentes](../faq.en.md).
 
@@ -159,9 +159,9 @@ Hay más respuestas en las [preguntas frecuentes](../faq.en.md).
 ## Comunidad y contribuciones
 
 - **Documentación**: toda la documentación y un orden de lectura sugerido están en el [índice de documentación](../README.en.md)
-- **Comunidad**: únete al [chat de grupo en X](https://x.com/i/chat/group_join/g2116926829198246025/48B52j5svL); para escribir al autor por WeChat, escanea el código QR de la app en Acerca de Mika › Contactar con el autor (menciona «Mika» en la solicitud)
+- **Comunidad**: únete al [chat de grupo en X](https://x.com/i/chat/group_join/g2116926829198246025/48B52j5svL); para escribir al autor por WeChat, escanea el código QR de la app en Acerca de Nuoyi › Contactar con el autor (menciona «Nuoyi» en la solicitud)
 - **Sigue al autor**: X [@wangzan101](https://x.com/wangzan101)
-- **Informa de un problema**: [abre un issue](https://github.com/wangzan101/Mika/issues/new/choose); en la app, Acerca de Mika › Enviar comentarios permite adjuntar información de diagnóstico
+- **Informa de un problema**: [abre un issue](https://github.com/wangzan101/Mika/issues/new/choose); en la app, Acerca de Nuoyi › Enviar comentarios permite adjuntar información de diagnóstico
 - **Contribuye**: añade conocimiento de uso para una app o un sitio web (texto plano, sin programar) o contribuye con código; consulta la [guía de contribución](../../.github/CONTRIBUTING.md)
 
 ## Star History
@@ -175,7 +175,7 @@ Hay más respuestas en las [preguntas frecuentes](../faq.en.md).
 
 ## Colaboradores
 
-Gracias a todas las personas que han participado en Mika:
+Gracias a todas las personas que han participado en Nuoyi:
 
 <a href="https://github.com/wangzan101/Mika/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=wangzan101/Mika&max=100&columns=12" alt="Contributors" />

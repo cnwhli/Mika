@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 按住说话时录音，转成文字；用户浏览器里的网页要麦克风时也用它。 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- 用户浏览器里的网页要摄像头（Mika 自己拍照走系统相机，不用这个权限）；网页请求时先弹框问用户。 -->
+    <!-- 用户浏览器里的网页要摄像头（Nuoyi 自己拍照走系统相机，不用这个权限）；网页请求时先弹框问用户。 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 用户浏览器里的网页要定位；网页请求时先弹框问用户。 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -40,7 +40,7 @@
         tools:ignore="ProtectedPermissions" />
 
     <!-- 对话页附件可以拍照(走系统相机),声明用到相机、但不是必需:没有相机的设备照常安装。
-         有的系统按 APK 特征给应用分类,不声明时 Mika 可能被当成游戏、限制刷新率;这条声明要留着 -->
+         有的系统按 APK 特征给应用分类,不声明时 Nuoyi 可能被当成游戏、限制刷新率;这条声明要留着 -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -96,7 +96,7 @@
     </queries>
 
     <application
-        android:name="com.wangzan101.mika.MikaApp"
+        android:name="com.nuoyi.agent.NuoyiApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
@@ -106,10 +106,10 @@
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <!-- 界面只有一个:从桌面、通知、别的 App 或命令打开都回到这一个(新的打开交给 onNewIntent),不在上面叠出第二个 -->
         <activity
-            android:name="com.wangzan101.mika.ui.MainActivity"
+            android:name="com.nuoyi.agent.ui.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Mika"
+            android:theme="@style/Theme.Nuoyi"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -131,13 +131,13 @@
         <!-- 通知里接管按钮的落点:从通知启动 Activity 才会收起通知栏,让用户直接看到挪到主屏的 App -->
         <!-- 语音设置页:系统「默认数字助手」设置项点进来也是这一页,所以对外导出。 -->
         <activity
-            android:name="com.wangzan101.mika.voice.VoiceSetupActivity"
+            android:name="com.nuoyi.agent.voice.VoiceSetupActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Mika" />
+            android:theme="@style/Theme.Nuoyi" />
 
         <activity
-            android:name="com.wangzan101.mika.takeover.TakeoverActivity"
+            android:name="com.nuoyi.agent.takeover.TakeoverActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:noHistory="true"
@@ -146,14 +146,14 @@
 
         <!-- App 里的文件查看页(网页、Markdown、PDF、图片、文本) -->
         <activity
-            android:name="com.wangzan101.mika.ui.viewer.FileViewerActivity"
+            android:name="com.nuoyi.agent.ui.viewer.FileViewerActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|uiMode|density"
             android:exported="false"
-            android:theme="@style/Theme.Mika" />
+            android:theme="@style/Theme.Nuoyi" />
 
         <!-- 网页接管:把后台的网页标签(同一个 WebView)拿到主屏给用户处理 -->
         <activity
-            android:name="com.wangzan101.mika.web.WebTakeoverActivity"
+            android:name="com.nuoyi.agent.web.WebTakeoverActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|uiMode|density"
             android:excludeFromRecents="true"
             android:exported="false"
@@ -161,10 +161,10 @@
             android:taskAffinity=""
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- 兼容性自检在 Mika 虚拟屏上操作的测试页。对外开放只为让内置助手(shell)按组件名把它开到 Mika 的屏上:
+        <!-- 兼容性自检在 Nuoyi 虚拟屏上操作的测试页。对外开放只为让内置助手(shell)按组件名把它开到 Nuoyi 的屏上:
              调用方必须持有 INTERACT_ACROSS_USERS_FULL,shell 有,普通 App 没有;没有 intent-filter。单独一个任务,不进最近任务 -->
         <activity
-            android:name="com.wangzan101.mika.selfcheck.SelfCheckTargetActivity"
+            android:name="com.nuoyi.agent.selfcheck.SelfCheckTargetActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -180,7 +180,7 @@
             App 不能自己申请默认助手角色,只能引导用户去系统设置里选。
         -->
         <service
-            android:name="com.wangzan101.mika.voice.AssistantVoiceInteractionService"
+            android:name="com.nuoyi.agent.voice.AssistantVoiceInteractionService"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_VOICE_INTERACTION">
@@ -194,7 +194,7 @@
 
         <!-- 系统每次发起助手会话时绑定它,由它 new 出 AssistantVoiceSession。 -->
         <service
-            android:name="com.wangzan101.mika.voice.AssistantSessionService"
+            android:name="com.nuoyi.agent.voice.AssistantSessionService"
             android:exported="true"
             android:permission="android.permission.BIND_VOICE_INTERACTION" />
 
@@ -203,7 +203,7 @@
             显式挑系统自带的识别服务(AssistantRecognizer),避免绑到自己形成递归。
         -->
         <service
-            android:name="com.wangzan101.mika.voice.AssistantRecognitionService"
+            android:name="com.nuoyi.agent.voice.AssistantRecognitionService"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_RECOGNITION_SERVICE">
@@ -216,7 +216,7 @@
         </service>
 
         <service
-            android:name="com.wangzan101.mika.a11y.MikaAccessibilityService"
+            android:name="com.nuoyi.agent.a11y.NuoyiAccessibilityService"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -229,7 +229,7 @@
         </service>
 
         <service
-            android:name="com.wangzan101.mika.task.TaskService"
+            android:name="com.nuoyi.agent.task.TaskService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
@@ -239,7 +239,7 @@
 
         <!-- 用户绑定并打开微信渠道后保持长轮询；没有本地服务器，任务仍交给 TaskService。 -->
         <service
-            android:name="com.wangzan101.mika.wechat.WechatService"
+            android:name="com.nuoyi.agent.wechat.WechatService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
@@ -253,7 +253,7 @@
             shell 有,普通 App 拿不到,adb 也授不了
         -->
         <service
-            android:name="com.wangzan101.mika.mcp.McpService"
+            android:name="com.nuoyi.agent.mcp.McpService"
             android:exported="true"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
             android:foregroundServiceType="specialUse">
@@ -264,7 +264,7 @@
 
         <!-- 用 ChatGPT 登录期间:用户在浏览器里登录时撑住进程,本机回调才有人接;登录一结束就停 -->
         <service
-            android:name="com.wangzan101.mika.settings.ChatGptSignInService"
+            android:name="com.nuoyi.agent.settings.ChatGptSignInService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
@@ -274,7 +274,7 @@
 
         <!-- 后台准备运行环境(解出随 APK 自带的根文件系统),只在准备期间运行 -->
         <service
-            android:name="com.wangzan101.mika.sandbox.SandboxService"
+            android:name="com.nuoyi.agent.sandbox.SandboxService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
@@ -282,7 +282,7 @@
              FileProvider 要求 grantUriPermissions=true,否则进程启动时就抛异常;
              这里从不把地址授权给别的 App,读取方只有本进程里的 WebView。 -->
         <provider
-            android:name="com.wangzan101.mika.web.WebFilesProvider"
+            android:name="com.nuoyi.agent.web.WebFilesProvider"
             android:authorities="${applicationId}.webfiles"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -293,7 +293,7 @@
 
         <!-- 对话页附件:相机把照片写进缓存里的 camera/,点开已发附件时复制出的一份在 viewing/;不对外导出,用到时临时授权 -->
         <provider
-            android:name="com.wangzan101.mika.chat.AttachFilesProvider"
+            android:name="com.nuoyi.agent.chat.AttachFilesProvider"
             android:authorities="${applicationId}.attachfiles"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -302,9 +302,9 @@
                 android:resource="@xml/attach_files" />
         </provider>
 
-        <!-- 走网络代理时 Mika 自己下的更新安装包:只读交给系统安装器,不对外导出,安装时临时授权 -->
+        <!-- 走网络代理时 Nuoyi 自己下的更新安装包:只读交给系统安装器,不对外导出,安装时临时授权 -->
         <provider
-            android:name="com.wangzan101.mika.about.UpdateFilesProvider"
+            android:name="com.nuoyi.agent.about.UpdateFilesProvider"
             android:authorities="${applicationId}.updatefiles"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -315,13 +315,13 @@
 
         <!-- 配对通知输入框填的配对码 -->
         <receiver
-            android:name="com.wangzan101.mika.setup.PairingCodeReceiver"
+            android:name="com.nuoyi.agent.setup.PairingCodeReceiver"
             android:exported="false" />
 
         <!-- 内置助手(shell 身份)交接 Binder 的入口:shell 有这个权限,普通 App 没有;
              进入后还要核对调用方 uid、一次性口令和 APK,见 HelperHub.offer -->
         <provider
-            android:name="com.wangzan101.mika.shell.HelperHandoffProvider"
+            android:name="com.nuoyi.agent.shell.HelperHandoffProvider"
             android:authorities="${applicationId}.helper"
             android:exported="true"
             android:multiprocess="false"
@@ -329,7 +329,7 @@
 
         <!-- 开机广播只由系统发出(受保护的广播),按要求导出 -->
         <receiver
-            android:name="com.wangzan101.mika.setup.BootRestoreReceiver"
+            android:name="com.nuoyi.agent.setup.BootRestoreReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -338,8 +338,8 @@
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.wangzan101.mika.task.TriggerAlarmReceiver" android:exported="false" />
-        <receiver android:name="com.wangzan101.mika.teach.TeachReceiver" android:exported="false" />
+        <receiver android:name="com.nuoyi.agent.task.TriggerAlarmReceiver" android:exported="false" />
+        <receiver android:name="com.nuoyi.agent.teach.TeachReceiver" android:exported="false" />
     </application>
 
 </manifest>

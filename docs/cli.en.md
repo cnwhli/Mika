@@ -2,13 +2,13 @@
 
 [简体中文](cli.md) | English
 
-> Using Mika from a computer? Start with [Use Mika from a computer](computer.en.md): how to choose between CLI + Skill and MCP, and how to connect.
+> Using Nuoyi from a computer? Start with [Use Nuoyi from a computer](computer.en.md): how to choose between CLI + Skill and MCP, and how to connect.
 
-CLI and MCP are peer entry points backed by the same remote task service on the phone. The CLI calls an ordinary HTTP task API; it needs no MCP SDK, handshake, tool discovery or MCP client configuration. The Skill tells a computer agent how to delegate, handle questions and report actual results. Mika on Android still plans and executes the task.
+CLI and MCP are peer entry points backed by the same remote task service on the phone. The CLI calls an ordinary HTTP task API; it needs no MCP SDK, handshake, tool discovery or MCP client configuration. The Skill tells a computer agent how to delegate, handle questions and report actual results. Nuoyi on Android still plans and executes the task.
 
 ```mermaid
 flowchart LR
-    Skill["Computer agent + Skill"] --> CLI["Mika CLI"]
+    Skill["Computer agent + Skill"] --> CLI["Nuoyi CLI"]
     Shell["User / shell script"] --> CLI
     Client["MCP client"] --> MCP
     subgraph Phone["Android phone · shared listener and authentication"]
@@ -32,7 +32,7 @@ With only the Skill installed, `mika` below means `python3 <skills-directory>/mi
 
 ## Connect
 
-ADB mode requires Android platform-tools and either USB or connected wireless ADB. For wireless ADB, this computer must be paired and connected to the phone, which must appear as `device` in `adb devices`. Pairing Mika's built-in helper on the phone does not pair the computer; both also differ from direct LAN access below.
+ADB mode requires Android platform-tools and either USB or connected wireless ADB. For wireless ADB, this computer must be paired and connected to the phone, which must appear as `device` in `adb devices`. Pairing Nuoyi's built-in helper on the phone does not pair the computer; both also differ from direct LAN access below.
 
 ```bash
 mika devices --json
@@ -40,7 +40,7 @@ mika connect --device SERIAL --json
 mika doctor --device SERIAL --json
 ```
 
-You may omit `--device` when exactly one device is online; the existing ANDROID_SERIAL environment variable is also supported. Multiple devices require a choice, and connection failure never selects a different phone. `connect` runs Mika's official bootstrap script to enable computer access and start the required helper; it does not submit a task. Other commands only read the current connection.
+You may omit `--device` when exactly one device is online; the existing ANDROID_SERIAL environment variable is also supported. Multiple devices require a choice, and connection failure never selects a different phone. `connect` runs Nuoyi's official bootstrap script to enable computer access and start the required helper; it does not submit a task. Other commands only read the current connection.
 
 Each invocation reads the current token, port and boot number, allocates its own temporary `adb forward tcp:0` mapping, then removes only that mapping. Tokens stay in process memory; bootstrap output is captured instead of printed. Exiting the CLI leaves the phone service and ongoing tasks running.
 
@@ -112,7 +112,7 @@ mika ui                      # open the task desk in a local browser
 mika ui --device SERIAL --no-open
 ```
 
-`mika ui` serves a page for this computer only on a random `127.0.0.1` port. It uses the same task commands to start tasks, follow progress, answer questions, add instructions and cancel, and shows Simplified Chinese or English depending on the browser's language. The part of the link after `#` is the session secret for this run; browsers do not send it anywhere. The server also checks Host and Origin and accepts only a fixed set of actions. It is an interactive page for people and does not support `--json`. See [Use Mika from a computer](computer.en.md#task-desk-mika-ui).
+`mika ui` serves a page for this computer only on a random `127.0.0.1` port. It uses the same task commands to start tasks, follow progress, answer questions, add instructions and cancel, and shows Simplified Chinese or English depending on the browser's language. The part of the link after `#` is the session secret for this run; browsers do not send it anywhere. The server also checks Host and Origin and accepts only a fixed set of actions. It is an interactive page for people and does not support `--json`. See [Use Nuoyi from a computer](computer.en.md#task-desk-mika-ui).
 
 ## HTTP contract
 

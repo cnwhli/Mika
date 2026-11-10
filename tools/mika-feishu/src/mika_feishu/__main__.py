@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 import sys
 
-from .api import ApiError, MikaApi
+from .api import ApiError, NuoyiApi
 from .config import default_config, load_config
 from .locking import instance_lock
 
@@ -16,7 +16,7 @@ def state_file(config):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Connect a Feishu bot to Mika on your phone")
+    parser = argparse.ArgumentParser(description="Connect a Feishu bot to Nuoyi on your phone")
     parser.add_argument("--config", type=Path, default=default_config())
     commands = parser.add_subparsers(dest="command", required=True)
     setup_parser = commands.add_parser("setup", help="Scan to create/link a bot, or enter credentials manually")
@@ -38,7 +38,7 @@ def main():
         if args.command == "doctor":
             report = {}
             try:
-                info = MikaApi(config["mika_url"], config["mika_token"]).check(force=True)
+                info = NuoyiApi(config["mika_url"], config["mika_token"]).check(force=True)
                 report["phone"] = {"ok": True, "api_version": info["api_version"],
                                    "server_version": info.get("server_version"), "capabilities": info["capabilities"]}
             except (ApiError, ValueError) as exc:
@@ -66,7 +66,7 @@ def main():
                 print("Local pairing removed. Fixed allowed_open_ids in the config are unchanged.")
             else:
                 from .runtime import run
-                run(config, MikaApi(config["mika_url"], config["mika_token"]), store)
+                run(config, NuoyiApi(config["mika_url"], config["mika_token"]), store)
         return 0
     except (ValueError, ApiError) as exc:
         print("Check failed: " + (exc.code if isinstance(exc, ApiError) else str(exc)), file=sys.stderr)

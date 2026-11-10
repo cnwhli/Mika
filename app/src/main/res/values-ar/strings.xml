@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_service_description">يتيح هذا الإذن للنظام لـ Mika قراءة ما يظهر على أي شاشة والتفاعل معه. لا تستخدم Mika هذا الإذن إلا على شاشتها الافتراضية لتنفيذ المهام التي تطلبها منها، ولا تعمل على شاشتك الرئيسية إلا عندما تسند إليها مهمة عليها.</string>
+    <string name="a11y_service_description">يتيح هذا الإذن للنظام لـ Nuoyi قراءة ما يظهر على أي شاشة والتفاعل معه. لا تستخدم Nuoyi هذا الإذن إلا على شاشتها الافتراضية لتنفيذ المهام التي تطلبها منها، ولا تعمل على شاشتك الرئيسية إلا عندما تسند إليها مهمة عليها.</string>
     <string name="channel_attention">يتطلب انتباهك</string>
     <string name="takeover_title">يتطلب انتباهك</string>
     <string name="takeover_title_reason">يتطلب انتباهك: %1$s</string>

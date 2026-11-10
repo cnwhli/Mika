@@ -2,16 +2,16 @@
 
 [简体中文](computer-install.md) · [Connection and task commands](cli.en.md) · [MCP configuration](mcp.en.md)
 
-The starting point for using Mika from a computer is [Use Mika from a computer](computer.en.md): pick CLI + Skill or MCP there, and USB or Wi-Fi / VPN. This page only covers installing, updating and removing the CLI and the Skill; if you use an MCP client, skip it and follow the [MCP guide](mcp.en.md).
+The starting point for using Nuoyi from a computer is [Use Nuoyi from a computer](computer.en.md): pick CLI + Skill or MCP there, and USB or Wi-Fi / VPN. This page only covers installing, updating and removing the CLI and the Skill; if you use an MCP client, skip it and follow the [MCP guide](mcp.en.md).
 
 Agents wanting a fixed shortest path: see the [agent quick path](agent-quickstart.en.md).
 
 ## Before you start
 
-- To let a computer agent that can run commands and supports Skills use Mika, install the [Skill](#skill-install). It includes its own CLI script, so no separate CLI install is needed.
+- To let a computer agent that can run commands and supports Skills use Nuoyi, install the [Skill](#skill-install). It includes its own CLI script, so no separate CLI install is needed.
 - To submit tasks from a terminal or script, install the [CLI](#cli-install), which gives you the `mika` command.
 
-On the phone: install the APK ([Releases](https://github.com/wangzan101/Mika/releases/latest)), open Mika once and add a model. **If Mika only needs to chat, browse the web and work with files, you can skip accessibility and the phone helper, and Android 11 works**; only phone app control needs the phone-control setup in the [setup guide](setup-guide.en.md) (Android 12+). Installing or updating the computer tools does not install or update the APK on the phone.
+On the phone: install the APK ([Releases](https://github.com/wangzan101/Mika/releases/latest)), open Nuoyi once and add a model. **If Nuoyi only needs to chat, browse the web and work with files, you can skip accessibility and the phone helper, and Android 11 works**; only phone app control needs the phone-control setup in the [setup guide](setup-guide.en.md) (Android 12+). Installing or updating the computer tools does not install or update the APK on the phone.
 
 Below, `<tag>` means the version tag of the [latest release](https://github.com/wangzan101/Mika/releases/latest) (the `v0.1.x` in its title). Keep the computer tools and the phone APK on the same version where you can.
 
@@ -88,8 +88,8 @@ mika --url http://PHONE:8765 --token-file /path/to/private-token-file doctor --j
 | `incompatible_api` | The APK on the phone is too old to include task API v1; update it. |
 | `stale_connection` | The phone has rebooted; run `connect` again. |
 | `device_selection` | More than one phone is online; find the serial with `mika devices` and add `--device SERIAL`. |
-| `connection_info` | Mika's connection information could not be read (the phone is locked, Mika hasn't been opened yet, and so on): unlock the phone, open Mika once, then run `connect` again. |
-| `adb` / `adb_unavailable` | Make sure adb is on PATH and the phone shows as `device` in `adb devices`, open Mika once on the phone, then run `connect` again. |
+| `connection_info` | Nuoyi's connection information could not be read (the phone is locked, Nuoyi hasn't been opened yet, and so on): unlock the phone, open Nuoyi once, then run `connect` again. |
+| `adb` / `adb_unavailable` | Make sure adb is on PATH and the phone shows as `device` in `adb devices`, open Nuoyi once on the phone, then run `connect` again. |
 | The agent does not see the Skill | Check for an extra nested folder and that `scripts/` was copied too, then start a new session. |
 
 Removing the computer tools does not delete phone data or turn off computer access on the phone. To stop remote access, turn off the relevant switch in Settings › Connect a computer on the phone.

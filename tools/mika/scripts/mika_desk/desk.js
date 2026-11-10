@@ -12,7 +12,7 @@ const STRINGS = {
   uploadRejected: ["{name} 未传完。附件已保留，请检查手机连接和剩余空间后重试。", "{name} did not finish uploading. Your attachments are still here. Check the connection and free space, then try again."],
   resultUnavailable: ["文件已变化或无法读取，请在手机上检查后重新导出。", "The file changed or is unavailable. Check it on the phone and export it again."],
   fileTransferFailed: ["文件传输未完成，请检查连接后重试。", "File transfer did not complete. Check the connection and try again."],
-  title: ["Mika · 会话桌面", "Mika · Conversation desk"],
+  title: ["Nuoyi · 会话桌面", "Nuoyi · Conversation desk"],
   heading: ["会话桌面", "Conversation desk"],
   displayLanguage: ["界面语言", "Language"],
   browserLanguage: ["跟随浏览器", "Browser default"],
@@ -48,7 +48,7 @@ const STRINGS = {
   recentHint: ["按对话归集最近 50 个远程任务", "Grouped from the latest 50 remote tasks"],
   noChats: ["还没有近期会话", "No recent conversations"],
   newHeading: ["想让手机帮你做什么？", "What can your phone do for you?"],
-  newHint: ["把要做的事告诉 Mika。它的进展、追问和答复会出现在这里。", "Tell Mika what you want done. Its updates, questions, and replies will appear here."],
+  newHint: ["把要做的事告诉 Nuoyi。它的进展、追问和答复会出现在这里。", "Tell Nuoyi what you want done. Its updates, questions, and replies will appear here."],
   connectHint: ["连接手机后就可以派任务。", "Connect a phone to send a task."],
   loading: ["正在读取会话…", "Reading conversations…"],
   unavailableChat: ["这段会话不在近期任务中", "This conversation is no longer available"],
@@ -69,17 +69,17 @@ const STRINGS = {
   failed: ["未能完成", "Not completed"],
   cancelled: ["已取消", "Cancelled"],
   msgStarting: ["任务已交给手机，正在等待启动。", "The phone accepted the task and is about to start."],
-  msgRunning: ["Mika 正在执行任务。", "Mika is working on the task."],
+  msgRunning: ["Nuoyi 正在执行任务。", "Nuoyi is working on the task."],
   msgQueued: ["排在前面的任务做完后自动开始。", "Starts by itself once the tasks ahead finish."],
   msgPaused: ["正在等待手机继续执行。", "Waiting for the phone to continue."],
   waitingCondition: ["等待条件", "Waiting for"],
-  msgQuestion: ["Mika 正在等你回答。", "Mika is waiting for your answer."],
+  msgQuestion: ["Nuoyi 正在等你回答。", "Nuoyi is waiting for your answer."],
   msgConfirm: ["请在手机上确认这一步。", "Confirm this step on the phone."],
   msgHandoff: ["请在手机上接管这一步。", "Take over this step on the phone."],
   msgNoAnswer: ["手机没有附上答复正文。", "The phone returned no answer text."],
   msgNoReason: ["手机没有附上失败原因。", "The phone gave no failure reason."],
   msgCancelled: ["这轮任务已停止。", "This turn was stopped."],
-  handoffGuide: ["打开手机上的 Mika 通知处理，完成后这里会自动更新。", "Open Mika’s notification on the phone; this conversation updates automatically."],
+  handoffGuide: ["打开手机上的 Nuoyi 通知处理，完成后这里会自动更新。", "Open Nuoyi’s notification on the phone; this conversation updates automatically."],
   verified: ["已核实", "Verified"],
   verifyFailed: ["核实未通过", "Verification failed"],
   verifyUnknown: ["未报告核实结果", "Verification not reported"],
@@ -96,10 +96,10 @@ const STRINGS = {
   cancelTask: ["取消本轮", "Cancel turn"],
   confirmCancel: ["向手机发送这轮任务的取消请求？", "Ask the phone to cancel this turn?"],
   targetTurn: ["处理这轮", "Respond to this turn"],
-  message: ["给 Mika 的消息", "Message to Mika"],
+  message: ["给 Nuoyi 的消息", "Message to Nuoyi"],
   newPlaceholder: ["把任务交给手机…", "Give your phone a task…"],
   followPlaceholder: ["接着这段对话说…", "Continue this conversation…"],
-  askPlaceholder: ["回答 Mika 的问题…", "Answer Mika’s question…"],
+  askPlaceholder: ["回答 Nuoyi 的问题…", "Answer Nuoyi’s question…"],
   steerPlaceholder: ["补充这轮任务的要求…", "Add instructions to this turn…"],
   onPhonePlaceholder: ["请在手机上完成这一步…", "Complete this step on the phone…"],
   waitingPlaceholder: ["等待手机继续…", "Waiting for the phone…"],
@@ -126,7 +126,7 @@ const STRINGS = {
   received: ["手机已收到", "Received by the phone"],
   joined: ["已加入任务上下文", "Added to the task context"],
   not_applied: ["未被采用", "Not applied"],
-  questionFromPhone: ["Mika 的追问", "Mika asked"],
+  questionFromPhone: ["Nuoyi 的追问", "Nuoyi asked"],
   yourAnswer: ["你的回答", "Your answer"],
   yourSteer: ["你的追加要求", "Your instructions"],
   cancelSent: ["已送出取消请求，以手机返回的状态为准。", "Cancellation requested. The phone will report the final state."],
@@ -136,7 +136,7 @@ const STRINGS = {
   errDevicePinned: ["这个任务台已选择另一台手机，请重新读取。", "This desk already uses another phone. Refresh its state."],
   errAdb: ["无法读取所选手机，请检查 ADB 连接。", "Cannot read the selected phone. Check its ADB connection."],
   errAdbUnavailable: ["找不到可运行的 adb，请先安装 Android platform-tools，或检查 --adb 指定的路径。", "adb was not found or cannot be run. Install Android platform-tools or check the --adb path."],
-  errConnectionInfo: ["无法读取 Mika 的连接信息。请解锁手机，打开一次 Mika，然后重新连接。", "Could not read Mika’s connection information. Unlock the phone, open Mika once, then connect again."],
+  errConnectionInfo: ["无法读取 Nuoyi 的连接信息。请解锁手机，打开一次 Nuoyi，然后重新连接。", "Could not read Nuoyi’s connection information. Unlock the phone, open Nuoyi once, then connect again."],
   errDeviceOffline: ["这台手机已离线，重连后会自动更新。", "This phone is offline. Updates resume after reconnection."],
   errDeviceUnauthorized: ["手机还没授权这台电脑。请解锁手机，允许 USB 调试，任务台会自动重试。", "The phone hasn’t authorized this computer. Unlock it and allow USB debugging; the desk retries by itself."],
   errDeviceReconnect: ["这台手机处于离线状态。请重新插拔数据线，或在手机上重新打开 USB 调试，任务台会自动重试。", "This phone is offline. Reconnect the cable or turn USB debugging off and on; the desk retries by itself."],
@@ -707,7 +707,7 @@ function addTurn(task, index) {
   logo.alt = "";
   const state = el("span", "state", t(task.status));
   state.dataset.tone = tones[task.status];
-  author.append(logo, el("span", "", "Mika"), state);
+  author.append(logo, el("span", "", "Nuoyi"), state);
   if (task.status === "done") {
     const mark = el("span", "verification", "· " + verification(task));
     mark.dataset.tone = task.verified === true ? "good" : task.verified === false ? "warn" : "";
@@ -1252,7 +1252,7 @@ async function call(action, fields = {}) {
 async function deskRequest(path, body, headers, write = false, download = false, action = "") {
   let response, data;
   try {
-    response = await fetch(path, { method: "POST", headers: { ...headers, "X-Mika-Desk": ticket || "" }, body });
+    response = await fetch(path, { method: "POST", headers: { ...headers, "X-Nuoyi-Desk": ticket || "" }, body });
     if (download && response.ok && response.headers.get("Content-Type") === "application/octet-stream") {
       return await response.blob();
     }
@@ -1479,7 +1479,7 @@ async function submit() {
           message("notice", t("uploadingFile", { name: file.name, index: uploads.length + 1, total: files.length }));
           try {
             const receipt = await deskRequest("/desk/upload", file, { "Content-Type": "application/octet-stream",
-              "X-Mika-Filename": encodeURIComponent(file.name) });
+              "X-Nuoyi-Filename": encodeURIComponent(file.name) });
             uploads.push(receipt.upload_id);
           } catch (error) {
             if (error.code === "session") throw error;

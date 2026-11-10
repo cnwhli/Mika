@@ -2,7 +2,7 @@
 # 编译沙箱的三个原生程序(安卓 arm64),产物放进 app/src/main/jniLibs/arm64-v8a/:
 #   libproot.so         PRoot(GPL-2.0-or-later),静态链接 talloc(LGPL-3.0-or-later)
 #   libproot_loader.so  PRoot 的载入器(静态、-nostdlib)
-#   libmikarun.so       Mika 的启动器(MIT)
+#   libmikarun.so       Nuoyi 的启动器(MIT)
 #
 # 用法:tools/sandbox/build-native.sh [--check]
 #   --check  只重编并与仓库里的产物比较 SHA-256,不一致退出 1(不覆盖仓库文件)

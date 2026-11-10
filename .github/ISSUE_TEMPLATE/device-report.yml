@@ -1,14 +1,14 @@
 name: 机型兼容性反馈 / Device compatibility report
-description: 贴上 Mika 里「兼容性自检」的报告,告诉我们这台手机上哪些能用 / Paste the report from Mika's compatibility self-check and tell us what works on your phone
+description: 贴上 Nuoyi 里「兼容性自检」的报告,告诉我们这台手机上哪些能用 / Paste the report from Nuoyi's compatibility self-check and tell us what works on your phone
 title: "[兼容性] "
 body:
   - type: markdown
     attributes:
       value: |
-        在 Mika 里打开 **设置 › 恢复与修复 › 兼容性自检**,点「开始自检」,大约 1 分钟。跑完点「去 GitHub 反馈」会复制报告并打开这一页,把报告粘贴到下面的「自检报告」里。
+        在 Nuoyi 里打开 **设置 › 恢复与修复 › 兼容性自检**,点「开始自检」,大约 1 分钟。跑完点「去 GitHub 反馈」会复制报告并打开这一页,把报告粘贴到下面的「自检报告」里。
         报告里只有机型、系统版本和每一项的结果,不含账号、App 列表和你的内容;发出前请再看一遍。
 
-        In Mika, open **Settings › Recovery & repair › Compatibility self-check** and tap "Start" (about 1 minute). When it finishes, "Report on GitHub" copies the report and opens this page; paste it into "Self-check report" below.
+        In Nuoyi, open **Settings › Recovery & repair › Compatibility self-check** and tap "Start" (about 1 minute). When it finishes, "Report on GitHub" copies the report and opens this page; paste it into "Self-check report" below.
         The report only has the phone model, system version and the result of each check, with no accounts, app lists or your content. Please read it before posting.
   - type: input
     id: model
@@ -27,8 +27,8 @@ body:
   - type: input
     id: mika-version
     attributes:
-      label: Mika 版本 / Mika version
-      description: 设置 › 关于 Mika / Settings › About Mika
+      label: Nuoyi 版本 / Nuoyi version
+      description: 设置 › 关于 Nuoyi / Settings › About Nuoyi
     validations:
       required: true
   - type: textarea

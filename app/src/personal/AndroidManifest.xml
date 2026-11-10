@@ -9,7 +9,7 @@
 
     <application>
         <service
-            android:name="com.wangzan101.mika.voice.AlwaysOnWakeWordService"
+            android:name="com.nuoyi.agent.voice.AlwaysOnWakeWordService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
     </application>

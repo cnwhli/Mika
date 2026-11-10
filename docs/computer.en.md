@@ -1,12 +1,12 @@
-# Use Mika from a computer
+# Use Nuoyi from a computer
 
 [简体中文](computer.md) | English
 
-AI tools on your computer (or you, in a terminal) can hand a job to Mika on your phone, check progress, answer its follow-up questions and get the result back. The computer says what to get done; Mika on the phone decides how. This page helps you pick an entry point and a connection, then points you to the step-by-step guides.
+AI tools on your computer (or you, in a terminal) can hand a job to Nuoyi on your phone, check progress, answer its follow-up questions and get the result back. The computer says what to get done; Nuoyi on the phone decides how. This page helps you pick an entry point and a connection, then points you to the step-by-step guides.
 
 AI agents: go straight to the [agent quick path](agent-quickstart.en.md).
 
-On the phone: install the APK ([Releases](https://github.com/wangzan101/Mika/releases/latest)), open Mika once and add a model. If Mika only needs to chat, browse the web and work with files, Android 11 is enough; to let it operate phone apps, also finish the phone-control setup in the [setup guide](setup-guide.en.md) (Android 12+).
+On the phone: install the APK ([Releases](https://github.com/wangzan101/Mika/releases/latest)), open Nuoyi once and add a model. If Nuoyi only needs to chat, browse the web and work with files, Android 11 is enough; to let it operate phone apps, also finish the phone-control setup in the [setup guide](setup-guide.en.md) (Android 12+).
 
 ## Step 1: pick an entry point (CLI + Skill or MCP)
 
@@ -16,7 +16,7 @@ Both entry points reach the same task service on the phone. **Normally one is en
 | --- | --- | --- |
 | Your computer agent can run commands and supports Skills | **Skill**: includes its own CLI script, so no separate CLI install and no MCP configuration | [Install the Skill](computer-install.en.md#skill-install) |
 | You want to submit tasks from a terminal or script | **CLI**: the `mika` command | [Install the CLI](computer-install.en.md#cli-install), [connection and task commands](cli.en.md) |
-| You use a client that speaks MCP | **MCP**: Mika acts as an MCP server | [Computer access (MCP)](mcp.en.md) |
+| You use a client that speaks MCP | **MCP**: Nuoyi acts as an MCP server | [Computer access (MCP)](mcp.en.md) |
 
 Not sure? If your agent supports Skills, use the Skill; otherwise use MCP.
 
@@ -37,7 +37,7 @@ Each connection has its own switch and token, and both can be on at once. The co
 
 - **CLI or Skill**: install it with [install, update and remove](computer-install.en.md), then read [connection and task commands](cli.en.md).
 - **MCP**: follow [Computer access (MCP)](mcp.en.md), which covers both USB and Wi-Fi / VPN step by step.
-- **Let an AI agent on your computer set it up**: with the phone connected over USB, give it [Install with an AI agent on your computer](install-with-agent.en.md). It installs Mika on the phone first; if you also want computer access, it then sets up the entry point you chose.
+- **Let an AI agent on your computer set it up**: with the phone connected over USB, give it [Install with an AI agent on your computer](install-with-agent.en.md). It installs Nuoyi on the phone first; if you also want computer access, it then sets up the entry point you chose.
 
 ## Task desk (`mika ui`)
 

@@ -8,7 +8,7 @@
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <header class="topbar"><div class="topbar-inner"><span class="brand">Mika</span><span>{{index .Copy "pageTitle"}}</span></div></header>
+  <header class="topbar"><div class="topbar-inner"><span class="brand">Nuoyi</span><span>{{index .Copy "pageTitle"}}</span></div></header>
   <main>
     <div class="intro"><h1>{{index .Copy "heading"}}</h1><p>{{index .Copy "intro"}}</p></div>
     {{if .Message}}<section class="notice {{if .Bad}}notice-bad{{else}}notice-ok{{end}}" role="{{if .Bad}}alert{{else}}status{{end}}"><strong>{{index .Copy .Message}}</strong></section>{{end}}

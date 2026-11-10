@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_service_description">Esta permissão do sistema permite que o Mika leia e opere o que aparece em qualquer tela. O Mika a usa apenas na tela virtual dele para fazer as tarefas que você pedir, e só age na sua tela principal quando você entrega uma tarefa lá.</string>
+    <string name="a11y_service_description">Esta permissão do sistema permite que o Nuoyi leia e opere o que aparece em qualquer tela. O Nuoyi a usa apenas na tela virtual dele para fazer as tarefas que você pedir, e só age na sua tela principal quando você entrega uma tarefa lá.</string>
     <string name="channel_attention">Precisa de você</string>
     <string name="takeover_title">Precisa de você</string>
     <string name="takeover_title_reason">Precisa de você: %1$s</string>

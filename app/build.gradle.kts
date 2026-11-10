@@ -5,11 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-// 自有品牌。换名字只改这三行;core / app 的代码包名(namespace)仍是上游的
-// com.wangzan101.mika —— Apache-2.0 允许保留原包名,但 R 类与所有 import 依赖它,
-// 一次性全量重命名要单独做一轮(见 NOTICE)。因此 Manifest 里组件一律写完整类名:
-// ".Foo" 这种相对写法会按 applicationId 解析,换了 ID 就会 ClassNotFoundException。
-val brandApplicationId = "com.voicehelm.agent"
+// 自有品牌。换名字只改这三行。namespace 与 applicationId 都已是自有包名
+// com.nuoyi.agent（源码包、R 类、AIDL、Manifest 全量迁移完成）。
+// Manifest 里组件一律写完整类名: ".Foo" 这种相对写法会按 applicationId 解析,
+// 换 ID 就会 ClassNotFoundException。
+val brandApplicationId = "com.nuoyi.agent"
 val brandName = "诺伊"
 val brandWakeWord = "诺伊"
 
@@ -19,7 +19,7 @@ val gitHash: String = runCatching {
 }.getOrNull()?.takeIf { it.isNotEmpty() } ?: "dev"
 
 android {
-    namespace = "com.wangzan101.mika"
+    namespace = "com.nuoyi.agent"
     compileSdk = 36
 
     defaultConfig {

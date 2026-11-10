@@ -1,4 +1,4 @@
-// Mika's optional single-owner, single-device gateway. TLS terminates at the reverse proxy.
+// Nuoyi's optional single-owner, single-device gateway. TLS terminates at the reverse proxy.
 package main
 
 import (
@@ -73,7 +73,7 @@ func main() {
 		defer cancel()
 		_ = srv.Shutdown(shutdown)
 	}()
-	log.Printf("Mika relay listening on %s", *listen)
+	log.Printf("Nuoyi relay listening on %s", *listen)
 	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

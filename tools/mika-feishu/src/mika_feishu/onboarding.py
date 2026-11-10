@@ -29,7 +29,7 @@ def qr_page(info, directory, open_browser=True):
     page = Path(directory) / "feishu-setup.html"
     page.write_text("""<!doctype html><html lang="en"><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
-<meta name="referrer" content="no-referrer"><title>Mika · Connect Feishu</title>
+<meta name="referrer" content="no-referrer"><title>Nuoyi · Connect Feishu</title>
 <style>body{font:18px system-ui;max-width:640px;margin:48px auto;padding:24px}img{width:320px;max-width:100%}a{overflow-wrap:anywhere}</style>
 <h1>Connect your Feishu bot / 连接飞书机器人</h1>
 <p>Scan in Feishu and review the app and permissions. 扫码后核对应用及权限。</p>
@@ -56,7 +56,7 @@ def register(mode, app_id=None, open_browser=True, register_app=None):
                "domain": "https://accounts.feishu.cn", "lark_domain": "https://accounts.feishu.cn"}
     if mode == "create":
         options["create_only"] = True
-        options["app_preset"] = {"name": "Mika", "desc": "Send tasks to your own Android phone"}
+        options["app_preset"] = {"name": "Nuoyi", "desc": "Send tasks to your own Android phone"}
     elif mode == "existing":
         if app_id:
             if not app_id.startswith("cli_"):
@@ -90,11 +90,11 @@ def setup(path, mode=None, open_browser=True):
         return ((getpass.getpass if secret else input)(prompt + hint + ": ").strip() or old)
     config = {}
     # Validate the phone target before starting an external authorization flow.
-    config["mika_url"] = ask("mika_url", "Mika URL, e.g. http://100.64.1.2:8765")
+    config["mika_url"] = ask("mika_url", "Nuoyi URL, e.g. http://100.64.1.2:8765")
     validate_url(config["mika_url"])
-    config["mika_token"] = ask("mika_token", "Mika network access token (not a Tailscale key)", True)
+    config["mika_token"] = ask("mika_token", "Nuoyi network access token (not a Tailscale key)", True)
     if not config["mika_token"]:
-        raise ValueError("A Mika network access token is required")
+        raise ValueError("A Nuoyi network access token is required")
     if mode == "manual":
         config["feishu_app_id"] = ask("feishu_app_id", "Feishu App ID")
         config["feishu_app_secret"] = ask("feishu_app_secret", "Feishu App Secret", True)

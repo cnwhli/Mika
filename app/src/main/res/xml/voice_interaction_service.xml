@@ -6,8 +6,8 @@
     会话内真正用的是 AssistantRecognizer 显式挑选的系统识别服务。
 -->
 <voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:sessionService="com.wangzan101.mika.voice.AssistantSessionService"
-    android:recognitionService="com.wangzan101.mika.voice.AssistantRecognitionService"
-    android:settingsActivity="com.wangzan101.mika.voice.VoiceSetupActivity"
+    android:sessionService="com.nuoyi.agent.voice.AssistantSessionService"
+    android:recognitionService="com.nuoyi.agent.voice.AssistantRecognitionService"
+    android:settingsActivity="com.nuoyi.agent.voice.VoiceSetupActivity"
     android:supportsAssist="true"
     android:supportsLocalInteraction="true" />

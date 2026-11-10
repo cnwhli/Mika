@@ -34,7 +34,7 @@ def desk(*args, env=None, script=SCRIPT):
 
 def request(url, data=None, *, path="/desk", headers=None):
     origin = "http://" + url.netloc
-    request_headers = {"Origin": origin, "X-Mika-Desk": url.fragment, "Content-Type": "application/json"}
+    request_headers = {"Origin": origin, "X-Nuoyi-Desk": url.fragment, "Content-Type": "application/json"}
     request_headers.update(headers or {})
     conn = http.client.HTTPConnection(url.hostname, url.port, timeout=5)
     try:
@@ -119,7 +119,7 @@ class DeskTest(unittest.TestCase):
     def test_browser_session_origin_host_and_command_allowlist(self):
         with api() as phone, self.launch(phone) as url:
             command = {"action": "run", "goal": "no"}
-            for headers in [{"X-Mika-Desk": ""}, {"Origin": "https://other.invalid"}, {"Origin": "null"},
+            for headers in [{"X-Nuoyi-Desk": ""}, {"Origin": "https://other.invalid"}, {"Origin": "null"},
                             {"Host": "other.invalid"}, {"Content-Type": "text/plain"}]:
                 self.assertIn(request(url, command, headers=headers)[0], (403, 415))
             for data in [{**command, "url": "http://other.invalid"}, {**command, "goal_file": "/etc/hosts"},
@@ -133,8 +133,8 @@ class DeskTest(unittest.TestCase):
         with api() as phone, self.launch(phone) as url:
             # No endpoint hands out the secret, and a guessed one is refused without contacting the phone.
             for path in ["/session", "/desk"]:
-                self.assertEqual(403, request(url, {}, path=path, headers={"X-Mika-Desk": "open"})[0])
-            self.assertEqual(403, request(url, {"action": "overview"}, headers={"X-Mika-Desk": url.fragment[:-1]})[0])
+                self.assertEqual(403, request(url, {}, path=path, headers={"X-Nuoyi-Desk": "open"})[0])
+            self.assertEqual(403, request(url, {"action": "overview"}, headers={"X-Nuoyi-Desk": url.fragment[:-1]})[0])
             self.assertEqual([], phone.calls)
         result = subprocess.run([sys.executable, str(SCRIPT), "ui", "--no-open", "--port", "18765"],
                                 capture_output=True, text=True, timeout=10)

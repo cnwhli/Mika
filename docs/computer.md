@@ -1,12 +1,12 @@
-# 从电脑使用 Mika
+# 从电脑使用 Nuoyi
 
 简体中文 | [English](computer.en.md)
 
-电脑上的 AI 工具（或者你自己在终端里）可以把一件事交给手机上的 Mika，查进度、回答追问，拿回结果。电脑说「要办成什么」，怎么做由手机上的 Mika 决定。这一页帮你选入口、选连法，然后指向具体的步骤。
+电脑上的 AI 工具（或者你自己在终端里）可以把一件事交给手机上的 Nuoyi，查进度、回答追问，拿回结果。电脑说「要办成什么」，怎么做由手机上的 Nuoyi 决定。这一页帮你选入口、选连法，然后指向具体的步骤。
 
 AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 
-手机端的前提：装好 APK（[Releases](https://github.com/wangzan101/Mika/releases/latest)）、打开过一次 Mika、配好模型。只让 Mika 聊天、上网、处理文件时，安卓 11 就行；要它操作手机 App，还要按[设置指南](setup-guide.md)完成手机操作设置（安卓 12+）。
+手机端的前提：装好 APK（[Releases](https://github.com/wangzan101/Mika/releases/latest)）、打开过一次 Nuoyi、配好模型。只让 Nuoyi 聊天、上网、处理文件时，安卓 11 就行；要它操作手机 App，还要按[设置指南](setup-guide.md)完成手机操作设置（安卓 12+）。
 
 ## 第一步：选入口（CLI + Skill 或 MCP）
 
@@ -16,7 +16,7 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 | --- | --- | --- |
 | 电脑上的 Agent 能执行命令、支持 Skill | **Skill**：自带 CLI 脚本，不用另装 CLI，也不用配 MCP | [安装 Skill](computer-install.md#skill安装) |
 | 想在终端或脚本里派任务 | **CLI**：`mika` 命令 | [安装 CLI](computer-install.md#cli安装)，[连接与任务命令](cli.md) |
-| 用的是支持 MCP 的客户端 | **MCP**：Mika 当 MCP 服务器 | [电脑连接（MCP）](mcp.md) |
+| 用的是支持 MCP 的客户端 | **MCP**：Nuoyi 当 MCP 服务器 | [电脑连接（MCP）](mcp.md) |
 
 拿不准时：Agent 支持 Skill 就用 Skill，否则用 MCP。
 
@@ -37,7 +37,7 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 
 - **CLI 或 Skill**：先按[安装、升级和卸载](computer-install.md)装好，再看[连接与任务命令](cli.md)。
 - **MCP**：按[电脑连接（MCP）](mcp.md)，USB 和 Wi-Fi / VPN 两种连法都有一步步的说明。
-- **让电脑上的 AI 助手替你装**：手机经 USB 连着电脑时，把[用电脑上的 AI 助手安装](install-with-agent.md)这份说明交给它：它先把 Mika 装到手机上；你也要电脑访问的话，它会按你选的入口接着配好。
+- **让电脑上的 AI 助手替你装**：手机经 USB 连着电脑时，把[用电脑上的 AI 助手安装](install-with-agent.md)这份说明交给它：它先把 Nuoyi 装到手机上；你也要电脑访问的话，它会按你选的入口接着配好。
 
 ## 电脑任务台（`mika ui`）
 

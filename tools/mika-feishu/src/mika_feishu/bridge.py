@@ -9,7 +9,7 @@ from .api import ApiError
 
 TERMINAL = {"done", "failed", "cancelled"}
 KNOWN = TERMINAL | {"starting", "running", "paused", "waiting_for_answer", "waiting_on_phone"}
-HELP = """Mika phone assistant (paired users, private messages only)
+HELP = """Nuoyi phone assistant (paired users, private messages only)
 Send text to start a task or answer the current question shown in Feishu.
 /status Show status and results
 /answer TEXT Answer a question
@@ -46,7 +46,7 @@ def normalize(data):
 def describe(task):
     status = task.get("status", "unknown")
     title = {"done": "Task ended", "failed": "Task failed", "cancelled": "Task cancelled",
-             "waiting_for_answer": "Mika needs an answer", "waiting_on_phone": "Please handle this on the phone",
+             "waiting_for_answer": "Nuoyi needs an answer", "waiting_on_phone": "Please handle this on the phone",
              "paused": "Task paused", "running": "Running", "starting": "Starting"}.get(status, "Unknown task status")
     detail = (task.get("answer") or task.get("question") or task.get("message") or
               task.get("progress") or task.get("reason") or "")
@@ -139,7 +139,7 @@ class Bridge:
                 self.store.update(event["chat"] + ":" + event["user"], uncertain=1)
                 text = "The phone may have accepted the request. It was not retried. Check the phone or task desk before proceeding."
             else:
-                text = f"Mika request did not complete ({exc.code}). Check connectivity, version and phone task status."
+                text = f"Nuoyi request did not complete ({exc.code}). Check connectivity, version and phone task status."
             self.reply(event, text, "error")
         except Exception:
             # Unknown failures also fail closed. Never include SDK secrets/payload in logs.

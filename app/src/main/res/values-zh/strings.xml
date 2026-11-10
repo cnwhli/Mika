@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="a11y_service_description">这项系统权限能让 Mika 读取和操作任何屏幕上的内容。Mika 只在它自己的虚拟屏幕上用它来完成你交给它的任务；只有你把主屏幕上的任务交给它时，才会在主屏幕上操作。</string>
+    <string name="a11y_service_description">这项系统权限能让 诺伊 读取和操作任何屏幕上的内容。诺伊 只在它自己的虚拟屏幕上用它来完成你交给它的任务；只有你把主屏幕上的任务交给它时，才会在主屏幕上操作。</string>
     <string name="channel_attention">需要你处理</string>
     <string name="takeover_title">需要你处理</string>
     <string name="takeover_title_reason">需要你处理:%1$s</string>

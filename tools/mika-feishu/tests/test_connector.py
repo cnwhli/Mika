@@ -10,7 +10,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from mika_feishu.api import ApiError, MikaApi
+from mika_feishu.api import ApiError, NuoyiApi
 from mika_feishu.bridge import Bridge, normalize
 from mika_feishu.store import Store
 
@@ -41,7 +41,7 @@ class FakeApi:
         self.writes.append((action, text))
         return {"accepted": True}
 
-    safe_id = staticmethod(MikaApi.safe_id)
+    safe_id = staticmethod(NuoyiApi.safe_id)
 
 
 class BridgeTests(unittest.TestCase):
@@ -264,7 +264,7 @@ class ContractTests(unittest.TestCase):
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
-        self.api = MikaApi(f"http://127.0.0.1:{self.server.server_port}", "test-token")
+        self.api = NuoyiApi(f"http://127.0.0.1:{self.server.server_port}", "test-token")
 
     def tearDown(self):
         self.server.shutdown()
@@ -316,7 +316,7 @@ class ContractTests(unittest.TestCase):
             return connect(sock, ("127.0.0.1", port))
 
         with patch.object(socket, "getaddrinfo", changing_dns), patch.object(socket.socket, "connect", observe_connection):
-            MikaApi(f"http://{host}:{port}", "test-token").check()
+            NuoyiApi(f"http://{host}:{port}", "test-token").check()
         self.assertEqual(attempted, ["127.0.0.1"])
         self.assertEqual(self.calls[0][3], "Bearer test-token")
         self.assertEqual(self.hosts, [f"{host}:{port}"])
@@ -342,7 +342,7 @@ class ContractTests(unittest.TestCase):
 
         with patch.object(socket, "getaddrinfo", side_effect=lambda name, port, **kw: resolve("127.0.0.1", port, **kw)):
             with patch.object(ssl.SSLContext, "wrap_socket", wrap):
-                MikaApi(f"https://{host}:{port}", "test-token").check()
+                NuoyiApi(f"https://{host}:{port}", "test-token").check()
         self.assertEqual(handshakes, [(True, ssl.CERT_REQUIRED, host)])
         self.assertEqual(self.hosts, [f"{host}:{port}"])
 

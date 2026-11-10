@@ -2,11 +2,11 @@
 
 [简体中文](feishu.md) | English
 
-Send Mika a private Feishu message, answer its questions and receive its result. An optional connector runs on your computer; the phone still plans and executes the task. No public webhook server is needed.
+Send Nuoyi a private Feishu message, answer its questions and receive its result. An optional connector runs on your computer; the phone still plans and executes the task. No public webhook server is needed.
 
 ## Install
 
-Requirements: Python 3.10+, pipx, a **Feishu enterprise custom app** with bot capability, and a phone exposing Mika task API v1 (APK v0.1.23+). This connector supports Feishu, not international Lark tenants. The computer and phone need mutual access over LAN or a trusted private VPN such as Tailscale.
+Requirements: Python 3.10+, pipx, a **Feishu enterprise custom app** with bot capability, and a phone exposing Nuoyi task API v1 (APK v0.1.23+). This connector supports Feishu, not international Lark tenants. The computer and phone need mutual access over LAN or a trusted private VPN such as Tailscale.
 
 From a repository checkout:
 
@@ -77,7 +77,7 @@ Configuration defaults to `$XDG_CONFIG_HOME/mika-feishu/config.json` or `~/.conf
 
 SQLite state, grouped by app and phone address, stores the paired user, message deduplication and task/conversation association, including task text. Changing the app or phone address requires fresh pairing. Rotating only a secret/token preserves pairing. Stop `run` before rerunning `setup` or `unpair`; a process lock prevents simultaneous consumers of the same configuration.
 
-Updates to the connector do not replace configuration or require modifying/rebuilding Mika. After updating the checkout, run `pipx install --force ./tools/mika-feishu`, then `doctor` and a read-only task. Before every write, the adapter checks public API version 1 and capabilities. Additive response fields are tolerated; unknown API versions/statuses or missing capabilities stop the corresponding operation. Future incompatible API changes need an adapter update, not a silent fallback.
+Updates to the connector do not replace configuration or require modifying/rebuilding Nuoyi. After updating the checkout, run `pipx install --force ./tools/mika-feishu`, then `doctor` and a read-only task. Before every write, the adapter checks public API version 1 and capabilities. Additive response fields are tolerated; unknown API versions/statuses or missing capabilities stop the corresponding operation. Future incompatible API changes need an adapter update, not a silent fallback.
 
 Incoming message IDs are durably deduplicated. A write whose response is lost is **not automatically repeated**; a crash during processing blocks new writes until the owner checks the phone and sends `/reset checked`. The phone API currently has no idempotency key, so the connector does not promise exactly-once execution. Unknown outcomes must be inspected. If the phone restarts and loses an old task ID, it is reported, not resubmitted. Notifications use deterministic Feishu UUIDs to reduce duplicate replies.
 
@@ -86,7 +86,7 @@ Incoming message IDs are durably deduplicated. A write whose response is lost is
 | Symptom | Check |
 | --- | --- |
 | `http_401` from the phone | Copy its **network** token again; stop, rerun setup and restart. |
-| Phone unreachable | Tailscale/LAN reachability, private address, Mika network-access switch and actual port. |
+| Phone unreachable | Tailscale/LAN reachability, private address, Nuoyi network-access switch and actual port. |
 | Bot authentication passes but no response | Event subscription, long-connection transport, published permissions, available-user scope and absence of another consumer. Authentication is not event-delivery verification. |
 | Pairing ignored | Private chat, fresh code from the current process, correct app and ten-minute expiry. |
 | App lacks registration support | Update the SDK/package, or choose manual setup. |

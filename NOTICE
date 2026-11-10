@@ -3,12 +3,16 @@ Copyright 2026 wangzan101
 
 诺伊 (Nuoyi)
 基于 Mika (Apache-2.0, Copyright 2026 wangzan101) 二次开发，在其上新增了：
-语音会话编排、免手入口、双版本唤醒词能力边界、免费额度感知路由与修复。
+语音会话编排、免手入口、双版本唤醒词能力边界、免费额度感知路由与修复、
+固定身份应答，以及产品品牌与代码包名的全量迁移。
 上游的 LICENSE（Apache-2.0）与 licenses/THIRD_PARTY_NOTICES.md 一并保留；
 其中 PRoot 为 GPL-2.0-or-later、talloc 为 LGPL-3.0-or-later，源码获取方式以上述
 THIRD_PARTY_NOTICES.md 中的说明为准。
 
 诺伊与上游项目无隶属或背书关系；不使用上游的名称、图标、商标作为本产品的商业标识。
-代码包名 com.wangzan101.mika 因 R 类与既有 import 的兼容性暂予保留，applicationId
-与界面品牌已改为自有标识；彻底的包名重命名需单独一轮全量迁移。applicationId
-中的 voicehelm、早期内部代号「声舵 / VoiceHelm」均不作对外品牌使用，对外统一为「诺伊 / Nuoyi」。
+applicationId、Gradle namespace、源码包名、AIDL、组件类名与界面品牌均已改为自有标识
+com.nuoyi.agent / 「诺伊 / Nuoyi」。上游仓库链接与版权声明按 Apache-2.0 保留在
+源代码与文档中，不作为本产品的商业标识。
+
+为兼容历史对话与回放数据，磁盘 JSON 里的 Author.Mika 枚举值逐字保留；它是内部
+数据格式，不是产品品牌。预编译的 native 运行时与 CLI 工具链沿用上游内部代号。

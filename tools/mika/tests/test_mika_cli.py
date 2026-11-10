@@ -434,7 +434,7 @@ else:
             adb, env, _, calls = self.fake_adb(server, bootstrap_exit=1)
             result, body = self.invoke("connect", "--adb", str(adb), env=env)
             self.assertEqual("adb", body["error"]["code"])
-            self.assertIn("open Mika once", body["error"]["message"])
+            self.assertIn("open Nuoyi once", body["error"]["message"])
             self.assertFalse(any("forward" in c for c in calls()))
 
     def test_unreadable_connection_info_asks_for_unlock_and_open(self):
@@ -442,7 +442,7 @@ else:
             adb, env, _, calls = self.fake_adb(server, cat_fails=True)
             result, body = self.invoke("doctor", "--adb", str(adb), env=env)
             self.assertEqual("connection_info", body["error"]["code"])
-            self.assertIn("open Mika once", body["error"]["message"])
+            self.assertIn("open Nuoyi once", body["error"]["message"])
             self.assertFalse(any("forward" in c for c in calls()))
 
     def test_unrunnable_adb_is_adb_unavailable(self):

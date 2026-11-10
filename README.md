@@ -1,25 +1,23 @@
 <div align="center">
 
-<img src="docs/media/logo.png" alt="Mika" width="88" />
+<img src="docs/media/logo.png" alt="Nuoyi" width="88" />
 
-# Mika
+# 诺伊 · Nuoyi
 
 **An AI assistant on your phone: say what you need, and it works your apps and the web until it's done.**
 
 It works on a hidden background screen, so you can keep using your phone.
 
-<a href="https://github.com/wangzan101/Mika/releases/latest"><img src="https://img.shields.io/badge/Download%20APK-Android%2011%2B-2ea043?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" /></a>
-
-<a href="https://github.com/wangzan101/Mika/stargazers"><img src="https://img.shields.io/github/stars/wangzan101/Mika?style=flat&logo=github&label=Star&color=1f6feb" alt="stars" /></a>
-<a href="https://github.com/wangzan101/Mika/releases"><img src="https://img.shields.io/github/downloads/wangzan101/Mika/total?label=downloads&color=2ea043" alt="downloads" /></a>
-<a href="https://github.com/wangzan101/Mika/releases/latest"><img src="https://img.shields.io/github/v/release/wangzan101/Mika?include_prereleases&label=version" alt="version" /></a>
+<img src="https://img.shields.io/badge/Android-11%2B-2ea043?style=for-the-badge&logo=android&logoColor=white" alt="Android 11+" />
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-lightgrey" alt="license" /></a>
 
 <br/>
 
-<a href="https://trendshift.io/repositories/326940#achievements"><img src="https://trendshift.io/api/badge/trendshift/repositories/326940/daily?language=Kotlin" alt="#1 Kotlin Repository of the Day" width="250" height="55" /></a>
-<a href="https://trendshift.io/repositories/326940#achievements"><img src="https://trendshift.io/api/badge/trendshift/repositories/326940/weekly?language=Kotlin" alt="#1 Kotlin Repository of the Week" width="250" height="55" /></a>
-<a href="https://trendshift.io/repositories/326940#achievements"><img src="https://trendshift.io/api/badge/trendshift/repositories/326940/daily" alt="#5 Repository of the Day" width="250" height="55" /></a>
+诺伊是一款可以**免手唤起**的手机 AI 助理：喊「诺伊」，或用系统数字助手叫起，
+说出要办的事，它会在后台屏幕上把应用和网页操作完，再把结果念给你听。
+别人问「你是谁」，它只回答一句「我是李万禧的女儿，数字女儿」。
+
+公版用系统数字助手入口、唤醒词固定；自用版支持自定义唤醒词与本地常驻热词。
 
 <br/>
 
@@ -27,9 +25,9 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 
 <br/>
 
-<img src="docs/media/wechat-send-side.gif" alt="From one sentence, Mika opens WeChat on its background screen, finds the contact and sends the message" width="640" />
+<img src="docs/media/wechat-send-side.gif" alt="From one sentence, Nuoyi opens WeChat on its background screen, finds the contact and sends the message" width="640" />
 
-<sub>"Send a message to File Transfer": Mika's chat on the left, each step on its background screen on the right (4× speed; chat list blurred)</sub>
+<sub>"Send a message to File Transfer": Nuoyi's chat on the left, each step on its background screen on the right (4× speed; chat list blurred)</sub>
 
 </div>
 
@@ -61,9 +59,9 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 
 </details>
 
-<sub>Several demos use apps popular in China: WeChat is the main messaging app there, and Xiaohongshu (RED) is a lifestyle and social platform. Mika isn't tied to them; it works with any app or website on your phone.</sub>
+<sub>Several demos use apps popular in China: WeChat is the main messaging app there, and Xiaohongshu (RED) is a lifestyle and social platform. Nuoyi isn't tied to them; it works with any app or website on your phone.</sub>
 
-## Why Mika
+## Why Nuoyi
 
 | | |
 |---|---|
@@ -71,19 +69,19 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 | 🧩 **Works with any app** | Looks at the screen and finds buttons the way a person does: no app APIs, no per-app integration |
 | 🌐 **Call it from any web page** | In the built-in browser, say what you want on the page you're reading and it works right there; touch the page and it stops |
 | 🧠 **Gets better with use** | Remembers the preferences you tell it, and turns tasks it finishes into skills so next time is faster and steadier |
-| 🔒 **Your data stays on your phone** | There is no Mika server; use your own model API key, or sign in with a ChatGPT, xAI or OpenRouter account |
+| 🔒 **Your data stays on your phone** | There is no Nuoyi server; use your own model API key, or sign in with a ChatGPT, xAI or OpenRouter account |
 | 🆓 **Open source and free** | Apache-2.0, all code public |
 
 ## Get started in three steps
 
-1. **Install**: download the APK from [Releases](https://github.com/wangzan101/Mika/releases/latest).
+1. **Install**: install the 诺伊 APK from your own distribution channel (own site or app store). 自有发布渠道接入后下载链接会放在这里；不要从上游 Mika 仓库下载，那是另一个应用。
 2. **Connect a model**: in Settings › Model, pick a provider and enter an API key, or just sign in with an account ([models and sign-in](docs/models.en.md)).
 3. **To operate phone apps**: follow the "Set up phone control" wizard in Settings and pair wireless debugging on the phone once ([setup guide](docs/setup-guide.en.md)). Skip this if you only want chat, web and files.
 
 Then try saying: "Set alarms for 9:40 and 10:00 tomorrow morning" or "Check the weather at 8 every morning and tell me only if it will rain".
 
 > 💡 Have a computer handy? Send this to the AI agent on it and it will set everything up for you:<br/>
-> `Follow https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.en.md to install Mika on the Android phone connected over USB.`
+> `Follow https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.en.md to install Nuoyi on the Android phone connected over USB.`
 
 ## What it can do
 
@@ -93,12 +91,12 @@ Then try saying: "Set alarms for 9:40 and 10:00 tomorrow morning" or "Check the 
 | **Browse the web** | A built-in desktop-class browser that keeps you signed in, reads pages, downloads and uploads; paces itself and hands block pages to you |
 | **Your current screen** | Double-tap the floating capsule to send the screen you're looking at: "how should I reply?", "note this down" |
 | **Schedules and conditions** | "Remind me at 9 tomorrow", "do this every Friday"; runs on time in the original conversation |
-| **Jump in or stop anytime** | Keep talking while a task runs to add or correct things (long-press to withdraw or edit one Mika hasn't picked up yet); after a stop it reports where it got to, and "continue" picks up from there |
+| **Jump in or stop anytime** | Keep talking while a task runs to add or correct things (long-press to withdraw or edit one Nuoyi hasn't picked up yet); after a stop it reports where it got to, and "continue" picks up from there |
 | **Hold to talk** | Hold the chat input to speak and edit the words before sending; long-press the floating capsule to speak and release to send. Uses the phone’s built-in speech recognition, or a provider’s speech model if it has none |
 | **Files and computing** | A Linux sandbox per conversation runs Python, Node and shell on the files you send (arm64) |
-| **From your computer** | AI tools on your computer can hand Mika tasks through CLI + Skill or MCP ([use Mika from a computer](docs/computer.en.md)) |
+| **From your computer** | AI tools on your computer can hand Nuoyi tasks through CLI + Skill or MCP ([use Nuoyi from a computer](docs/computer.en.md)) |
 
-By default Mika runs in **Ask mode**: it checks with you only before spending money (placing orders, paying) and just does everything else. You can switch to **Autonomous mode** instead. See [Ask and Autonomous](docs/modes.en.md).
+By default Nuoyi runs in **Ask mode**: it checks with you only before spending money (placing orders, paying) and just does everything else. You can switch to **Autonomous mode** instead. See [Ask and Autonomous](docs/modes.en.md).
 
 For how each of these works and the finer details, see [features in detail](docs/features.en.md).
 
@@ -113,7 +111,7 @@ The names are shown as they appear in the knowledge files.
 |---|---|
 | **Apps** | Android 设置, 百家号, 哔哩哔哩, BOSS直聘, Chrome, 得到, 抖音, 飞书, Gmail, 即刻, 快手, 领英, QQ邮箱, Telegram, 今日头条, Uber, Uber Eats, 微信, 微博, WhatsApp, X, 闲鱼, 小红书, 知乎 |
 | **Websites** | Amazon, 哔哩哔哩, Google Calendar, 豆瓣, 抖音, Instagram, Gmail, Google Maps, Telegram, 百度贴吧, 微博, 搜狗微信, WhatsApp, 小红书, 小宇宙, YouTube, 知乎, BOSS直聘 |
-| **How-to skills** | 改 Mika 自己的设置, 把内容整理成文字, 处理 PDF 文档, 查清一件事, 消息与邮件, 写技能 |
+| **How-to skills** | 改 Nuoyi 自己的设置, 把内容整理成文字, 处理 PDF 文档, 查清一件事, 消息与邮件, 写技能 |
 <!-- generated:knowledge:end -->
 
 </details>
@@ -142,38 +140,39 @@ Not sure your phone is up to it? Run Settings › Recovery & repair › **Compat
 
 ## Privacy & safety
 
-- **There is no Mika server**: what you say and what's on your screen go only to the model provider you set up.
+- **There is no Nuoyi server**: what you say and what's on your screen go only to the model provider you set up.
 - API keys and memories are stored encrypted on the phone; conversations and run records stay on the device; update checks only contact GitHub.
 - Operating third-party apps and websites automatically may break their terms of service, so use your own judgment. For anything important, use Ask mode and check the results. See the [disclaimer](docs/disclaimer.en.md).
 
 <details>
 <summary><b>FAQ</b></summary>
 
-**Wireless debugging turned itself off?** Android turns it off when you change Wi-Fi or restart. With your permission, Mika turns it back on by itself; if it still can't connect, go back to "Set up phone control" and pair again.
+**Wireless debugging turned itself off?** Android turns it off when you change Wi-Fi or restart. With your permission, Nuoyi turns it back on by itself; if it still can't connect, go back to "Set up phone control" and pair again.
 
 **Can't find wireless debugging on my phone?** Some phone systems leave it out. You can start the phone helper from a computer over USB instead; see the [setup guide](docs/setup-guide.en.md).
 
-**Some screens can't be read or captured?** Pages like payments and password entry block screenshots, so Mika asks you to take over there.
+**Some screens can't be read or captured?** Pages like payments and password entry block screenshots, so Nuoyi asks you to take over there.
 
 **Can I use a model running on my own computer?** Yes: pick "Custom" as the provider and enter its address on your local network.
 
-**Is the app in English?** Yes. The app UI comes in English, Arabic, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, Portuguese, Russian and Indonesian, follows your system language, and can be switched in Settings › Language. The built-in app and website knowledge is written in Chinese, but that doesn't limit you: the model reads it fine, and you can talk to Mika in English.
+**Is the app in English?** Yes. The app UI comes in English, Arabic, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, Portuguese, Russian and Indonesian, follows your system language, and can be switched in Settings › Language. The built-in app and website knowledge is written in Chinese, but that doesn't limit you: the model reads it fine, and you can talk to Nuoyi in English.
 
-**Where do updates come from?** Only from this repository's [Releases](https://github.com/wangzan101/Mika/releases); you can also upgrade in the app from About › Check for updates.
+**Where do updates come from?** 自有发布渠道接入前，App 不会自动检查更新，也不会从别处下载安装包；升级由分发渠道提供。接入自有渠道后可在 About › Check for updates 中开启。
 
 More answers are in the [FAQ](docs/faq.en.md).
 
 </details>
 
-## Community & contributing
+## 来源与许可 / Origin & license
 
-- **Docs**: all docs and a suggested reading order are in the [docs index](docs/README.en.md)
-- **Community**: join the [X group chat](https://x.com/i/chat/group_join/g2116926829198246025/48B52j5svL); to reach the author on WeChat, scan the QR code in the app under About › Contact the author (mention Mika in your request)
-- **Follow the author**: X [@wangzan101](https://x.com/wangzan101)
-- **Report a problem**: [open an issue](https://github.com/wangzan101/Mika/issues/new/choose); About › Send feedback in the app can attach diagnostics
-- **Contribute**: add usage knowledge for an app or website (plain text, no code needed), or contribute code; see the [contributing guide](.github/CONTRIBUTING.md)
+诺伊基于 [Mika](https://github.com/wangzan101/Mika)（Apache-2.0, Copyright 2026 wangzan101）
+二次开发，与上游项目无隶属或背书关系。上游的 [LICENSE](LICENSE)、[NOTICE](NOTICE) 与
+[第三方组件声明](licenses/THIRD_PARTY_NOTICES.md) 一并保留；上游文档见
+[docs index](docs/README.en.md)，问题反馈请先联系本产品的分发渠道。
 
 ## Star History
+
+以下数据属于上游项目 [Mika](https://github.com/wangzan101/Mika)，仅作来源致谢，不代表诺伊的下载量或排名。
 
 <a href="https://star-history.com/#wangzan101/Mika&Date">
   <picture>
@@ -184,11 +183,8 @@ More answers are in the [FAQ](docs/faq.en.md).
 
 ## Contributors
 
-Thanks to everyone who has helped build Mika:
-
-<a href="https://github.com/wangzan101/Mika/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=wangzan101/Mika&max=100&columns=12" alt="Contributors" />
-</a>
+感谢 [Mika 上游项目的贡献者](https://github.com/wangzan101/Mika/graphs/contributors)，
+诺伊的语音、额度路由与品牌改造都建立在他们的工作之上。
 
 ## License
 

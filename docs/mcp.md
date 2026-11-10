@@ -1,27 +1,27 @@
-# 电脑连接（MCP）：让电脑上的 AI 工具把任务交给 Mika
+# 电脑连接（MCP）：让电脑上的 AI 工具把任务交给 Nuoyi
 
 简体中文 | [English](mcp.en.md)
 
-> 从电脑使用 Mika，先看[从电脑使用 Mika](computer.md)：怎么在 CLI + Skill 和 MCP 之间选、怎么连。想在终端或通过 Skill 使用，见 [CLI 与 Skill](cli.md)。
+> 从电脑使用 Nuoyi，先看[从电脑使用 Nuoyi](computer.md)：怎么在 CLI + Skill 和 MCP 之间选、怎么连。想在终端或通过 Skill 使用，见 [CLI 与 Skill](cli.md)。
 
-打开「电脑连接」后，Mika 就是一个 MCP 服务器：电脑上支持 MCP 的 AI 工具（MCP 客户端）可以把一件事交给 Mika，Mika 在手机上用自己的方式去做（操作 App、用内置浏览器、处理文件），做完把结果交回去。电脑说「要办成什么」，怎么做由手机上的 Mika 决定。
+打开「电脑连接」后，Nuoyi 就是一个 MCP 服务器：电脑上支持 MCP 的 AI 工具（MCP 客户端）可以把一件事交给 Nuoyi，Nuoyi 在手机上用自己的方式去做（操作 App、用内置浏览器、处理文件），做完把结果交回去。电脑说「要办成什么」，怎么做由手机上的 Nuoyi 决定。
 
 有两种连法，各有各的开关和令牌，可以都开：
 
 - **经 USB（推荐）**：手机用数据线连着电脑、开着 USB 调试，电脑上一条命令就能打开，不用碰手机。只在手机本机上监听，Wi-Fi 上连不到。
-- **经 Wi-Fi 或私有网络**：在手机的设置里打开，默认关着。电脑和手机在同一个 Wi-Fi，或在同一个私有 VPN 网络（组网工具建的虚拟局域网）里就能连上，不用路由器端口转发；这也是远程使用 Mika 的办法。
+- **经 Wi-Fi 或私有网络**：在手机的设置里打开，默认关着。电脑和手机在同一个 Wi-Fi，或在同一个私有 VPN 网络（组网工具建的虚拟局域网）里就能连上，不用路由器端口转发；这也是远程使用 Nuoyi 的办法。
 
 ## 经 USB 连接（推荐）
 
-前提：电脑上有 adb，`adb devices` 里有这台手机；Mika 至少打开过一次（它要把脚本写到手机上）。
+前提：电脑上有 adb，`adb devices` 里有这台手机；Nuoyi 至少打开过一次（它要把脚本写到手机上）。
 
 1. 在电脑上运行：
 
    ```
-   adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/connect-computer.sh
+   adb shell sh /sdcard/Android/data/com.nuoyi.agent/files/connect-computer.sh
    ```
 
-   它先启动 Mika 的手机助手（和「用电脑启动」一样，已经在运行就跳过），再打开 USB 方式，最后打印连接信息，形如：
+   它先启动 Nuoyi 的手机助手（和「用电脑启动」一样，已经在运行就跳过），再打开 USB 方式，最后打印连接信息，形如：
 
    ```json
    {
@@ -48,12 +48,12 @@
 之后想再看连接信息：
 
 ```
-adb shell cat /sdcard/Android/data/com.wangzan101.mika/files/mcp-usb.json
+adb shell cat /sdcard/Android/data/com.nuoyi.agent/files/mcp-usb.json
 ```
 
 打开以后：
 
-- 通知栏里常驻一条「电脑连接已打开」；Mika 退到后台也一直开着。手机上的 设置 › 连接电脑 顶部先显示「等待电脑连接」，收到请求后才显示「已收到电脑请求」及时间。
+- 通知栏里常驻一条「电脑连接已打开」；Nuoyi 退到后台也一直开着。手机上的 设置 › 连接电脑 顶部先显示「等待电脑连接」，收到请求后才显示「已收到电脑请求」及时间。
 - **拔插数据线**（或电脑上的 adb 重启过）之后，要再运行一次 `adb forward tcp:8765 tcp:8765`。令牌不变。
 - 已经开着时再运行第 1 步的命令，令牌不变，已经配好的客户端照常能用。
 - **重启手机后自动关掉**，要再运行一次第 1 步的命令；这时令牌会换新的，客户端配置里的令牌也要换上。
@@ -61,7 +61,7 @@ adb shell cat /sdcard/Android/data/com.wangzan101.mika/files/mcp-usb.json
 关掉（任一种都行，关掉后旧令牌立即作废，连接信息文件也删掉；下次打开换一个新令牌）：
 
 ```
-adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/connect-computer.sh off
+adb shell sh /sdcard/Android/data/com.nuoyi.agent/files/connect-computer.sh off
 ```
 
 或者在手机的 设置 › 连接电脑 › 高级设置 里关掉「经 USB 连接」，或者点通知上的「关闭」（Wi-Fi 那种开着的话也一起关）。
@@ -69,17 +69,17 @@ adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/connect-computer.sh 
 脚本做的事也可以直接用命令做（打开后等一两秒连接信息文件才写好）：
 
 ```
-adb shell am start-foreground-service -n com.wangzan101.mika/.mcp.McpService -a com.wangzan101.mika.mcp.USB_ON
-adb shell cat /sdcard/Android/data/com.wangzan101.mika/files/mcp-usb.json
-adb shell am start-foreground-service -n com.wangzan101.mika/.mcp.McpService -a com.wangzan101.mika.mcp.USB_OFF
+adb shell am start-foreground-service -n com.nuoyi.agent/.mcp.McpService -a com.nuoyi.agent.mcp.USB_ON
+adb shell cat /sdcard/Android/data/com.nuoyi.agent/files/mcp-usb.json
+adb shell am start-foreground-service -n com.nuoyi.agent/.mcp.McpService -a com.nuoyi.agent.mcp.USB_OFF
 ```
 
 ## 经 Wi-Fi 或私有网络连接
 
 ### 打开
 
-1. 打开 Mika 的 设置 › 连接电脑，选择「MCP」›「Wi-Fi / VPN」，点「开启网络访问」。网络访问默认关闭，切换引导不会自动开启。
-2. 打开后通知栏里会常驻一条「电脑连接已打开」，表示 Mika 在后台监听；通知上的「关闭」可以直接关掉。
+1. 打开 Nuoyi 的 设置 › 连接电脑，选择「MCP」›「Wi-Fi / VPN」，点「开启网络访问」。网络访问默认关闭，切换引导不会自动开启。
+2. 打开后通知栏里会常驻一条「电脑连接已打开」，表示 Nuoyi 在后台监听；通知上的「关闭」可以直接关掉。
 3. 选择电脑能访问的地址，然后点「复制配置」添加到 MCP 客户端。配置包含地址和令牌；「查看配置」默认收起，展开也只显示令牌占位符。
 4. 客户端连接或刷新工具后，确认页面顶部出现「已收到电脑请求」及请求时间。
 
@@ -91,7 +91,7 @@ adb shell am start-foreground-service -n com.wangzan101.mika/.mcp.McpService -a 
 
 - **同一个 Wi-Fi**：用列表里那个 Wi-Fi 地址（通常是 `192.168.*.*` 或 `10.*.*.*`）。
 - **私有 VPN 网络**：手机和电脑都加入同一个网络后，用列表里那个网络的地址（这类网络常用 `100.64.*.*` 到 `100.127.*.*` 一段）。
-- 手机走移动数据、或者对方是公网地址时，Mika 不接受连接。
+- 手机走移动数据、或者对方是公网地址时，Nuoyi 不接受连接。
 
 在 MCP 客户端里添加一个「HTTP」（也叫 Streamable HTTP）类型的服务器，填地址，并加上请求头 `Authorization: Bearer <令牌>`。不同客户端的配置文件写法略有不同，大多是这个样子：
 
@@ -125,10 +125,10 @@ curl -s http://192.168.1.23:8765/mcp \
 
 | 工具 | 参数 | 做什么 |
 | --- | --- | --- |
-| `mika_run_task` | `goal`（必填）、`conversation`、`"request_id"`（可选） | 把一件事交给 Mika，马上返回任务编号 `task_id`。任务记在一个对话里，手机上的对话列表看得到。想接着上一件事说，就把上一个任务返回的 `conversation` 带上。 |
+| `mika_run_task` | `goal`（必填）、`conversation`、`"request_id"`（可选） | 把一件事交给 Nuoyi，马上返回任务编号 `task_id`。任务记在一个对话里，手机上的对话列表看得到。想接着上一件事说，就把上一个任务返回的 `conversation` 带上。 |
 | `mika_task_status` | `task_id` | 任务此刻的状态、最近的进度、在等什么、做完时的回答。 |
 | `mika_wait_task` | `task_id`、`timeout_s`（可选，默认 30，最多 50） | 等到状态变了（比如开始等你回答、做完了）或者到时间，再返回状态。进度说明变了不算，不会一步一返回。 |
-| `mika_answer` | `task_id`、`text` | 回答 Mika 在这个任务里问的问题。 |
+| `mika_answer` | `task_id`、`text` | 回答 Nuoyi 在这个任务里问的问题。 |
 | `mika_steer_task` | `task_id`、`text` | 向 running 任务追加要求（最多 4000 字符），保留任务 ID 和上下文。返回 accepted 与 message_id，不代表已经执行。 |
 | `mika_cancel_task` | `task_id` | 停下这个任务。 |
 | `mika_list_tasks` | `limit`（可选，默认 10） | 电脑交来的最近几个任务，新的在前。 |
@@ -139,7 +139,7 @@ curl -s http://192.168.1.23:8765/mcp \
 - `running`：正在做，带着最近的进度说明。
 - `queued`：还没开始，排在前面的任务后面（同时进行的任务已满，或这个对话里已有任务在做），轮到时自动开始；只能等或者停掉。
 - `paused`：在等一个条件，比如手机锁屏了，解锁后自动接着做。
-- `waiting_for_answer`：Mika 问了一个问题，用 `mika_answer` 回答（在手机上回答也行）。等太久没人回答，Mika 会当作没有回答接着做。
+- `waiting_for_answer`：Nuoyi 问了一个问题，用 `mika_answer` 回答（在手机上回答也行）。等太久没人回答，Nuoyi 会当作没有回答接着做。
 - `waiting_on_phone`：这一步只能由人在手机上处理，比如交给你亲手操作的一步。电脑这边没法代答，只能等或者停掉任务；手机上会照常弹出通知。
 - `done`：做完了，带着回答；`verified` 表示回答核对过。
 - `failed`：没做成，带着原因。
@@ -169,13 +169,13 @@ curl -s http://192.168.1.23:8765/mcp \
 - 凭据加密保存在本机，不发给模型、电脑或日志。接口拒绝任何参数，包括 `pin`、`password` 等。
 - 凭据提交前先持久化占位。失败、超时、取消或进程中断后，后续尝试返回 `attempt_blocked`，请在手机上检查并重新保存凭据；关开开关或重启 App 不会清掉这个保护。
 - `disabled` 表示手机上未允许；`helper_unavailable` 表示手机助手未连接；`credential_required` 表示需在手机上保存凭据；`unlock_failed` 表示系统没有确认解锁，不会把按键注入成功当作解锁成功。
-- 不支持重启后的首次解锁之前远程启动 Mika。重启后请先亲手解锁一次。这里不改变系统锁屏配置，不放行任务中的付款或确认。
+- 不支持重启后的首次解锁之前远程启动 Nuoyi。重启后请先亲手解锁一次。这里不改变系统锁屏配置，不放行任务中的付款或确认。
 
 ## 安全
 
 - **默认关闭**，打开后才监听；关掉立即停止。
 - **USB 方式只在本机（127.0.0.1）上监听**，Wi-Fi 和别的网络上连不到，电脑经 adb 的端口转发进来。手机上别的 App 也能连本机端口，所以照样要令牌，而且 USB 的令牌只认本机来的连接。
-- **只有电脑能打开 USB 方式、拿到它的令牌**：Mika 的这个服务只接受持有 `INTERACT_ACROSS_USERS_FULL` 权限的调用方，adb shell 有，普通 App 拿不到（这个权限也没法用 adb 授给别的 App）。令牌写在 Mika 的外部文件目录里（`/sdcard/Android/data/com.wangzan101.mika/files/mcp-usb.json`），安卓 11 起别的 App 读不到这个目录，只有 Mika 和 adb shell 读得到。
+- **只有电脑能打开 USB 方式、拿到它的令牌**：Nuoyi 的这个服务只接受持有 `INTERACT_ACROSS_USERS_FULL` 权限的调用方，adb shell 有，普通 App 拿不到（这个权限也没法用 adb 授给别的 App）。令牌写在 Nuoyi 的外部文件目录里（`/sdcard/Android/data/com.nuoyi.agent/files/mcp-usb.json`），安卓 11 起别的 App 读不到这个目录，只有 Nuoyi 和 adb shell 读得到。
 - **每个请求都要带令牌**。令牌是 32 字节的随机数，按常量时间比较；同一个地址一分钟内错 5 次，就先封一分钟。
 - **不接受浏览器的请求**：带 `Origin` 请求头的一律拒绝，网页没法借你的浏览器碰到这个端口。
 - **只接受私有网络**：两端都必须是局域网、私有 VPN 网络或本机的地址，公网地址来的连接当场断开。
@@ -188,10 +188,10 @@ curl -s http://192.168.1.23:8765/mcp \
 
 - **列表里没有地址**：手机没连 Wi-Fi，也没连私有 VPN 网络。
 - **状态写「没能开启」**：端口可能被别的 App 占了；关掉再打开试试。
-- **USB 方式的脚本提示文件不存在**：先打开一次 Mika，等几秒再试；还是没有的话，手机上的 Mika 版本还不带这个功能。
+- **USB 方式的脚本提示文件不存在**：先打开一次 Nuoyi，等几秒再试；还是没有的话，手机上的 Nuoyi 版本还不带这个功能。
 - **经 USB 连不上**（`curl` 报连接被拒或断开）：再运行一次 `adb forward tcp:8765 tcp:8765`；手机重启过的话，先再运行一次打开的命令。
-- **电脑上 8765 端口被别的程序占了**（转发报 `cannot bind`，或者连上后返回的不是 Mika 的内容）：电脑这边换一个空闲端口，比如 `adb forward tcp:18765 tcp:8765`，再把配置里的地址改成 `http://127.0.0.1:18765/mcp`。手机那边不用改。
+- **电脑上 8765 端口被别的程序占了**（转发报 `cannot bind`，或者连上后返回的不是 Nuoyi 的内容）：电脑这边换一个空闲端口，比如 `adb forward tcp:18765 tcp:8765`，再把配置里的地址改成 `http://127.0.0.1:18765/mcp`。手机那边不用改。
 - **返回 429**：同一个地址错的令牌试了太多次，等一分钟再试。经 USB 时手机上所有连本机端口的都算同一个地址。
 - **电脑连不上**：确认两边在同一个网络；有的 Wi-Fi（比如访客网络）不让设备之间互相访问。
-- **任务没开始**（交任务时就报错，或者过两分钟变成 `failed`）：打开一下手机上的 Mika 再试。安卓有时不让后台的 App 自己开始干活，打开过 Mika 之后就好了。
+- **任务没开始**（交任务时就报错，或者过两分钟变成 `failed`）：打开一下手机上的 Nuoyi 再试。安卓有时不让后台的 App 自己开始干活，打开过 Nuoyi 之后就好了。
 - **任务一直是 `paused`**：多半是手机锁屏了。先在手机上解锁，或在手机已允许远程解锁时调用 `mika_unlock_device`；仅调用亮屏不一定能解除锁屏。

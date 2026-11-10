@@ -1,6 +1,6 @@
 # Self-hosted remote CLI / MCP gateway
 
-Optional, single-owner and single-phone. Mika opens an outbound WebSocket connection; clients use HTTPS /mcp or /api/v1 on the gateway. No VPN app or router forwarding to the phone is needed. The gateway can read tasks and results; phone lock credentials stay on the phone.
+Optional, single-owner and single-phone. Nuoyi opens an outbound WebSocket connection; clients use HTTPS /mcp or /api/v1 on the gateway. No VPN app or router forwarding to the phone is needed. The gateway can read tasks and results; phone lock credentials stay on the phone.
 
 ## Deploy
 
@@ -21,7 +21,7 @@ Read the owner-key file privately. It is the administrator credential, not an MC
 
 Open the gateway's HTTPS address in a browser, enter the owner key and choose **Create pairing code**. The code expires in five minutes and works once. An existing phone must be revoked before pairing another one.
 
-In Mika, open **Settings → Connect a computer → Remote**, enter the gateway origin and code, and tap **Pair gateway**. Pairing leaves access off. Explicitly enable **Allow remote access**. Allow appropriate background operation and keep Mika's progress notification available.
+In Nuoyi, open **Settings → Connect a computer → Remote**, enter the gateway origin and code, and tap **Pair gateway**. Pairing leaves access off. Explicitly enable **Allow remote access**. Allow appropriate background operation and keep Nuoyi's progress notification available.
 
 ### Existing Nginx server
 
@@ -45,7 +45,7 @@ Use the same project name and -f argument for subsequent Compose commands. For r
 
 The **phone** authenticates every forwarded request using its existing LAN access token (`McpSettings`). The gateway does not generate, validate, hash, synchronize or persist that access token. It forwards the Authorization header to `RemoteAccess` on the phone. Turning LAN access off does not disable an explicitly enabled remote connection. The USB-only temporary token remains limited to loopback and is not accepted remotely. Failed-token cooldowns are kept per caller: the gateway sends the caller's address (IPv4, or the IPv6 /64) with each request, and the phone counts failures per gateway caller, separately from local addresses. A caller that keeps guessing only locks itself out, and while locked out even the right token is refused, so the cooldown never confirms a correct guess. Behind a reverse proxy every connection comes from the proxy, so run the gateway with `-trust-proxy`: it then takes the caller from the last X-Forwarded-For entry, which the proxy appends, and only when the direct peer is a loopback or private address. Both Compose files pass it; the Nginx example overwrites the header with `$remote_addr`. The gateway's own owner-key, pairing and forwarding limits use the same caller identity.
 
-For MCP, select **MCP → Remote** in Mika and copy the config into a client that supports custom Authorization headers. The endpoint is `https://mika.example.com/mcp`. For CLI, select **CLI / Skill → Remote**, copy the phone token into a private file on the computer, and use:
+For MCP, select **MCP → Remote** in Nuoyi and copy the config into a client that supports custom Authorization headers. The endpoint is `https://mika.example.com/mcp`. For CLI, select **CLI / Skill → Remote**, copy the phone token into a private file on the computer, and use:
 
 ```sh
 chmod 600 /path/to/token
@@ -54,7 +54,7 @@ mika --url https://mika.example.com --token-file /path/to/token doctor
 mika --url https://mika.example.com --token-file /path/to/token task list --limit 5
 ```
 
-Pass `--url` and `--token-file` on every remote invocation; `mika connect` verifies the connection and does not save a remote profile. Neither the command copied by Mika nor the gateway's Web UI embeds the phone token. MCP and CLI see the same tasks: creation, status, waiting, answering, steering and cancellation use the existing phone services. Forwarding adds no new phone permissions.
+Pass `--url` and `--token-file` on every remote invocation; `mika connect` verifies the connection and does not save a remote profile. Neither the command copied by Nuoyi nor the gateway's Web UI embeds the phone token. MCP and CLI see the same tasks: creation, status, waiting, answering, steering and cancellation use the existing phone services. Forwarding adds no new phone permissions.
 
 Wake and unlock are **off over the gateway by default**. Over the LAN only devices on the same network can reach the phone; through the gateway the whole internet can, and the gateway itself sees the token. Requests arriving through the gateway therefore do not see the screen capabilities at all (`mika_device_state`, `mika_wake_device`, `mika_unlock_device`, `/api/v1/device`, and `device_state` in `/api/v1` capabilities). To use them remotely, turn on all three on the phone: **Allow remote access**, **Allow wake and unlock through the gateway** on the Remote page (off by default, reset to off on every pairing), and the existing **Allow remote wake and unlock**. LAN and USB behaviour is unchanged.
 
@@ -72,7 +72,7 @@ There are three separate roles:
 
 Changing the phone access token immediately invalidates the old token for LAN and remote requests, without contacting or updating the gateway. Update client configs afterward. Unpairing disconnects the tunnel and removes its device identity; it does **not** rotate the phone access token. Pairing again restores access to clients holding that token. Rotate it on the phone if those clients should lose access.
 
-Turning remote access off in Mika closes the tunnel while preserving pairing. **Unpair gateway** disables access first, then asks the gateway to remove the device. If the network call fails, access stays off and pairing remains saved for retry. **Unpair phone** in the Web UI requires confirmation and disconnects the device.
+Turning remote access off in Nuoyi closes the tunnel while preserving pairing. **Unpair gateway** disables access first, then asks the gateway to remove the device. If the network call fails, access stays off and pairing remains saved for retry. **Unpair phone** in the Web UI requires confirmation and disconnects the device.
 
 Offline requests are not queued. `device_offline` means no device connection was available. `delivery_unknown` means a request may already have executed: reconnect and inspect task status; never automatically replay task creation, steering or unlock. Cancelling a wait cannot undo an action already performed. The CLI conservatively reports `outcome_unknown` for mutation responses with HTTP 5xx; it does not automatically retry them.
 

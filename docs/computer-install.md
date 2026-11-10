@@ -2,16 +2,16 @@
 
 [English](computer-install.en.md) · [连接与任务命令](cli.md) · [MCP 配置](mcp.md)
 
-从电脑使用 Mika 的总入口是[从电脑使用 Mika](computer.md)：在那里选好用 CLI + Skill 还是 MCP、经 USB 还是 Wi-Fi / VPN 连接。这一页只讲 CLI 和 Skill 怎么装、怎么升级和卸载；用 MCP 客户端的不用看本文，按 [MCP 指南](mcp.md)配置。
+从电脑使用 Nuoyi 的总入口是[从电脑使用 Nuoyi](computer.md)：在那里选好用 CLI + Skill 还是 MCP、经 USB 还是 Wi-Fi / VPN 连接。这一页只讲 CLI 和 Skill 怎么装、怎么升级和卸载；用 MCP 客户端的不用看本文，按 [MCP 指南](mcp.md)配置。
 
 Agent 想走固定的最短路径：见 [Agent 快速路径](agent-quickstart.md)。
 
 ## 开始之前
 
-- 让能执行命令、支持 Skill 的电脑 Agent 用 Mika：装 [Skill](#skill安装)，它自带 CLI 脚本，不必另装 CLI。
+- 让能执行命令、支持 Skill 的电脑 Agent 用 Nuoyi：装 [Skill](#skill安装)，它自带 CLI 脚本，不必另装 CLI。
 - 在终端或脚本里派任务：装 [CLI](#cli安装)，使用 `mika` 命令。
 
-手机端的前提：装好 APK（[Releases](https://github.com/wangzan101/Mika/releases/latest)）、打开过一次 Mika、配好模型。**只让 Mika 聊天、上网和处理文件时，可以不开无障碍、不启动手机助手，安卓 11 也能用**；要操作手机 App，才需要按[设置指南](setup-guide.md)完成手机操作设置（安卓 12+）。电脑端工具的安装和升级不会安装或更新手机上的 APK。
+手机端的前提：装好 APK（[Releases](https://github.com/wangzan101/Mika/releases/latest)）、打开过一次 Nuoyi、配好模型。**只让 Nuoyi 聊天、上网和处理文件时，可以不开无障碍、不启动手机助手，安卓 11 也能用**；要操作手机 App，才需要按[设置指南](setup-guide.md)完成手机操作设置（安卓 12+）。电脑端工具的安装和升级不会安装或更新手机上的 APK。
 
 下文的 `<tag>` 指 [最新 release](https://github.com/wangzan101/Mika/releases/latest) 的版本标签（页面标题里的 `v0.1.x`）。电脑端和手机上的 APK 尽量用同一个版本。
 
@@ -88,8 +88,8 @@ mika --url http://PHONE:8765 --token-file /path/to/private-token-file doctor --j
 | `incompatible_api` | 手机上的 APK 太旧，不带任务 API v1，更新 APK。 |
 | `stale_connection` | 手机重启过，重新运行 `connect`。 |
 | `device_selection` | 不止一台手机在线，用 `mika devices` 查到序列号后加 `--device SERIAL`。 |
-| `connection_info` | 读不到 Mika 的连接信息（手机锁着、还没打开过 Mika 等）：解锁手机、打开一次 Mika 后再运行 `connect`。 |
-| `adb` / `adb_unavailable` | 确认 adb 在 PATH 里、手机在 `adb devices` 里显示为 `device`，在手机上打开一次 Mika 后再运行 `connect`。 |
+| `connection_info` | 读不到 Nuoyi 的连接信息（手机锁着、还没打开过 Nuoyi 等）：解锁手机、打开一次 Nuoyi 后再运行 `connect`。 |
+| `adb` / `adb_unavailable` | 确认 adb 在 PATH 里、手机在 `adb devices` 里显示为 `device`，在手机上打开一次 Nuoyi 后再运行 `connect`。 |
 | Agent 看不到 Skill | 检查是否多嵌套了一层文件夹、`scripts/` 是否一起复制，然后重开会话。 |
 
 卸载电脑端工具不会删除手机数据，也不会关闭手机上的电脑连接。要停止远程访问，在手机的 设置 › 连接电脑 里关闭对应开关。

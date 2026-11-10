@@ -2,7 +2,7 @@
 
 [简体中文](knowledge-format.md) | English
 
-Knowledge and skills ship with the app, under `knowledge/apps/`, `knowledge/sites/` and `skills/` in `core/src/main/resources/`. A user's own personal skills are drafted by Mika on the phone as it learns. App knowledge is also extended on the phone as Mika learns: the addition is a facts-only list (each line starts with `- `), likewise only facts and no methods or rules, appended after the built-in APP.md (see "Knowledge and skills" in `docs/dev/architecture.md`).
+Knowledge and skills ship with the app, under `knowledge/apps/`, `knowledge/sites/` and `skills/` in `core/src/main/resources/`. A user's own personal skills are drafted by Nuoyi on the phone as it learns. App knowledge is also extended on the phone as Nuoyi learns: the addition is a facts-only list (each line starts with `- `), likewise only facts and no methods or rules, appended after the built-in APP.md (see "Knowledge and skills" in `docs/dev/architecture.md`).
 
 Three kinds of file, each with one job:
 
@@ -15,7 +15,7 @@ Three kinds of file, each with one job:
 ## Common requirements
 
 - **Facts only.** Rules such as authorization, confirmation, stop conditions, "don't make things up" or "hand over to the user" belong to the general guidelines and the approval layer, not to knowledge.
-- **Write it in Mika's own words.** Avoid format jargon such as 「本批」 ("this batch"), 「证据」 ("evidence"), 「总则」 ("general rules"), 「通道」 ("channel") and "scope/stops/features".
+- **Write it in Nuoyi's own words.** Avoid format jargon such as 「本批」 ("this batch"), 「证据」 ("evidence"), 「总则」 ("general rules"), 「通道」 ("channel") and "scope/stops/features".
 - **Descriptions don't cite skills.** A skill may name an app or website (`app:<id>`, `site:<domain>`); an app or website description never says "follow skill XX".
 - **Describe what happens as what happens.** Write "the 'Delivery' tile in the home grid and the 'Delivery' tab at the bottom are two different entry points; the first opens the delivery channel", not "don't tap the bottom tab".
 - When describing UI, say "screen", "page", "entry point", "button"; don't say "look at the screen".
@@ -82,15 +82,15 @@ Optional: addresses, parameters and response formats of public APIs.
 Optional.
 ```
 
-`pace` is a fact about the website, not a rule for the model. The only allowed value is `careful`, meaning the website limits how fast one visitor can browse (turning pages or opening details too fast or too often gets blocked or asks for verification); leaving it out means there is no such limit. On a website marked `careful`, Mika waits longer before moving to another page on the same site (about 10–22 seconds, longer the more it has viewed, at most 30 seconds), and the number of pages it views on that site in one task is capped lower (20 pages on an ordinary site, 12 on these; the count restarts after the user agrees to keep going; it only limits browsing, and stops applying once an outward action such as sending or submitting has succeeded on that site). Checked at build time: apps and websites may set it (skills may not), and a wrong value fails the build.
+`pace` is a fact about the website, not a rule for the model. The only allowed value is `careful`, meaning the website limits how fast one visitor can browse (turning pages or opening details too fast or too often gets blocked or asks for verification); leaving it out means there is no such limit. On a website marked `careful`, Nuoyi waits longer before moving to another page on the same site (about 10–22 seconds, longer the more it has viewed, at most 30 seconds), and the number of pages it views on that site in one task is capped lower (20 pages on an ordinary site, 12 on these; the count restarts after the user agrees to keep going; it only limits browsing, and stops applying once an outward action such as sending or submitting has succeeded on that site). Checked at build time: apps and websites may set it (skills may not), and a wrong value fails the build.
 
-`pace` on an app is the same kind of fact: an app marked `careful` limits how fast one account can act (tapping too fast or scrolling too much gets blocked, asks for verification, or even logs you out). Mika recognizes the app by package name (any of those in `packages`) and waits longer before each step (about 2.5–5 seconds on a new screen, plus reading time based on how much text the screen has, at most 15 seconds; about 1–2 seconds when continuing on the same screen), now and then scrolls down a little while waiting, and types more slowly. In one task it moves to a new screen in that app at most 24 times (opening and going back each count once; scrolling to read the same page doesn't; the count restarts after the user agrees to keep going; it stops applying once an outward action such as sending or submitting has succeeded). None of this applies when the operation pace in Settings is set to "Fast".
+`pace` on an app is the same kind of fact: an app marked `careful` limits how fast one account can act (tapping too fast or scrolling too much gets blocked, asks for verification, or even logs you out). Nuoyi recognizes the app by package name (any of those in `packages`) and waits longer before each step (about 2.5–5 seconds on a new screen, plus reading time based on how much text the screen has, at most 15 seconds; about 1–2 seconds when continuing on the same screen), now and then scrolls down a little while waiting, and types more slowly. In one task it moves to a new screen in that app at most 24 times (opening and going back each count once; scrolling to read the same page doesn't; the count restarts after the user agrees to keep going; it stops applying once an outward action such as sending or submitting has succeeded). None of this applies when the operation pace in Settings is set to "Fast".
 
 A website directory can have `scripts/`: site commands (.js files with a `/* mika-command` header) or sandbox scripts (listed in `scripts/manifest.json`).
 
 ## SKILL.md
 
-Same format as the personal skills Mika drafts as it learns (see `prompts/roles/skill_draft.md`):
+Same format as the personal skills Nuoyi drafts as it learns (see `prompts/roles/skill_draft.md`):
 
 ```markdown
 ---
@@ -126,7 +126,7 @@ Knowledge (apps and websites) and skills each have a pair of "search / read" too
 | `skill_search` | Skills, built-in and the user's personal ones together, up to 10 entries | `query` |
 | `skill_read` | Reads a full skill, or one of its attachments | `name` (can be written as `skill:<id>`, or `personal:<id>` for a personal skill); optional `file_path` |
 
-- When Mika enters an app or website, the body of its knowledge has already been given to the model; `knowledge_read` is mainly for reading attachments, or for apps and websites it hasn't entered yet.
+- When Nuoyi enters an app or website, the body of its knowledge has already been given to the model; `knowledge_read` is mainly for reading attachments, or for apps and websites it hasn't entered yet.
 - The results of `knowledge_read` and `skill_read` list runnable scripts and their `scriptSource`; run them in the sandbox with `run_bundled_script` (`source`, `script`, `args`), see `docs/dev/skill-scripts.md`.
 - A website's site commands run by name with `web_run_site_command`, read-only like `web_evaluate_js`.
 - Tool names that appear in knowledge, skills and prompts must be currently registered tools; a test checks this.

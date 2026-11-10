@@ -352,6 +352,8 @@
         </receiver>
         <receiver android:name="com.nuoyi.agent.task.TriggerAlarmReceiver" android:exported="false" />
         <receiver android:name="com.nuoyi.agent.teach.TeachReceiver" android:exported="false" />
+        <!-- 通话纪要里抽出来的提醒:到点在系统闹钟之外弹一条本地通知 -->
+        <receiver android:name="com.nuoyi.agent.callnotes.CallNoteReminderReceiver" android:exported="false" />
     </application>
 
 </manifest>

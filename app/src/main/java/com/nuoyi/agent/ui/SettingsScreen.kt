@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** 设置里能进入的子页面;[Home] 是设置首页,[Advanced] 集中放置连接、维护和工程能力。 */
-private enum class SettingsPage { Home, Advanced, AppAccess, PhoneOps, Wechat, DuringWork, Capsule, Language, Notifications, Sandbox, Recovery, SelfCheck, ComputerAccess, McpServers, Root, Developer, RunStats }
+private enum class SettingsPage { Home, Advanced, AppAccess, PhoneOps, Wechat, DuringWork, Capsule, Language, Notifications, CallNotes, Sandbox, Recovery, SelfCheck, ComputerAccess, McpServers, Root, Developer, RunStats }
 
 /**
  * 设置页:总状态卡 + 常用 / 我的数据 / 其他。高级与其他只增加一层,各子页返回来时的页面。
@@ -184,6 +184,7 @@ fun SettingsScreen(
             onOpenDuringWork = { page = SettingsPage.DuringWork },
             capsuleMode = capsuleMode, onOpenCapsule = { page = SettingsPage.Capsule },
             onOpenNotifications = { page = SettingsPage.Notifications },
+            onOpenCallNotes = { page = SettingsPage.CallNotes },
             language = language, onOpenLanguage = { page = SettingsPage.Language },
             onOpenMemory = onOpenMemory,
             onOpenAdvanced = { page = SettingsPage.Advanced },
@@ -216,6 +217,7 @@ fun SettingsScreen(
                 islandDwellMs = it
             },
         )
+        SettingsPage.CallNotes -> CallNotesScreen(store, onBack = toHome)
         SettingsPage.DuringWork -> DuringWorkScreen(
             keepScreenOn, onKeepScreenOn = { flags.setKeepScreenOn(it); keepScreenOn = it },
             muteTarget, onMuteTarget = { flags.setMuteTarget(it); muteTarget = it },
@@ -333,6 +335,8 @@ fun SettingsContent(
     capsuleMode: CapsuleMode = CapsuleMode.DEFAULT,
     onOpenCapsule: () -> Unit = {},
     onOpenNotifications: () -> Unit = {},
+    /** 通话纪要:导入系统通话纪要 / 录音,生成日程、提醒、待办。 */
+    onOpenCallNotes: () -> Unit = {},
     /** 此刻选的界面语言,写在「语言与外观」一行的右边。 */
     language: AppLanguage = AppLanguage.System,
     onOpenLanguage: () -> Unit = {},
@@ -372,6 +376,13 @@ fun SettingsContent(
             val (notifText, notifTone) = StatusCopy.notificationSummary(status.notificationOverview().summary)
             ListRow(NuoyiIcons.Bell, StatusCopy.NOTIFICATIONS, stringResource(R.string.settings_notif_sub), onClick = onOpenNotifications) {
                 RowValue(notifText, notifTone)
+                RowChevron()
+            }
+        }
+
+        GroupLabel("通话与录音")
+        GroupCard {
+            ListRow(NuoyiIcons.Mic, "通话纪要", "导入系统通话纪要、录音转写，生成日程 / 提醒 / 待办", first = true, onClick = onOpenCallNotes) {
                 RowChevron()
             }
         }

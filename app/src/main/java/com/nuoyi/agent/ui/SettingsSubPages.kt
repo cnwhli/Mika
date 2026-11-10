@@ -64,6 +64,12 @@ import androidx.compose.ui.layout.ContentScale
 import com.nuoyi.agent.settings.MascotStore
 import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiMascot
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.content.ContextCompat
 
 // ---------- 手机操作 ----------
 
@@ -154,7 +160,19 @@ fun PhoneOpsScreen(
  * 点哪一行都由 [onFix] 打开对应的系统设置页(总开关没开时先请求权限或打开应用通知页)。
  */
 @Composable
-fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -> Unit, islandDwellMs: Long = 6000L, onIslandDwell: (Long) -> Unit = {}) {
+fun NotificationsScreen(
+    status: SystemStatus,
+    onFix: (Fix) -> Unit,
+    onBack: () -> Unit,
+    islandEnabled: Boolean = true,
+    onIslandEnabled: (Boolean) -> Unit = {},
+    islandCallMode: Boolean = true,
+    onIslandCallMode: (Boolean) -> Unit = {},
+    islandIdlePill: Boolean = false,
+    onIslandIdlePill: (Boolean) -> Unit = {},
+    islandDwellMs: Long = 6000L,
+    onIslandDwell: (Long) -> Unit = {},
+) {
     val o = status.notificationOverview()
     val dwellOptions = listOf(
         4000L to "4 秒",
@@ -163,6 +181,23 @@ fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -
         0L to "常驻（不自动收起）",
     )
     PageScaffold(StatusCopy.NOTIFICATIONS, onBack) {
+        val context = LocalContext.current
+        // 灵动岛浮窗需要的系统授权:悬浮窗(显示在其他应用上层)与读取通话状态
+        var overlayGranted by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
+        var phoneStateGranted by remember {
+            mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED)
+        }
+        val overlayLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            overlayGranted = Settings.canDrawOverlays(context)
+        }
+        val phoneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            phoneStateGranted = granted
+            // 授权后重启灵动岛服务,让通话监听(CallStateMonitor.start 在服务 onCreate 里)重新生效
+            if (granted && islandEnabled && Settings.canDrawOverlays(context)) {
+                context.stopService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
+                context.startForegroundService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
+            }
+        }
         GroupCard {
             ListRow(
                 NuoyiIcons.Bell, stringResource(R.string.settings_notif_master),
@@ -179,11 +214,50 @@ fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -
             ChannelRowItem(StatusCopy.RESULT_CHANNEL, StatusCopy.NOTIF_RESULT_WHEN, o.result, Fix.OpenResultChannel, onFix)
             ChannelRowItem(StatusCopy.PROGRESS_CHANNEL, StatusCopy.NOTIF_PROGRESS_WHEN, o.progress, Fix.OpenProgressChannel, onFix)
         }
+        GroupLabel("系统授权（灵动岛胶囊）")
+        GroupCard {
+            ListRow(
+                NuoyiIcons.Shield, "显示在其他应用上层", "灵动岛浮窗需要此项；未授权时胶囊无法显示在别的 App 之上",
+                first = true, tone = if (overlayGranted) TileTone.Neutral else TileTone.Bad,
+                onClick = if (!overlayGranted) ({
+                    overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}")))
+                }) else null,
+            ) {
+                if (overlayGranted) RowValue("已授权", ValueTone.Ok) else RowValue("去授权", ValueTone.Link)
+            }
+            ListRow(
+                NuoyiIcons.Shield, "读取通话状态", "用于通话中在胶囊显示「通话中」与时长；关掉则通话模式不可用",
+                tone = if (phoneStateGranted) TileTone.Neutral else TileTone.Bad,
+                onClick = if (!phoneStateGranted) ({ phoneLauncher.launch(Manifest.permission.READ_PHONE_STATE) }) else null,
+            ) {
+                if (phoneStateGranted) RowValue("已授权", ValueTone.Ok) else RowValue("去授权", ValueTone.Link)
+            }
+        }
         GroupLabel("灵动岛胶囊")
         GroupCard {
+            ListRow(
+                NuoyiIcons.Bell, "启用灵动岛胶囊", "在屏幕顶部显示通知胶囊；关闭则停止浮窗服务",
+                first = true, onClick = { onIslandEnabled(!islandEnabled) },
+            ) {
+                NuoyiSwitch(islandEnabled, onIslandEnabled, enabled = overlayGranted)
+            }
+            if (islandEnabled) {
+                ListRow(
+                    NuoyiIcons.Phone, "通话模式", "通话进行中显示「通话中 + 时长」，并可随手记要点",
+                    onClick = if (phoneStateGranted) ({ onIslandCallMode(!islandCallMode) }) else null,
+                ) {
+                    NuoyiSwitch(islandCallMode, onIslandCallMode, enabled = phoneStateGranted)
+                }
+                ListRow(
+                    NuoyiIcons.Mic, "空闲常驻小胶囊", "没通知时也留一个可点的小胶囊，点一下回 App（默认关，以免一直挡视线）",
+                    onClick = { onIslandIdlePill(!islandIdlePill) },
+                ) {
+                    NuoyiSwitch(islandIdlePill, onIslandIdlePill)
+                }
+            }
             dwellOptions.forEachIndexed { i, (ms, label) ->
                 RadioRow(
-                    label, selected = islandDwellMs == ms, first = i == 0,
+                    label, selected = islandDwellMs == ms, first = false,
                     onClick = { onIslandDwell(ms) },
                     subtitle = if (ms == 0L) "通知会一直停在屏幕顶部，直到你点开或长按划掉" else "通知到达后约 $label 自动收起",
                 )

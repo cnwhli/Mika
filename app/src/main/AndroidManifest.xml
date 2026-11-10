@@ -20,6 +20,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- 灵动岛胶囊在屏幕顶部画图需要「显示在其他应用上层」;未授权时胶囊不显示,不影响其余功能。 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 系统级灵动岛感知通话状态(来电/通话中/挂断),用于胶囊实时显示与通话后整理纪要。 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- 批量日程经安卓日历提供方一次写入；用户未授权时退回系统日历的新建页。 -->
@@ -248,6 +250,22 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Shows Nuoyi's own notifications as a Dynamic-Island-style capsule at the top of the screen" />
         </service>
+
+        <!-- 通话中速记台(从灵动岛胶囊点「记一笔」进入,记录要点 / 下指令)。 -->
+        <activity
+            android:name="com.nuoyi.agent.ui.CallLiveActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Nuoyi" />
+
+        <!-- 开机自启系统级灵动岛(需用户开通过「显示在其他应用上层」)。 -->
+        <receiver
+            android:name="com.nuoyi.agent.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
         <!-- 用户绑定并打开微信渠道后保持长轮询；没有本地服务器，任务仍交给 TaskService。 -->
         <service

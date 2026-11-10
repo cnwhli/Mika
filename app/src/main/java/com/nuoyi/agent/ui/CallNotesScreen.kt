@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -20,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,15 +32,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nuoyi.agent.NuoyiApp
-import com.nuoyi.agent.callnotes.CallNoteReminder
-import com.nuoyi.agent.callnotes.MinutesActions
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.nuoyi.agent.callnotes.CallNote
+import com.nuoyi.agent.callnotes.CallSessionStore
 import com.nuoyi.agent.callnotes.MinutesAnalyzer
 import com.nuoyi.agent.callnotes.TodoItem
 import com.nuoyi.agent.callnotes.TodoStore
-import com.nuoyi.agent.cap.phone.a11y.CalendarBulkWriter
-import com.nuoyi.agent.core.uistate.ActionResult
-import com.nuoyi.agent.core.uistate.SystemAction
+import com.nuoyi.agent.callnotes.applyMinutesActions
 import com.nuoyi.agent.settings.ProviderStore
+import com.nuoyi.agent.ui.components.ButtonKind
 import com.nuoyi.agent.ui.components.ButtonSize
 import com.nuoyi.agent.ui.components.FooterNote
 import com.nuoyi.agent.ui.components.GroupCard
@@ -62,11 +64,6 @@ import com.nuoyi.agent.voice.VoiceInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.ArrayDeque
-import java.util.Date
-import java.util.Locale
-import java.util.UUID
 
 /**
  * 通话纪要:把系统 AI 通话纪要文件 / 一段录音,交给主模型抽取成「摘要 + 待办 + 日程 + 提醒」。
@@ -92,6 +89,10 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     val analyzed = remember { mutableStateOf(false) }
     var session by remember { mutableStateOf<SpeechSession?>(null) }
     var newTodo by remember { mutableStateOf("") }
+    var sessions by remember { mutableStateOf(CallSessionStore.of(context).list()) }
+    var expandedId by remember { mutableStateOf<String?>(null) }
+    var sessionNotes by remember { mutableStateOf<List<CallNote>>(emptyList()) }
+    LaunchedEffect(Unit) { sessions = CallSessionStore.of(context).list() }
 
     fun refresh() { todos = TodoStore.of(context).list() }
 
@@ -104,32 +105,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                 withContext(Dispatchers.Main) { status = "分析失败：${actions.error}" }
                 return@withContext
             }
-            val msg = buildString {
-                if (actions.events.isNotEmpty()) {
-                    val evs = actions.events.filter { it.beginMs > 0 }.map {
-                        SystemAction.AddCalendarEvent(it.title, it.beginMs, it.endMs, it.allDay, it.location, it.description)
-                    }
-                    if (evs.isNotEmpty()) {
-                        val res = CalendarBulkWriter.insert(context, evs)
-                        append("日程 ${evs.size} 条 → ")
-                        append(
-                            if (res.result is ActionResult.Ok) "已写入系统日历"
-                            else "写入失败（${(res.result as? ActionResult.Failed)?.reason ?: "未知"}，可在系统设置里给本应用日历权限）",
-                        )
-                        append("；")
-                    }
-                }
-                actions.todos.forEach { TodoStore.of(context).add(it) }
-                val now = System.currentTimeMillis()
-                actions.reminders.forEach { r ->
-                    val note = if (r.atMs != null && r.atMs > 0) "${r.text}（提醒 ${fmt(r.atMs)}）" else r.text
-                    TodoStore.of(context).add(note)
-                    if (r.atMs != null && r.atMs > now) {
-                        CallNoteReminder.schedule(context, UUID.randomUUID().toString(), r.text, r.atMs)
-                    }
-                }
-                append("待办 ${actions.todos.size} 条；提醒 ${actions.reminders.size} 条。")
-            }
+            val msg = applyMinutesActions(context, store, actions)
             withContext(Dispatchers.Main) {
                 summary = actions.summary.ifBlank { null }
                 status = msg
@@ -189,7 +165,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
             scope.launch {
                 busy = true
                 status = "正在读取通话纪要文件…"
-                val text = readMinutesFromTree(context, uri)
+                val text = com.nuoyi.agent.callnotes.readMinutesFromTree(context, uri)
                 busy = false
                 if (text.isBlank()) {
                     status = "没有读到可分析的文本（支持 .txt / .md / .json）"
@@ -233,6 +209,49 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                     }
                 },
             ) { if (!recording) RowChevron() }
+        }
+
+        GroupLabel("通话记录")
+        GroupCard {
+            if (sessions.isEmpty()) {
+                ListRow(null, "还没有通话记录", "通话结束会在这里留一条时间线", first = true) {}
+            } else {
+                sessions.forEachIndexed { i, s ->
+                    val expanded = expandedId == s.id
+                    val dur = if (s.endMs > s.startMs) fmtDuration(s.endMs - s.startMs) else null
+                    ListRow(
+                        NuoyiIcons.Phone,
+                        (if (s.isIncoming) "来电 · " else "去电 · ") + (s.number ?: "未知号码"),
+                        fmtDate(s.startMs) + (dur?.let { " · 通话 $it" } ?: "") + (if (s.noteCount > 0) " · ${s.noteCount} 条要点" else ""),
+                        first = i == 0,
+                        onClick = {
+                            expandedId = if (expanded) null else s.id
+                            if (expandedId != null) sessionNotes = CallSessionStore.of(context).notes(s.id)
+                        },
+                        trailing = { RowChevron() },
+                    )
+                    if (expanded) {
+                        if (sessionNotes.isEmpty()) {
+                            Text("通话中没记要点", Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 8.dp), style = NuoyiType.Caption, color = NuoyiTheme.colors.ink3)
+                        } else {
+                            sessionNotes.forEach { n ->
+                                Text(
+                                    "• ${n.text}",
+                                    Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp),
+                                    style = NuoyiType.Caption, color = NuoyiTheme.colors.ink2,
+                                )
+                            }
+                            NuoyiButton(
+                                "整理成待办 / 提醒",
+                                onClick = { scope.launch { analyze(sessionNotes.joinToString("\n") { it.text }) } },
+                                size = ButtonSize.Small,
+                                kind = ButtonKind.Tonal,
+                                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 10.dp),
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         if (busy) FooterNote("正在分析…")
@@ -280,7 +299,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
 private fun TodoRow(item: TodoItem, first: Boolean, onToggle: () -> Unit, onDelete: () -> Unit) {
     ListRow(
         null, (if (item.done) "✓ " else "• ") + item.text,
-        subtitle = item.dueMs?.let { "提醒 ${fmt(it)}" },
+        subtitle = item.dueMs?.let { "提醒 ${fmtDate(it)}" },
         first = first,
         onClick = onToggle,
         trailing = {
@@ -289,49 +308,18 @@ private fun TodoRow(item: TodoItem, first: Boolean, onToggle: () -> Unit, onDele
     )
 }
 
-/** 把 SAF 树里的文本文件(.txt/.md/.json)读出来拼成一个大字符串交给模型。 */
-private suspend fun readMinutesFromTree(context: Context, treeUri: Uri): String = withContext(Dispatchers.IO) {
-    val resolver = context.contentResolver
-    val exts = setOf(".txt", ".md", ".markdown", ".json", ".text")
-    val out = StringBuilder()
-    val treeId = DocumentsContract.getTreeDocumentId(treeUri)
-    val queue: ArrayDeque<String> = ArrayDeque(listOf(treeId))
-    var files = 0
-    while (queue.isNotEmpty() && files < 60) {
-        val parent = queue.removeFirst()
-        val children = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parent)
-        val cursor = resolver.query(
-            children,
-            arrayOf(
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_MIME_TYPE,
-            ),
-            null, null, null,
-        ) ?: continue
-        cursor.use { c ->
-            val idI = c.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
-            val nameI = c.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-            val mimeI = c.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE)
-            while (c.moveToNext() && files < 60) {
-                val id = c.getString(idI)
-                val name = c.getString(nameI)
-                val mime = c.getString(mimeI) ?: ""
-                if (mime == DocumentsContract.Document.MIME_TYPE_DIR) {
-                    if (queue.size < 10) queue.add(id)
-                } else if (exts.any { name.endsWith(it, ignoreCase = true) }) {
-                    val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, id)
-                    runCatching {
-                        resolver.openInputStream(docUri)?.use { s ->
-                            val text = s.bufferedReader().readText()
-                            if (text.isNotBlank()) { out.append("\n\n# ").append(name).append("\n").append(text); files++ }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    out.toString()
-}
+/** 把 SAF 树里的文本文件(.txt/.md/.json)读出来拼成一个大字符串交给模型(见 [com.nuoyi.agent.callnotes.readMinutesFromTree])。 */
+private suspend fun readMinutesFromTree(context: Context, treeUri: Uri): String =
+    com.nuoyi.agent.callnotes.readMinutesFromTree(context, treeUri)
 
-private fun fmt(ms: Long): String = SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(ms))
+/** 时间戳 → 「MM-dd HH:mm」。 */
+private fun fmtDate(ms: Long): String = SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(ms))
+
+/** 毫秒时长 → 「MM:SS」或「H:MM:SS」。 */
+private fun fmtDuration(ms: Long): String {
+    val total = (ms / 1000).toInt().coerceAtLeast(0)
+    val h = total / 3600
+    val m = (total % 3600) / 60
+    val s = total % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
+}

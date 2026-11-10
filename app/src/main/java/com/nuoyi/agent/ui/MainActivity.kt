@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -78,6 +79,7 @@ import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.animationsOff
 import com.nuoyi.agent.ui.theme.appearanceDark
 import com.nuoyi.agent.ui.theme.systemBarsFor
+import com.nuoyi.agent.notify.EXTRA_OPEN_ROUTE
 
 class MainActivity : ComponentActivity() {
     private lateinit var monitor: SystemStatusMonitor
@@ -88,6 +90,8 @@ class MainActivity : ComponentActivity() {
     private var shareSerial = 0L
     private var shareInCurrent = false
     private var shareHandled = false
+    /** 通知/胶囊点进来要跳到的页面路由(如 "callnotes");由 NuoyiRoot 读取并跳转。 */
+    private val requestedRoute = mutableStateOf<String?>(null)
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         // 用户选过「不再询问」时系统不再弹窗,只能去设置里打开
@@ -107,6 +111,7 @@ class MainActivity : ComponentActivity() {
             (application as NuoyiApp).chat.cancelPendingSharedDraft()
         }
         requestedConversation = intent.getStringExtra(EXTRA_OPEN_CONVERSATION)
+        requestedRoute.value = intent.getStringExtra(EXTRA_OPEN_ROUTE)
         takeTeach(intent)
         shareInCurrent = savedInstanceState?.getBoolean(STATE_SHARE_IN_CURRENT, false) ?: false
         shareHandled = savedInstanceState?.getBoolean(STATE_SHARE_HANDLED, false) ?: false
@@ -137,6 +142,7 @@ class MainActivity : ComponentActivity() {
                         },
                         openTeach = openTeach,
                         onTeachOpened = { openTeach = false },
+                        requestedRoute = requestedRoute,
                     )
                 }
             }
@@ -149,6 +155,7 @@ class MainActivity : ComponentActivity() {
         val app = application as NuoyiApp
         shareJob?.cancel()
         requestedConversation = intent.getStringExtra(EXTRA_OPEN_CONVERSATION)
+        requestedRoute.value = intent.getStringExtra(EXTRA_OPEN_ROUTE)
         if (requestedConversation != null || intent.getBooleanExtra(EXTRA_OPEN_TEACH, false)) {
             app.chat.cancelPendingSharedDraft()
         }
@@ -360,6 +367,7 @@ private fun NuoyiRoot(
     onSharedDraftOpened: (Boolean, SharedDraft) -> Unit,
     openTeach: Boolean,
     onTeachOpened: () -> Unit,
+    requestedRoute: MutableState<String?>,
 ) {
     val nav = rememberNavStack()
     // 从设置页「重新配对」进来时先回到配对一步
@@ -414,6 +422,14 @@ private fun NuoyiRoot(
         if (openTeach) {
             nav.push(Route.Teach)
             onTeachOpened()
+        }
+    }
+    // 通知/胶囊点进来要跳的页面(如「通话已结束,整理纪要」→ 通话纪要)
+    LaunchedEffect(requestedRoute.value) {
+        val r = requestedRoute.value
+        if (r == "callnotes") {
+            nav.push(Route.CallNotes)
+            requestedRoute.value = null
         }
     }
     // 第一次打开:欢迎 → 配置模型 → 手机操作;配过模型的跳过前两步,手机操作已就绪或看过引导的跳过最后一步
@@ -646,5 +662,6 @@ private fun NuoyiRoot(
             app.chat.openConversation(it)
             nav.reset()
         })
+        Route.CallNotes -> CallNotesScreen(store, onBack = back)
     }
 }

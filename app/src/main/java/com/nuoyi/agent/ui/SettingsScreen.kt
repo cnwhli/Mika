@@ -5,6 +5,8 @@ import com.nuoyi.agent.i18n.tr
 import androidx.compose.ui.res.stringResource
 import com.nuoyi.agent.settings.ProviderConnection
 import android.app.ActivityManager
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import com.nuoyi.agent.ui.components.NuoyiDialog
@@ -121,6 +123,9 @@ fun SettingsScreen(
     var capsuleMode by remember { mutableStateOf(flags.capsuleMode()) }
     var capsuleIdleOpacity by remember { mutableStateOf(flags.capsuleIdleOpacity()) }
     var islandDwellMs by remember { mutableStateOf(flags.islandDwellMs()) }
+    var islandEnabled by remember { mutableStateOf(flags.islandEnabled()) }
+    var islandCallMode by remember { mutableStateOf(flags.islandCallMode()) }
+    var islandIdlePill by remember { mutableStateOf(flags.islandIdlePill()) }
     // 换语言时界面会重建,这里每次进来读一次即可
     val language = remember { AppLanguage.current(context) }
     val runtimeLimit by (context.applicationContext as com.nuoyi.agent.NuoyiApp).taskState.parallelLimit.collectAsState()
@@ -212,6 +217,20 @@ fun SettingsScreen(
         )
         SettingsPage.Notifications -> NotificationsScreen(
             status, onFix = ::fix, onBack = back,
+            islandEnabled = islandEnabled,
+            onIslandEnabled = {
+                flags.setIslandEnabled(it); islandEnabled = it
+                // 开关胶囊服务:开且已获悬浮窗授权就拉起,关就停掉
+                if (it && Settings.canDrawOverlays(context)) {
+                    context.startForegroundService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
+                } else if (!it) {
+                    context.stopService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
+                }
+            },
+            islandCallMode = islandCallMode,
+            onIslandCallMode = { flags.setIslandCallMode(it); islandCallMode = it },
+            islandIdlePill = islandIdlePill,
+            onIslandIdlePill = { flags.setIslandIdlePill(it); islandIdlePill = it },
             islandDwellMs = islandDwellMs,
             onIslandDwell = {
                 flags.setIslandDwellMs(it)

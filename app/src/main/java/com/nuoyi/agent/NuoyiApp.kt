@@ -405,7 +405,7 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
         // 灵动岛胶囊的停留时长跟着设置走,改了实时生效。
         NotificationCenter.defaultDwellMs = flags.islandDwellMs()
         scope.launch { flags.islandDwellChanges().collect { NotificationCenter.defaultDwellMs = it } }
-        if (android.provider.Settings.canDrawOverlays(this)) {
+        if (android.provider.Settings.canDrawOverlays(this) && FeatureFlags.get(this).islandEnabled()) {
             runCatching { startForegroundService(Intent(this, DynamicIslandService::class.java)) }
         }
         // 内置助手的真实现,并开始看着助手(Nuoyi 进程起来后,还活着的助手会自己交接 Binder)

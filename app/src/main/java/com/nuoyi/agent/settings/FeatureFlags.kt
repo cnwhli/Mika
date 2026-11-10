@@ -156,6 +156,40 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }.distinctUntilChanged()
 
+    /** 是否启用系统级灵动岛(需「显示在其他应用上层」权限;关掉则不启动胶囊服务)。默认开。 */
+    fun islandEnabled(): Boolean = prefs.getBoolean(ISLAND_ENABLED, true)
+
+    fun setIslandEnabled(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_ENABLED, on).commit()
+    }
+
+    /** 通话进行中是否在胶囊里显示「通话中 + 时长」并允许记要点。默认开。 */
+    fun islandCallMode(): Boolean = prefs.getBoolean(ISLAND_CALL_MODE, true)
+
+    fun setIslandCallMode(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_CALL_MODE, on).commit()
+    }
+
+    /** 空闲时是否常驻显示一个小胶囊(点一下回 App)。默认关,避免一直挡视线。 */
+    fun islandIdlePill(): Boolean = prefs.getBoolean(ISLAND_IDLE_PILL, false)
+
+    fun setIslandIdlePill(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_IDLE_PILL, on).commit()
+    }
+
+    fun islandEnabledChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_ENABLED, true)
+    fun islandCallModeChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_CALL_MODE, true)
+    fun islandIdlePillChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_IDLE_PILL, false)
+
+    private fun prefFlagFlow(key: String, def: Boolean): Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, k ->
+            if (k == null || k == key) trySend(prefs.getBoolean(key, def))
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        send(prefs.getBoolean(key, def))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
+
     /**
      * 用户点了「完全退出」,要到下次打开 Nuoyi 的界面为止([com.nuoyi.agent.quit.NuoyiQuit])。
      * 在这期间进程可能被无障碍服务重新拉起:胶囊不画、后台服务不补起、自动恢复也不做,直到用户自己打开 App。
@@ -220,6 +254,9 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val CAPSULE_MODE = "capsule_mode"
         private const val CAPSULE_IDLE_OPACITY = "capsule_idle_opacity"
         private const val ISLAND_DWELL_MS = "island_dwell_ms"
+        private const val ISLAND_ENABLED = "island_enabled"
+        private const val ISLAND_CALL_MODE = "island_call_mode"
+        private const val ISLAND_IDLE_PILL = "island_idle_pill"
         private const val QUIT_REQUESTED = "quit_requested"
         private const val CAPSULE_SIDE = "capsule_side"
         private const val CAPSULE_HEIGHT = "capsule_height"

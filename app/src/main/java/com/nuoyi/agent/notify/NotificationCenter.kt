@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
 /** 通知的语气,决定灵动岛胶囊上吉祥物的表情和系统通知的颜色。 */
 enum class Tone { Info, Success, Warn, Alert }
 
+/** Extra key: 点击通知后要跳转到的页面路由(如 "callnotes"),由 MainActivity 读取。 */
+const val EXTRA_OPEN_ROUTE = "com.nuoyi.agent.extra.OPEN_ROUTE"
+
 /** 一条诺伊自有通知(任务完成、需要你处理等);同时进系统通知栏和顶部的灵动岛胶囊。 */
 data class NuoyiNotification(
     val id: String,
@@ -25,6 +28,8 @@ data class NuoyiNotification(
     val atMillis: Long = System.currentTimeMillis(),
     /** 灵动岛胶囊停留多久后自动收起。 */
     val timeoutMillis: Long = 6000,
+    /** 点击后跳转到的页面路由(见 [EXTRA_OPEN_ROUTE]);为空则只打开 App 首页。 */
+    val openRoute: String? = null,
 )
 
 /**
@@ -74,6 +79,7 @@ object NotificationCenter {
         val intent = Intent(context, MainActivity::class.java).apply {
             action = "com.nuoyi.agent.action.OPEN"
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            if (n.openRoute != null) putExtra(EXTRA_OPEN_ROUTE, n.openRoute)
         }
         val pi = PendingIntent.getActivity(context, n.id.hashCode(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)

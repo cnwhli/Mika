@@ -138,6 +138,25 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     }.distinctUntilChanged()
 
     /**
+     * 灵动岛胶囊的停留时长(毫秒):通知到达后多久自动收起。0 表示不自动收起(须手动点按或长按划掉)。
+     * 默认 6000ms。
+     */
+    fun islandDwellMs(): Long = prefs.getLong(ISLAND_DWELL_MS, 6000L)
+
+    fun setIslandDwellMs(ms: Long) {
+        prefs.edit().putLong(ISLAND_DWELL_MS, ms).commit()
+    }
+
+    fun islandDwellChanges(): Flow<Long> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == null || key == ISLAND_DWELL_MS) trySend(islandDwellMs())
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        send(islandDwellMs())
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
+
+    /**
      * 用户点了「完全退出」,要到下次打开 Nuoyi 的界面为止([com.nuoyi.agent.quit.NuoyiQuit])。
      * 在这期间进程可能被无障碍服务重新拉起:胶囊不画、后台服务不补起、自动恢复也不做,直到用户自己打开 App。
      */
@@ -200,6 +219,7 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val THEME_MODE = "theme_mode"
         private const val CAPSULE_MODE = "capsule_mode"
         private const val CAPSULE_IDLE_OPACITY = "capsule_idle_opacity"
+        private const val ISLAND_DWELL_MS = "island_dwell_ms"
         private const val QUIT_REQUESTED = "quit_requested"
         private const val CAPSULE_SIDE = "capsule_side"
         private const val CAPSULE_HEIGHT = "capsule_height"

@@ -143,8 +143,14 @@ fun PhoneOpsScreen(
  * 点哪一行都由 [onFix] 打开对应的系统设置页(总开关没开时先请求权限或打开应用通知页)。
  */
 @Composable
-fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -> Unit) {
+fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -> Unit, islandDwellMs: Long = 6000L, onIslandDwell: (Long) -> Unit = {}) {
     val o = status.notificationOverview()
+    val dwellOptions = listOf(
+        4000L to "4 秒",
+        6000L to "6 秒（推荐）",
+        10000L to "10 秒",
+        0L to "常驻（不自动收起）",
+    )
     PageScaffold(StatusCopy.NOTIFICATIONS, onBack) {
         GroupCard {
             ListRow(
@@ -161,6 +167,16 @@ fun NotificationsScreen(status: SystemStatus, onFix: (Fix) -> Unit, onBack: () -
             ChannelRowItem(StatusCopy.ATTENTION_CHANNEL, StatusCopy.NOTIF_ATTENTION_WHEN, o.attention, Fix.OpenAttentionChannel, onFix, first = true)
             ChannelRowItem(StatusCopy.RESULT_CHANNEL, StatusCopy.NOTIF_RESULT_WHEN, o.result, Fix.OpenResultChannel, onFix)
             ChannelRowItem(StatusCopy.PROGRESS_CHANNEL, StatusCopy.NOTIF_PROGRESS_WHEN, o.progress, Fix.OpenProgressChannel, onFix)
+        }
+        GroupLabel("灵动岛胶囊")
+        GroupCard {
+            dwellOptions.forEachIndexed { i, (ms, label) ->
+                RadioRow(
+                    label, selected = islandDwellMs == ms, first = i == 0,
+                    onClick = { onIslandDwell(ms) },
+                    subtitle = if (ms == 0L) "通知会一直停在屏幕顶部，直到你点开或长按划掉" else "通知到达后约 $label 自动收起",
+                )
+            }
         }
         FooterNote(StatusCopy.NOTIF_FOOTER)
     }

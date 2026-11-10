@@ -9,7 +9,6 @@ import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +29,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nuoyi.agent.R
@@ -114,23 +124,48 @@ class DynamicIslandService : Service() {
             Tone.Warn, Tone.Alert -> MascotMood.Listening
             else -> MascotMood.Idle
         }
+        // 按语气给胶囊上色:成功绿、警告橙、失败红、其余用品牌蓝
+        val tint = when (shown.tone) {
+            Tone.Success -> c.ok
+            Tone.Warn -> Color(0xFFFF9F0A)
+            Tone.Alert -> c.bad
+            else -> c.accent
+        }
+        val dwell = NotificationCenter.defaultDwellMs
+        val progress = remember { Animatable(1f) }
+        LaunchedEffect(shown.id, dwell) {
+            progress.snapTo(1f)
+            if (dwell > 0) progress.animateTo(0f, tween(dwell.toInt(), easing = LinearEasing))
+            else progress.snapTo(1f)
+        }
         Box(
             Modifier
                 .widthIn(max = 360.dp)
-                .shadow(12.dp, RoundedCornerShape(22.dp), clip = false)
-                .clip(RoundedCornerShape(22.dp))
-                .background(c.surface.copy(alpha = 0.97f))
-                .clickable { openApp() }
+                .shadow(14.dp, RoundedCornerShape(24.dp), clip = false)
+                .clip(RoundedCornerShape(24.dp))
+                .border(1.5.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
+                .background(c.surface.copy(alpha = 0.98f))
+                .pointerInput(shown.id) {
+                    detectTapGestures(
+                        onTap = { openApp() },
+                        onLongPress = { NotificationCenter.dismiss(shown.id) },
+                    )
+                }
                 .padding(horizontal = 14.dp, vertical = 10.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                NuoyiMascot(mood, size = 40.dp)
+                NuoyiMascot(mood, size = 44.dp)
                 Column(Modifier.weight(1f, fill = false), verticalArrangement = Arrangement.Center) {
                     Text(shown.title, style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold),
                         color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(shown.text, style = NuoyiType.Hint, color = c.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
+            // 停留时长进度条:从左往右收,走到头就自动收起;长按胶囊可立即划掉
+            Box(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth(progress.value)
+                    .height(3.dp).background(tint.copy(alpha = 0.9f)),
+            )
         }
     }
 }

@@ -35,18 +35,26 @@ data class NuoyiNotification(
 object NotificationCenter {
     private const val CHANNEL = "nuoyi"
     private const val ISLAND_CHANNEL = "nuoyi-island"
+    /** 通知自带的 timeoutMillis 用这个值表示「走默认」,由 [defaultDwellMs] 决定。 */
+    private const val DEFAULT_TIMEOUT = 6000L
 
     private val _active = MutableStateFlow<List<NuoyiNotification>>(emptyList())
     /** 此刻应该在灵动岛显示的(至多保留最近 3 条),按到达先后。 */
     val active: StateFlow<List<NuoyiNotification>> = _active.asStateFlow()
     private val timers = LinkedHashMap<String, CountDownTimer>()
 
+    /** 灵动岛胶囊默认停留时长(毫秒),可被设置页覆盖;0 = 不自动收起。 */
+    var defaultDwellMs = 6000L
+
     /** 发一条通知:进系统通知栏 + 灵动岛。同一 id 先顶掉旧的。 */
     fun post(context: Context, n: NuoyiNotification) {
         _active.value = (_active.value.filter { it.id != n.id } + n).takeLast(3)
         postSystem(context, n)
         timers[n.id]?.cancel()
-        val timer = object : CountDownTimer(n.timeoutMillis, n.timeoutMillis) {
+        // timeoutMillis == DEFAULT_TIMEOUT 表示「用默认停留时长」,否则用调用方指定的(例如长文案给更久)
+        val dwell = if (n.timeoutMillis == DEFAULT_TIMEOUT) defaultDwellMs else n.timeoutMillis
+        if (dwell <= 0) return // 不自动收起:等用户点开或长按划掉
+        val timer = object : CountDownTimer(dwell, dwell) {
             override fun onTick(p0: Long) = Unit
             override fun onFinish() = dismiss(n.id)
         }

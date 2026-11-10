@@ -402,6 +402,9 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
         // 任务跑完(成功/失败/取消)时发一条通知:进系统通知栏,也进屏幕顶部的灵动岛胶囊。
         observeTaskNotifications()
         // 有「显示在其他应用上层」权限就启动灵动岛;没有则胶囊不显示,其余功能不受影响。
+        // 灵动岛胶囊的停留时长跟着设置走,改了实时生效。
+        NotificationCenter.defaultDwellMs = flags.islandDwellMs()
+        scope.launch { flags.islandDwellChanges().collect { NotificationCenter.defaultDwellMs = it } }
         if (android.provider.Settings.canDrawOverlays(this)) {
             runCatching { startForegroundService(Intent(this, DynamicIslandService::class.java)) }
         }

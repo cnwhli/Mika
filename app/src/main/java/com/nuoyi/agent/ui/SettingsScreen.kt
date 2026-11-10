@@ -120,6 +120,7 @@ fun SettingsScreen(
     var selfConfig by remember { mutableStateOf(flags.selfConfig()) }
     var capsuleMode by remember { mutableStateOf(flags.capsuleMode()) }
     var capsuleIdleOpacity by remember { mutableStateOf(flags.capsuleIdleOpacity()) }
+    var islandDwellMs by remember { mutableStateOf(flags.islandDwellMs()) }
     // 换语言时界面会重建,这里每次进来读一次即可
     val language = remember { AppLanguage.current(context) }
     val runtimeLimit by (context.applicationContext as com.nuoyi.agent.NuoyiApp).taskState.parallelLimit.collectAsState()
@@ -206,7 +207,15 @@ fun SettingsScreen(
             status, androidRelease, onProblem,
             onRepair = { onFix(Fix.RepairPhoneHelper) }, onUnpair = { onFix(Fix.UnpairPhoneHelper) }, onBack = toHome,
         )
-        SettingsPage.Notifications -> NotificationsScreen(status, onFix = ::fix, onBack = back)
+        SettingsPage.Notifications -> NotificationsScreen(
+            status, onFix = ::fix, onBack = back,
+            islandDwellMs = islandDwellMs,
+            onIslandDwell = {
+                flags.setIslandDwellMs(it)
+                com.nuoyi.agent.notify.NotificationCenter.defaultDwellMs = it
+                islandDwellMs = it
+            },
+        )
         SettingsPage.DuringWork -> DuringWorkScreen(
             keepScreenOn, onKeepScreenOn = { flags.setKeepScreenOn(it); keepScreenOn = it },
             muteTarget, onMuteTarget = { flags.setMuteTarget(it); muteTarget = it },

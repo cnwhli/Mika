@@ -13,7 +13,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
@@ -39,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +59,8 @@ import com.nuoyi.agent.ui.theme.NuoyiMascot
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.NuoyiType
 import kotlinx.coroutines.delay
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 /**
  * 系统级灵动岛:把 [NotificationCenter.active] 的通知、以及实时通话状态,显示在屏幕顶部居中的胶囊里(像 iOS 灵动岛),
@@ -67,6 +70,8 @@ import kotlinx.coroutines.delay
 class DynamicIslandService : Service() {
     private var wm: WindowManager? = null
     private var view: ComposeView? = null
+    /** 胶囊窗口当前的布局参数;拖动时实时改 x/y 并写回,用于保存/恢复位置。 */
+    private var params: WindowManager.LayoutParams? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -92,7 +97,15 @@ class DynamicIslandService : Service() {
             height = WindowManager.LayoutParams.WRAP_CONTENT
             y = statusBarTop()
         }
+        // 之前拖动过就用存下来的绝对坐标;否则保持顶部居中(拖动后会切到绝对坐标)
+        val (sx, sy) = FeatureFlags.get(this).islandPos()
+        if (sx >= 0 && sy >= 0) {
+            params.gravity = Gravity.TOP or Gravity.START
+            params.x = sx
+            params.y = sy
+        }
         try {
+            this.params = params
             wm!!.addView(compose, params)
             view = compose
         } catch (e: SecurityException) {
@@ -140,6 +153,54 @@ class DynamicIslandService : Service() {
         startActivity(intent)
     }
 
+    /**
+     * 给胶囊加「可拖动 + 点按 + 长按」手势:拖动改窗口位置并记住,点按=onTap,长按=onLongPress。
+     * 用两个独立 [pointerInput]:点按/长按与拖动并行,移动超过 touchSlop 后 tap 自动取消、交给拖动,
+     * 这样不用自己起协程判长按,也不用手写 await 循环。[key] 在内容变化时重建手势,避免闭包 capture 旧数据。
+     */
+    private fun Modifier.capsuleDrag(
+        key: Any?,
+        onTap: () -> Unit,
+        onLongPress: () -> Unit,
+    ): Modifier = this
+        .pointerInput(key) {
+            detectTapGestures(onTap = { onTap() }, onLongPress = { onLongPress() })
+        }
+        .pointerInput(key) {
+            detectDragGestures(
+                onDragStart = { ensureAbsoluteGravity() },
+                onDrag = { change, dragAmount ->
+                    val w = view?.width ?: 0
+                    val h = view?.height ?: 0
+                    val dm = resources.displayMetrics
+                    params?.let { p ->
+                        p.x = (p.x + dragAmount.x).roundToInt().coerceIn(0, max(0, dm.widthPixels - w))
+                        p.y = (p.y + dragAmount.y).roundToInt().coerceIn(0, max(0, dm.heightPixels - h))
+                        view?.let { v -> wm?.updateViewLayout(v, p) }
+                    }
+                    change.consume()
+                },
+                onDragEnd = { persistIslandPos() },
+                onDragCancel = { persistIslandPos() },
+            )
+        }
+
+    /** 首次拖动时把「居中」的 gravity 转成绝对左上坐标,方便之后用 x/y 自由定位。 */
+    private fun ensureAbsoluteGravity() {
+        val p = params ?: return
+        if ((p.gravity and Gravity.CENTER_HORIZONTAL) != 0) {
+            val w = view?.width ?: 0
+            val dm = resources.displayMetrics
+            p.x = ((dm.widthPixels - w) / 2f).roundToInt()
+            p.gravity = Gravity.TOP or Gravity.START
+        }
+    }
+
+    private fun persistIslandPos() {
+        val p = params ?: return
+        FeatureFlags.get(this).setIslandPos(p.x, p.y)
+    }
+
     @Composable
     private fun IslandContent() {
         val active by NotificationCenter.active.collectAsState()
@@ -180,12 +241,11 @@ class DynamicIslandService : Service() {
                 .clip(RoundedCornerShape(22.dp))
                 .border(1.5.dp, c.accent.copy(alpha = 0.5f), RoundedCornerShape(22.dp))
                 .background(c.surface.copy(alpha = 0.98f))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { openCallLive() },
-                        onLongPress = { NotificationCenter.post(this@DynamicIslandService, NuoyiNotification("call-hint", "通话中", "点胶囊可记要点 / 让 AI 助理记下待办", tone = Tone.Info)) },
-                    )
-                }
+                .capsuleDrag(
+                    call.startMs,
+                    onTap = { openCallLive() },
+                    onLongPress = { NotificationCenter.post(this@DynamicIslandService, NuoyiNotification("call-hint", "通话中", "点胶囊可记要点 / 让 AI 助理记下待办", tone = Tone.Info)) },
+                )
                 .padding(horizontal = 14.dp, vertical = 9.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -229,12 +289,11 @@ class DynamicIslandService : Service() {
                 .clip(RoundedCornerShape(24.dp))
                 .border(1.5.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
                 .background(c.surface.copy(alpha = 0.98f))
-                .pointerInput(shown.id) {
-                    detectTapGestures(
-                        onTap = { openApp() },
-                        onLongPress = { NotificationCenter.dismiss(shown.id) },
-                    )
-                }
+                .capsuleDrag(
+                    shown.id,
+                    onTap = { openApp() },
+                    onLongPress = { NotificationCenter.dismiss(shown.id) },
+                )
                 .padding(horizontal = 14.dp, vertical = 10.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -260,7 +319,7 @@ class DynamicIslandService : Service() {
                 .shadow(10.dp, RoundedCornerShape(20.dp), clip = false)
                 .clip(RoundedCornerShape(20.dp))
                 .background(c.surface.copy(alpha = 0.95f))
-                .pointerInput(Unit) { detectTapGestures(onTap = { openApp() }) }
+                .capsuleDrag(Unit, onTap = { openApp() }, onLongPress = {})
                 .padding(8.dp),
         ) {
             NuoyiMascot(MascotMood.Idle, size = 30.dp)

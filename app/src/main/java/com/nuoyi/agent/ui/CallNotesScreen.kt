@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +50,7 @@ import com.nuoyi.agent.ui.components.GroupCard
 import com.nuoyi.agent.ui.components.GroupLabel
 import com.nuoyi.agent.ui.components.ListRow
 import com.nuoyi.agent.ui.components.NuoyiButton
+import com.nuoyi.agent.ui.components.NuoyiDialog
 import com.nuoyi.agent.ui.components.PageScaffold
 import com.nuoyi.agent.ui.components.RowChevron
 import com.nuoyi.agent.ui.theme.MascotMood
@@ -92,6 +94,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     var sessions by remember { mutableStateOf(CallSessionStore.of(context).list()) }
     var expandedId by remember { mutableStateOf<String?>(null) }
     var sessionNotes by remember { mutableStateOf<List<CallNote>>(emptyList()) }
+    var deleteTargetId by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) { sessions = CallSessionStore.of(context).list() }
 
     fun refresh() { todos = TodoStore.of(context).list() }
@@ -181,6 +184,15 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     val recPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) startRecording() else recError = "需要麦克风权限才能录音"
     }
+    // 导出全部通话记录 + 要点为本地 txt
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri != null) scope.launch {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { os -> os.write(buildExportText(context).toByteArray()) }
+            }
+            status = "已导出通话记录"
+        }
+    }
 
     PageScaffold("通话纪要", onBack) {
         Box(Modifier.fillMaxWidth().padding(vertical = 4.dp), contentAlignment = Alignment.Center) {
@@ -212,6 +224,16 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
         }
 
         GroupLabel("通话记录")
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            NuoyiButton(
+                "导出全部记录",
+                onClick = { exportLauncher.launch("nuoyi-通话记录.txt") },
+                size = ButtonSize.Small, kind = ButtonKind.Tonal,
+            )
+        }
         GroupCard {
             if (sessions.isEmpty()) {
                 ListRow(null, "还没有通话记录", "通话结束会在这里留一条时间线", first = true) {}
@@ -246,7 +268,17 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                                 onClick = { scope.launch { analyze(sessionNotes.joinToString("\n") { it.text }) } },
                                 size = ButtonSize.Small,
                                 kind = ButtonKind.Tonal,
-                                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 10.dp),
+                                modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 10.dp),
+                            )
+                        }
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.End,
+                        ) {
+                            Text(
+                                "删除这条记录",
+                                Modifier.clickable { deleteTargetId = s.id }.padding(8.dp),
+                                style = NuoyiType.Caption, color = NuoyiTheme.colors.bad,
                             )
                         }
                     }
@@ -292,6 +324,44 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                 "把它们所在的文件夹选进来即可。分析结果会在本地生成日程（写入系统日历）、提醒（系统闹钟通知）和待办（本应用本地记录）。",
         )
     }
+    if (deleteTargetId != null) {
+        NuoyiDialog(
+            onDismissRequest = { deleteTargetId = null },
+            title = { Text("删除这条通话记录？") },
+            text = { Text("会一并删掉这通电话记下的要点，且无法恢复。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    deleteTargetId?.let { CallSessionStore.of(context).delete(it) }
+                    sessions = CallSessionStore.of(context).list()
+                    if (expandedId == deleteTargetId) expandedId = null
+                    deleteTargetId = null
+                }) { Text("删除", color = NuoyiTheme.colors.bad) }
+            },
+            dismissButton = { TextButton(onClick = { deleteTargetId = null }) { Text("取消") } },
+        )
+    }
+}
+
+/** 把所有通话记录 + 要点拼成一份纯文本,供「导出全部记录」写到用户选的文件里。 */
+private fun buildExportText(context: Context): String {
+    val s = CallSessionStore.of(context)
+    val sb = StringBuilder("诺伊 · 通话记录\n")
+    sb.append("导出时间：${fmtDate(System.currentTimeMillis())}\n\n")
+    val all = s.list()
+    if (all.isEmpty()) sb.append("（还没有通话记录）\n")
+    all.forEach { c ->
+        val dur = if (c.endMs > c.startMs) fmtDuration(c.endMs - c.startMs) else "—"
+        sb.append("${if (c.isIncoming) "来电" else "去电"} · ${c.number ?: "未知号码"}\n")
+        sb.append("时间：${fmtDate(c.startMs)}　时长：$dur\n")
+        val notes = s.notes(c.id)
+        if (notes.isEmpty()) {
+            sb.append("（本次通话没记要点）\n")
+        } else {
+            notes.forEach { n -> sb.append("  • ${n.text}\n") }
+        }
+        sb.append("\n")
+    }
+    return sb.toString()
 }
 
 /** 一条待办:点一下切换完成,右边「删除」直接删。 */

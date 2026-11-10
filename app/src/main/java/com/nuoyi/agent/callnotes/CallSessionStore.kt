@@ -94,6 +94,19 @@ class CallSessionStore(private val dir: File) {
         }.getOrDefault(emptyList())
     }
 
+    fun delete(sessionId: String) {
+        save(list().filter { it.id != sessionId })
+        if (notesFile.exists()) {
+            val arr = runCatching { JSONArray(notesFile.readText()) }.getOrNull() ?: return
+            val out = JSONArray()
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                if (o.optString("sessionId") != sessionId) out.put(o)
+            }
+            runCatching { notesFile.writeText(out.toString()) }
+        }
+    }
+
     private fun save(items: List<CallSession>) {
         val arr = JSONArray()
         items.forEach { s ->

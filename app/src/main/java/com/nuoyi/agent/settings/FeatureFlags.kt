@@ -181,6 +181,20 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     fun islandCallModeChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_CALL_MODE, true)
     fun islandIdlePillChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_IDLE_PILL, false)
 
+    /** 灵动岛胶囊在屏幕上的位置(像素,左上角原点)。-1 表示用默认(顶部居中),拖动后才存绝对坐标。 */
+    fun islandPos(): Pair<Int, Int> = prefs.getInt(ISLAND_POS_X, -1) to prefs.getInt(ISLAND_POS_Y, -1)
+
+    fun setIslandPos(x: Int, y: Int) {
+        prefs.edit().putInt(ISLAND_POS_X, x).putInt(ISLAND_POS_Y, y).apply()
+    }
+
+    /** 上次选过的「系统通话纪要」目录(SAF 持久化 Uri 的字符串),下次直接进入该目录。 */
+    fun lastMinutesTree(): String? = prefs.getString(LAST_MINUTES_TREE, null)
+
+    fun setLastMinutesTree(uri: String?) {
+        prefs.edit().putString(LAST_MINUTES_TREE, uri).apply()
+    }
+
     private fun prefFlagFlow(key: String, def: Boolean): Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, k ->
             if (k == null || k == key) trySend(prefs.getBoolean(key, def))
@@ -257,6 +271,9 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val ISLAND_ENABLED = "island_enabled"
         private const val ISLAND_CALL_MODE = "island_call_mode"
         private const val ISLAND_IDLE_PILL = "island_idle_pill"
+        private const val ISLAND_POS_X = "island_pos_x"
+        private const val ISLAND_POS_Y = "island_pos_y"
+        private const val LAST_MINUTES_TREE = "last_minutes_tree"
         private const val QUIT_REQUESTED = "quit_requested"
         private const val CAPSULE_SIDE = "capsule_side"
         private const val CAPSULE_HEIGHT = "capsule_height"

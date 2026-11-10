@@ -1,6 +1,7 @@
 package com.nuoyi.agent.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -43,6 +44,8 @@ import com.nuoyi.agent.callnotes.CallStateMonitor
 import com.nuoyi.agent.callnotes.MinutesAnalyzer
 import com.nuoyi.agent.callnotes.applyMinutesActions
 import com.nuoyi.agent.callnotes.readMinutesFromTree
+import com.nuoyi.agent.callnotes.readMinutesFromUri
+import com.nuoyi.agent.settings.FeatureFlags
 import com.nuoyi.agent.settings.ProviderStore
 import com.nuoyi.agent.ui.components.ButtonKind
 import com.nuoyi.agent.ui.components.NuoyiButton
@@ -118,20 +121,34 @@ private fun CallLiveScreen(onClose: () -> Unit) {
         runAnalyze(t)
     }
 
+    /** 文件夹 / 单文件两条入口读到的文本,统一走这里:置忙 → 读 → 分析。 */
+    suspend fun ingest(reader: suspend () -> String) {
+        busy = true
+        status = "正在读取通话纪要文件…"
+        val text = reader()
+        busy = false
+        if (text.isBlank()) {
+            status = "没有读到可分析的文本（支持 .txt / .md / .json）"
+            return
+        }
+        runAnalyze(text)
+    }
+
+    val flags = remember { FeatureFlags.get(context) }
+    // 上次选过的纪要文件夹,下次打开选择器直接定位到那里
+    val lastTree = remember { flags.lastMinutesTree()?.let { runCatching { Uri.parse(it) }.getOrNull() } }
+
     val treeLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
-            scope.launch {
-                busy = true
-                status = "正在读取通话纪要文件…"
-                val text = readMinutesFromTree(context, uri)
-                busy = false
-                if (text.isBlank()) {
-                    status = "没有读到可分析的文本（支持 .txt / .md / .json）"
-                    return@launch
-                }
-                runAnalyze(text)
-            }
+            flags.setLastMinutesTree(uri.toString())
+            scope.launch { ingest { readMinutesFromTree(context, uri) } }
+        }
+    }
+    val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            scope.launch { ingest { readMinutesFromUri(context, uri) } }
         }
     }
 
@@ -172,8 +189,15 @@ private fun CallLiveScreen(onClose: () -> Unit) {
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NuoyiButton("记下来", onClick = { val t = note; note = ""; scope.launch { capture(t) } })
-                NuoyiButton("整理系统纪要", onClick = { treeLauncher.launch(null) }, kind = ButtonKind.Secondary)
             }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NuoyiButton("整理纪要文件夹", onClick = { treeLauncher.launch(lastTree) }, kind = ButtonKind.Secondary)
+                NuoyiButton("选单个文件", onClick = { fileLauncher.launch(arrayOf("text/plain", "text/markdown", "application/json", "*/*")) }, kind = ButtonKind.Tonal)
+            }
+            Text(
+                "系统通话纪要常见位置：小米/红米「录音机 › 通话录音」、华为/荣耀「实用工具 › 通话纪要」、OPPO/vivo「录音 › 通话」。也可直接选导出的 .txt / .md / .json 文件。",
+                style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3,
+            )
 
             if (busy) Text("正在分析…", style = NuoyiType.Hint, color = NuoyiTheme.colors.ink2)
             if (status.isNotBlank()) Text(status, style = NuoyiType.Body, color = NuoyiTheme.colors.ink)

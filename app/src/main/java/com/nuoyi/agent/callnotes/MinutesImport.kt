@@ -7,6 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.ArrayDeque
 
+/** 读一个用户直接选中的文本文件(.txt/.md/.json),拼成字符串交给模型。 */
+suspend fun readMinutesFromUri(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
+    runCatching {
+        context.contentResolver.openInputStream(uri)?.use { s -> s.bufferedReader().readText() }.orEmpty()
+    }.getOrDefault("")
+}
+
 /** 把 SAF 树里的文本文件(.txt/.md/.json)读出来拼成一个大字符串交给模型。 */
 suspend fun readMinutesFromTree(context: Context, treeUri: Uri): String = withContext(Dispatchers.IO) {
     val resolver = context.contentResolver

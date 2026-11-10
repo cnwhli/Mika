@@ -36,6 +36,9 @@ import com.nuoyi.agent.settings.Prerequisites
 import com.nuoyi.agent.settings.Problem
 import com.nuoyi.agent.settings.SystemStatus
 import com.nuoyi.agent.settings.notificationOverview
+import com.nuoyi.agent.notify.NotificationCenter
+import com.nuoyi.agent.notify.NuoyiNotification
+import com.nuoyi.agent.notify.Tone
 import com.nuoyi.agent.task.ParallelLimit
 import com.nuoyi.agent.ui.components.FooterNote
 import com.nuoyi.agent.ui.components.GroupCard
@@ -254,6 +257,29 @@ fun NotificationsScreen(
                 ) {
                     NuoyiSwitch(islandIdlePill, onIslandIdlePill)
                 }
+                ListRow(
+                    NuoyiIcons.Spark, "预览一条灵动岛通知", "发一条示例通知，看看胶囊长什么样、能不能拖动",
+                    onClick = {
+                        NotificationCenter.post(context, NuoyiNotification(
+                            id = "island-preview-${System.currentTimeMillis()}",
+                            title = "灵动岛预览",
+                            text = "按住可拖动胶囊 · 点一下回 App · 长按划掉",
+                            tone = Tone.Info,
+                            timeoutMillis = 0,
+                        ))
+                    },
+                ) { RowChevron() }
+                ListRow(
+                    NuoyiIcons.Wrench, "复位胶囊位置", "把拖到别处的胶囊恢复到屏幕顶部居中（清掉拖动记录）",
+                    onClick = {
+                        FeatureFlags.get(context).setIslandPos(-1, -1)
+                        if (Settings.canDrawOverlays(context)) {
+                            val svc = Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java)
+                            context.stopService(svc)
+                            context.startForegroundService(svc)
+                        }
+                    },
+                ) { RowChevron() }
             }
             dwellOptions.forEachIndexed { i, (ms, label) ->
                 RadioRow(
@@ -262,6 +288,22 @@ fun NotificationsScreen(
                     subtitle = if (ms == 0L) "通知会一直停在屏幕顶部，直到你点开或长按划掉" else "通知到达后约 $label 自动收起",
                 )
             }
+        }
+        GroupLabel("使用与常驻")
+        GroupCard {
+            ListRow(
+                null, "胶囊可以拖动", "按住胶囊拖到屏幕任意位置，位置会被记住；点一下打开对应页面，长按划掉这条通知。",
+                first = true,
+            ) {}
+            ListRow(
+                null, "胶囊不出现？", "确认上面「显示在其他应用上层」已授权，并在系统设置里把诺伊加入自启动 / 后台运行白名单，避免被省电策略杀掉。",
+            ) {}
+        }
+        if (!overlayGranted) {
+            FooterNote("还没授权「显示在其他应用上层」：灵动岛胶囊无法显示在别的 App 之上，请先点上面「去授权」。")
+        }
+        if (!phoneStateGranted) {
+            FooterNote("还没授权「读取通话状态」：通话模式不可用。授权后胶囊服务会自动重启以生效。")
         }
         FooterNote(StatusCopy.NOTIF_FOOTER)
     }

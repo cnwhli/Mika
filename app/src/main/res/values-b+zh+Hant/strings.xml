@@ -12,7 +12,7 @@
     <string name="takeover_handed_over_hint">已把這個 App 放到主螢幕。處理完點「處理好了」;如果你已經自己把事辦完了,點「我自己做完了」。</string>
     <string name="takeover_web_busy">設定裡正在登入網站,先在那邊點「完成」,再點「我來處理」。</string>
     <string name="takeover_move_to_main_failed">沒能把 App 挪到主螢幕,再點一次「我來處理」試試。</string>
-    <string name="takeover_move_back_failed">沒能把 App 挪回 Mika 的螢幕,再點一次試試。</string>
+    <string name="takeover_move_back_failed">沒能把 App 挪回 諾伊 的螢幕,再點一次試試。</string>
     <string name="action_take_over">我來處理</string>
     <string name="action_hand_back">處理好了</string>
     <string name="action_finished_myself">我自己做完了</string>
@@ -20,7 +20,7 @@
     <string name="action_cancel_task">取消任務</string>
     <string name="input_title">需要你回答</string>
     <string name="no_answer_note">%1$d 分鐘內沒回答會按沒回答處理。</string>
-    <string name="input_too_late">回答來晚了:已過 %1$d 分鐘,Mika 已按沒回答繼續。</string>
+    <string name="input_too_late">回答來晚了:已過 %1$d 分鐘,諾伊 已按沒回答繼續。</string>
     <string name="action_approve">同意</string>
     <string name="action_decline">不同意</string>
     <string name="confirmation_locked_hint">解鎖後檢視目標和內容</string>

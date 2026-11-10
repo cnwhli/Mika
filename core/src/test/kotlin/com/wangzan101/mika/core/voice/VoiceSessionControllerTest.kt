@@ -208,4 +208,39 @@ class VoiceSessionControllerTest {
         assertEquals(VoiceSessionState.Closed, c.state)
         assertEquals(listOf(VoiceEffect.Note("wake_after_close")), c.onWake(WakeSource.SystemAssistant))
     }
+
+    @Test fun identityQuestionIsAnsweredVerbatimWithoutStartingATask() {
+        val tasks = FakeTasks()
+        val c = controller(tasks = tasks)
+        c.onWake(WakeSource.SystemAssistant)
+        val effects = c.onUtterance("诺伊，你是谁")
+        assertEquals(listOf(ProductIdentity.REPLY), effects.spoken())
+        assertTrue(effects.none { it is VoiceEffect.StartTask })
+        assertTrue(effects.contains(VoiceEffect.SetMic(false, "speak"))) // 播报时真的关麦
+        assertEquals(emptyList<String>(), tasks.started)
+        // 答完接着听，会话不收场
+        assertEquals(VoiceEffect.SetMic(true, "resume"), c.onSpeechDone().single())
+        assertEquals(VoiceSessionState.Listening, c.state)
+    }
+
+    /** 原句里叫着名字问（剥掉唤醒词只剩「是谁」），仍必须认出来。 */
+    @Test fun thirdPersonIdentityQuestionAlsoGetsTheFixedReply() {
+        val c = controller()
+        c.onWake(WakeSource.SystemAssistant)
+        assertEquals(listOf(ProductIdentity.REPLY), c.onUtterance("诺伊是谁").spoken())
+    }
+
+    @Test fun identityQuestionWhileTaskRunsKeepsTheTask() {
+        val tasks = FakeTasks()
+        val c = controller(tasks = tasks)
+        c.onWake(WakeSource.SystemAssistant)
+        c.onUtterance("帮我查天气")
+        c.onSpeechDone()
+        assertEquals(VoiceSessionState.WaitingTask, c.state)
+        val effects = c.onUtterance("你是谁")
+        assertEquals(listOf(ProductIdentity.REPLY), effects.spoken())
+        assertTrue(effects.none { it is VoiceEffect.CancelTask })
+        assertEquals(VoiceEffect.SetMic(true, "resume_control_only"), c.onSpeechDone().single())
+        assertEquals(VoiceSessionState.WaitingTask, c.state)
+    }
 }

@@ -33,7 +33,7 @@
     <string name="settings_recovery">복구 및 수리</string>
     <string name="settings_developer_group">개발자</string>
     <string name="settings_developer">개발자 옵션</string>
-    <string name="settings_about">Mika 정보</string>
+    <string name="settings_about">Nuoyi 정보</string>
     <string name="pill_unsupported">지원 안 함</string>
     <string name="pill_available">준비됨</string>
     <string name="pill_needs_attention">확인 필요</string>

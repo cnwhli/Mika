@@ -10,6 +10,8 @@ package com.wangzan101.mika.core.voice
 
 enum class VoiceIntent {
     StartTask, Steer, AwaitConfirmation, Confirm, Cancel, Status, Help, Ignore, Clarify,
+    /** 在问「你是谁」。答案由产品固定给出，不进模型、不起任务。 */
+    Identity,
 }
 
 /** 这句话会不会造成难以撤回的后果。 */
@@ -28,6 +30,9 @@ sealed interface VoiceAction {
     data object Cancel : VoiceAction
     data object Status : VoiceAction
     data class Help(val text: String) : VoiceAction
+
+    /** 只播报、不派任务。身份问答这类「答案必须是原话」的场景专用。 */
+    data class Reply(val text: String) : VoiceAction
 
     /** 没唤醒、或识别结果明显不是对本产品说的：宿主应直接忽略，不播报、不建任务。 */
     data object Ignore : VoiceAction
@@ -87,6 +92,7 @@ data class VoiceCommand(
         is VoiceAction.AwaitConfirmation -> action.prompt
         is VoiceAction.Clarify -> action.prompt
         is VoiceAction.Help -> action.text
+        is VoiceAction.Reply -> action.text
         else -> null
     }
 }
@@ -117,6 +123,15 @@ class VoiceDialog(
             stripped != null -> stripped
             waiting != null -> normalized to false
             else -> return command(raw, "", VoiceIntent.Ignore, VoiceAction.Ignore, wakeMatched = false)
+        }
+
+        // 身份问答优先于一切：答案由产品常量给出，绝不交给模型，也绝不变成任务。
+        // 用原句判，这样「诺伊是谁」这类叫着名字问的也认得出（text 已被剥掉唤醒词）。
+        if (ProductIdentity.matches(raw)) {
+            return command(
+                raw, text, VoiceIntent.Identity,
+                VoiceAction.Reply(ProductIdentity.REPLY), wakeMatched = wakeMatched,
+            )
         }
 
         // 等待确认时只接受简短的确认／否定，别的都当作没听清，避免把新指令误当成「确认」。

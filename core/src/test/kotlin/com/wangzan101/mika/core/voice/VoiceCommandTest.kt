@@ -148,4 +148,22 @@ class VoiceCommandTest {
         // 「转账」不在自定义敏感表里，直接执行
         assertEquals(VoiceAction.StartTask("转账给张三"), d.onSpeech("你好阿福，转账给张三").action)
     }
+
+    @Test fun identityQuestionGetsFixedReplyAndNeverBecomesATask() {
+        val d = VoiceDialog(pushToTalk)
+        val r = d.onSpeech("你是谁")
+        assertEquals(VoiceIntent.Identity, r.intent)
+        assertEquals(VoiceAction.Reply(ProductIdentity.REPLY), r.action)
+        assertEquals(ProductIdentity.REPLY, r.spokenReply)
+        assertEquals(VoiceRisk.Normal, r.risk)
+    }
+
+    @Test fun identityQuestionKeepsPendingConfirmationAlive() {
+        val d = VoiceDialog(pushToTalk) { 0L }
+        assertTrue(d.onSpeech("给张三转账 100 元").action is VoiceAction.AwaitConfirmation)
+        assertEquals(VoiceAction.Reply(ProductIdentity.REPLY), d.onSpeech("你是谁").action)
+        assertTrue(d.hasPendingConfirmation())
+        // 插一句闲聊不会把待确认的敏感任务冲掉
+        assertEquals(VoiceAction.StartTask("给张三转账 100 元"), d.onSpeech("确认").action)
+    }
 }

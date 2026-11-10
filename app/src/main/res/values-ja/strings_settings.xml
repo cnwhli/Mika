@@ -33,7 +33,7 @@
     <string name="settings_recovery">復旧と修復</string>
     <string name="settings_developer_group">開発者向け</string>
     <string name="settings_developer">開発者向けオプション</string>
-    <string name="settings_about">Mika について</string>
+    <string name="settings_about">Nuoyi について</string>
     <string name="pill_unsupported">非対応</string>
     <string name="pill_available">準備完了</string>
     <string name="pill_needs_attention">要確認</string>

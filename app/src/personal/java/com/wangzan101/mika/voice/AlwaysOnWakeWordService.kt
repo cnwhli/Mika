@@ -88,7 +88,7 @@ class AlwaysOnWakeWordService : Service() {
         )
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("声舵正在听唤醒词")
+            .setContentTitle("诺伊正在听唤醒词")
             .setContentText("可在设置里随时关闭")
             .setOngoing(true)
             .build()

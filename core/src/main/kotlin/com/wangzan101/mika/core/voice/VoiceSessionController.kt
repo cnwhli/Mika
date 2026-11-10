@@ -141,12 +141,17 @@ class VoiceSessionController(
         }
         if (nowMs() - lastHeardMs > listenTimeoutMs) return finish("listen_timeout", VoiceSessionPrompts.TIMEOUT)
         lastHeardMs = nowMs()
+        // 身份问答用**原句**判（「诺伊是谁」被剥词后就只剩「是谁」了），
+        // 并且在这层直接短路到 TTS：不进 dialog、不进 AgentLoop，模型没有机会改写答案。
+        if (ProductIdentity.matches(raw)) return sayAndListen(ProductIdentity.REPLY)
         val cmd = dialog.onSpeech(stripWake(raw), tasks.hasActiveTask())
         return dispatch(cmd)
     }
 
     /** 任务还在跑时只收短控制语，别让一句闲聊又起一个新任务。 */
     private fun whileWaitingTask(raw: String): List<VoiceEffect> {
+        // 任务在跑时被问身份也要答，答完继续等任务，不能当成闲聊丢掉。
+        if (ProductIdentity.matches(raw)) return sayAndListen(ProductIdentity.REPLY)
         val text = stripWake(raw)
         if (text.isBlank()) return listOf(VoiceEffect.Note("busy_empty"))
         if (text.length <= 10 && (text.contains("取消") || text.contains("停止") || text.contains("别做了"))) {
@@ -164,6 +169,7 @@ class VoiceSessionController(
         is VoiceAction.AwaitConfirmation -> sayAndListen(a.prompt)
         is VoiceAction.Clarify -> sayAndListen(a.prompt)
         is VoiceAction.Help -> sayAndListen(a.text)
+        is VoiceAction.Reply -> sayAndListen(a.text)
 
         VoiceAction.Cancel -> sayThenWait(
             listOf(VoiceEffect.CancelTask), VoiceSessionPrompts.CANCELLED, finishAfter = true,

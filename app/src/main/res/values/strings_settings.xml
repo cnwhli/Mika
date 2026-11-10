@@ -45,7 +45,7 @@
     <string name="settings_recovery">Recovery &amp; repair</string>
     <string name="settings_developer_group">Developer</string>
     <string name="settings_developer">Developer options</string>
-    <string name="settings_about">About Mika</string>
+    <string name="settings_about">About Nuoyi</string>
     <string name="pill_unsupported">Not supported</string>
     <string name="pill_available">Ready</string>
     <string name="pill_needs_attention">Needs attention</string>

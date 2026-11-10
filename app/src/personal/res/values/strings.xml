@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 个人版可与公版并排安装，标签加个后缀免得桌面上两个「诺伊」分不清。
+         公版用 main 里的 app_name，就是「诺伊」。 -->
+    <string name="app_name" translatable="false">诺伊·自用</string>
+</resources>

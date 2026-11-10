@@ -31,7 +31,9 @@ class SystemPromptTest {
 
     @Test fun loadsIdentityAndPhoneRules() {
         val p = rules()
-        assertTrue(SystemPrompt.identity().startsWith("You are Mika"))
+        assertTrue(SystemPrompt.identity().startsWith("You are Nuoyi"))
+        // 身份问答的固定答句也在提示词里，打字问时口径与语音一致
+        assertTrue("我是李万禧的女儿，数字女儿" in SystemPrompt.identity())
         assertTrue("virtual display" in p)
         assertTrue("hand_to_user" in p && "ask_user" in p && "end_not_done" in p)
         assertFalse("adb" in p.lowercase())

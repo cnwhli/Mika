@@ -10,7 +10,7 @@ plugins {
 // 一次性全量重命名要单独做一轮(见 NOTICE)。因此 Manifest 里组件一律写完整类名:
 // ".Foo" 这种相对写法会按 applicationId 解析,换了 ID 就会 ClassNotFoundException。
 val brandApplicationId = "com.voicehelm.agent"
-val brandName = "声舵"
+val brandName = "诺伊"
 val brandWakeWord = "诺伊"
 
 // 关于页上的构建编号:当前提交的短哈希;没有 git(如从源码包编译)时写 dev

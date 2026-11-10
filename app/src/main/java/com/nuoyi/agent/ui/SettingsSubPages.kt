@@ -53,6 +53,17 @@ import com.nuoyi.agent.ui.theme.NuoyiType
 import com.nuoyi.agent.core.cap.phone.OperatingPace
 import com.nuoyi.agent.core.usage.TokenBudgetLimits
 import kotlin.math.roundToInt
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import com.nuoyi.agent.settings.MascotStore
+import com.nuoyi.agent.ui.theme.MascotMood
+import com.nuoyi.agent.ui.theme.NuoyiMascot
 
 // ---------- 手机操作 ----------
 
@@ -558,3 +569,66 @@ fun appearanceLabel(mode: ThemeMode): String = tr(
         ThemeMode.Dark -> R.string.appearance_dark
     },
 )
+
+// ---------- 吉祥物 ----------
+
+/**
+ * 设置 › 吉祥物:上传一张自己生成的图片(去豆包 / 即梦 / 通义万相等平台生成,见 docs/mascot-prompts.md)替换内置形象,
+ * 或一键恢复默认。上传的图存到 App 私有目录,所有用吉祥物的地方都会改画它。
+ */
+@Composable
+fun MascotScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val store = remember { MascotStore.get(context) }
+    val path by store.path.collectAsState()
+    val bitmap = remember(path) { if (store.useCustom && path != null) store.loadBitmap()?.asImageBitmap() else null }
+    var enabled by remember { mutableStateOf(store.useCustom) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            store.setCustomPath(context, uri)
+            enabled = true
+        } else {
+            enabled = false
+        }
+    }
+    PageScaffold(stringResource(R.string.mascot_title), onBack) {
+        GroupLabel(stringResource(R.string.mascot_title))
+        GroupCard {
+            Box(Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                if (bitmap != null) {
+                    Image(bitmap = bitmap, contentDescription = null, Modifier.size(120.dp), contentScale = ContentScale.Fit)
+                } else {
+                    NuoyiMascot(MascotMood.Idle, size = 120.dp)
+                }
+            }
+        }
+        GroupLabel(stringResource(R.string.mascot_settings))
+        GroupCard {
+            ListRow(
+                NuoyiIcons.Spark, stringResource(R.string.mascot_use_custom), stringResource(R.string.mascot_use_custom_sub),
+                first = true,
+            ) {
+                NuoyiSwitch(checked = enabled, onCheckedChange = { on ->
+                    enabled = on
+                    if (on) launcher.launch("image/*") else store.clear()
+                })
+            }
+            if (store.useCustom) {
+                ListRow(
+                    NuoyiIcons.Wrench, stringResource(R.string.mascot_reset), first = false,
+                ) {
+                    Text(
+                        stringResource(R.string.mascot_reset_action),
+                        Modifier.clickable { store.clear(); enabled = false }.padding(4.dp),
+                        style = NuoyiType.Value, color = NuoyiTheme.colors.bad,
+                    )
+                }
+            }
+        }
+        Text(
+            stringResource(R.string.mascot_hint),
+            Modifier.padding(16.dp, 8.dp),
+            style = NuoyiType.Caption, color = NuoyiTheme.colors.ink3,
+        )
+    }
+}

@@ -12,6 +12,7 @@ import com.nuoyi.agent.ui.components.SegmentedControl
 import com.nuoyi.agent.ui.theme.NuoyiShapes
 import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiMascot
+import com.nuoyi.agent.ui.theme.rememberMascotBitmap
 import com.nuoyi.agent.ui.theme.NuoyiType
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -207,7 +208,7 @@ fun SpeechModelContent(
     val systemSelected = system.usable && (choice == SpeechChoice.System || choice == SpeechChoice.Auto)
     Page(tr(R.string.role_speech), onBack) {
         Box(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp), contentAlignment = Alignment.Center) {
-            NuoyiMascot(MascotMood.Listening, size = 56.dp)
+            NuoyiMascot(MascotMood.Listening, size = 56.dp, customBitmap = rememberMascotBitmap())
         }
         Text(
             tr(R.string.speech_hint), Modifier.padding(top = 4.dp, bottom = 12.dp), fontSize = 14.5.sp, lineHeight = 22.sp, color = c.ink2,

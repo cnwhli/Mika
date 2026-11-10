@@ -149,6 +149,7 @@ import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.viewer.FileViewer
 import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiMascot
+import com.nuoyi.agent.ui.theme.rememberMascotBitmap
 import com.nuoyi.agent.ui.theme.NuoyiType
 import com.nuoyi.agent.voice.HoldToTalk
 import com.nuoyi.agent.voice.VoiceSource
@@ -368,7 +369,7 @@ fun ChatScreen(
             val mascotMood = if (last?.status?.isActive() == true) MascotMood.Thinking else MascotMood.Idle
             TopBar(
                 ChatCopy.APP_TITLE,
-                leading = { NuoyiMascot(mascotMood, size = 34.dp) },
+                leading = { NuoyiMascot(mascotMood, size = 34.dp, customBitmap = rememberMascotBitmap()) },
                 left = NuoyiIcons.Menu, leftLabel = stringResource(R.string.chat_menu), onLeft = onOpenDrawer,
                 // 别的对话里还有任务在跑(并行时):菜单上一个小圆点,侧栏「进行中」里能切过去
                 leftBadge = others.isNotEmpty(),
@@ -1500,7 +1501,7 @@ internal fun Composer(
                             Text(
                                 stringResource(R.string.teach_menu),
                                 Modifier.fillMaxWidth().clickable { panel = Panel.Closed; onTeach() }
-                                    .padding(horizontal = 16.dp, vertical = 10.dp).testTag("teach-mika"),
+                                    .padding(horizontal = 16.dp, vertical = 10.dp).testTag("teach-nuoyi"),
                                 color = c.accent, style = NuoyiType.Body,
                             )
                         }

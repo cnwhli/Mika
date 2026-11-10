@@ -8,18 +8,28 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.nuoyi.agent.settings.MascotStore
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 /** 诺伊吉祥物的表情/动作状态。 */
 enum class MascotMood { Idle, Listening, Thinking, Speaking, Happy }
@@ -43,11 +53,30 @@ private val AntennaOrb = Color(0xFF2A9DFF)
  * - [Happy] 眼睛弯成 ^^、开心地蹦一下。
  * 颜色固定(不随深浅主题变),保证在哪都和图标是同一个形象。
  */
+/**
+ * 读出用户上传的自定义吉祥物位图(设置 › 吉祥物里上传的)。没上传或读不出返回 null,
+ * 调用方照常画内置形象。位图会随设置变化实时刷新。
+ */
+@Composable
+fun rememberMascotBitmap(): ImageBitmap? {
+    val ctx = LocalContext.current
+    val store = remember(ctx) { MascotStore.get(ctx) }
+    val path by store.path.collectAsState()
+    return remember(path) {
+        if (store.useCustom && path != null) store.loadBitmap()?.asImageBitmap() else null
+    }
+}
+
+/**
+ * 诺伊吉祥物:[customBitmap] 不为空时画这张用户上传的图(随心情轻轻上下浮动),否则画内置的矢量未来人。
+ * 颜色固定(不随深浅主题变),保证在哪都和图标是同一个形象。
+ */
 @Composable
 fun NuoyiMascot(
     mood: MascotMood = MascotMood.Idle,
     modifier: Modifier = Modifier,
     size: Dp = 64.dp,
+    customBitmap: ImageBitmap? = null,
 ) {
     val t = rememberInfiniteTransition("mascot")
     // 呼吸:整张图上下浮动
@@ -103,14 +132,34 @@ fun NuoyiMascot(
     val eyeShift = if (mood == MascotMood.Listening || mood == MascotMood.Speaking) look * 1.4f else 0f
 
     Canvas(modifier.size(size)) {
-        drawMascot(
-            mood = mood,
-            bobPx = (bob + moodBob) * size.toPx() * 0.04f,
-            eyeOpen = eyeOpen,
-            talk = talk,
-            orbGlow = orbGlow,
-            eyeShiftPx = eyeShift,
-        )
+        // size(Dp) 在这里能拿到 Density,用来把上下浮动的量级换算成像素
+        val bobPxTotal = (bob + moodBob) * size.toPx() * 0.04f
+        val canvas = this.size
+        if (customBitmap != null) {
+            // 用户上传的图:按比例塞满正方形,保留透明区域,并跟随心情轻轻上下浮动
+            val bw = customBitmap.width.toFloat().coerceAtLeast(1f)
+            val bh = customBitmap.height.toFloat().coerceAtLeast(1f)
+            val scale = canvas.width / max(bw, bh)
+            val dw = bw * scale
+            val dh = bh * scale
+            drawImage(
+                image = customBitmap,
+                dstOffset = IntOffset(
+                    ((canvas.width - dw) / 2f).roundToInt(),
+                    ((canvas.height - dh) / 2f + bobPxTotal).roundToInt(),
+                ),
+                dstSize = IntSize(dw.roundToInt(), dh.roundToInt()),
+            )
+        } else {
+            drawMascot(
+                mood = mood,
+                bobPx = bobPxTotal,
+                eyeOpen = eyeOpen,
+                talk = talk,
+                orbGlow = orbGlow,
+                eyeShiftPx = eyeShift,
+            )
+        }
     }
 }
 

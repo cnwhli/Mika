@@ -63,6 +63,7 @@ import com.nuoyi.agent.ui.components.ValueTone
 import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiIcons
 import com.nuoyi.agent.ui.theme.NuoyiMascot
+import com.nuoyi.agent.ui.theme.rememberMascotBitmap
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.NuoyiType
 
@@ -206,7 +207,7 @@ private fun Hero(versionName: String, build: String, beta: Boolean) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // 会呼吸/眨眼的可爱未来人吉祥物(与启动图标、悬浮胶囊、聊天页同造型),不是静态图
-        NuoyiMascot(MascotMood.Idle, size = 72.dp)
+        NuoyiMascot(MascotMood.Idle, size = 72.dp, customBitmap = rememberMascotBitmap())
         Text("诺伊", Modifier.padding(top = 12.dp), style = NuoyiType.Title, fontWeight = FontWeight.Bold, color = c.ink)
         Text(AboutCopy.TAGLINE, Modifier.padding(top = 4.dp), style = NuoyiType.Caption, color = c.ink2, textAlign = TextAlign.Center)
         Row(Modifier.padding(top = 10.dp).testTag("about-version"), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {

@@ -38,6 +38,8 @@ import com.nuoyi.agent.ui.components.NuoyiButton
 import com.nuoyi.agent.ui.components.PageBackground
 import com.nuoyi.agent.ui.components.ProgressDots
 import com.nuoyi.agent.ui.theme.NuoyiIcons
+import com.nuoyi.agent.ui.theme.rememberMascotBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.NuoyiType
 
@@ -49,8 +51,9 @@ fun WelcomeScreen(onStart: () -> Unit) {
         Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars).windowInsetsPadding(WindowInsets.navigationBars)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
                 Column(Modifier.fillMaxWidth().padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    val custom = rememberMascotBitmap()
                     Image(
-                        painterResource(R.drawable.ic_mascot), null,
+                        painter = custom?.let { BitmapPainter(it) } ?: painterResource(R.drawable.ic_mascot), null,
                         Modifier.size(76.dp).shadow(14.dp, LogoShape, clip = false).clip(LogoShape),
                         contentScale = ContentScale.Fit,
                     )

@@ -52,6 +52,7 @@ import com.nuoyi.agent.ui.components.RowChevron
 import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiIcons
 import com.nuoyi.agent.ui.theme.NuoyiMascot
+import com.nuoyi.agent.ui.theme.rememberMascotBitmap
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.NuoyiType
 import com.nuoyi.agent.voice.SpeechEvent
@@ -207,7 +208,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
 
     PageScaffold("通话纪要", onBack) {
         Box(Modifier.fillMaxWidth().padding(vertical = 4.dp), contentAlignment = Alignment.Center) {
-            NuoyiMascot(MascotMood.Listening, size = 48.dp)
+            NuoyiMascot(MascotMood.Listening, size = 48.dp, customBitmap = rememberMascotBitmap())
         }
 
         GroupLabel("记录")

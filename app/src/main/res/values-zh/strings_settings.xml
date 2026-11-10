@@ -173,4 +173,14 @@
     <string name="settings_token_budget_custom">自定义 Token 预算</string>
     <string name="settings_token_budget_apply">使用</string>
     <string name="settings_token_budget_invalid">请输入 %1$s 到 %2$s 的整数。</string>
+
+    <!-- 吉祥物 -->
+    <string name="mascot_title">吉祥物</string>
+    <string name="mascot_settings">设置</string>
+    <string name="mascot_use_custom">使用自定义吉祥物图片</string>
+    <string name="mascot_use_custom_sub">上传在豆包 / 即梦 / 通义万相等平台生成的图片(见 docs/mascot-prompts.md)</string>
+    <string name="mascot_reset">恢复默认形象</string>
+    <string name="mascot_reset_action">恢复</string>
+    <string name="mascot_row_sub">诺伊的自定义形象</string>
+    <string name="mascot_hint">提示:用 docs/mascot-prompts.md 里的提示词在豆包 / 即梦 / 通义万相等平台生成吉祥物,再在此上传。建议透明背景、正方形、1024×1024 的 PNG。</string>
 </resources>

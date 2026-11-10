@@ -187,4 +187,14 @@
     <string name="settings_token_budget_custom">Custom token budget</string>
     <string name="settings_token_budget_apply">Use</string>
     <string name="settings_token_budget_invalid">Enter a whole number from %1$s to %2$s.</string>
+
+    <!-- 吉祥物 -->
+    <string name="mascot_title">Mascot</string>
+    <string name="mascot_settings">Settings</string>
+    <string name="mascot_use_custom">Use custom mascot image</string>
+    <string name="mascot_use_custom_sub">Upload an image generated on Doubao / 即梦 / 通义万相 (see docs/mascot-prompts.md)</string>
+    <string name="mascot_reset">Restore default</string>
+    <string name="mascot_reset_action">Restore</string>
+    <string name="mascot_row_sub">Custom image for Nuoyi</string>
+    <string name="mascot_hint">Tip: generate a mascot on Doubao / 即梦 / 通义万相 with the prompts in docs/mascot-prompts.md, then upload it here. A transparent-background, square, 1024×1024 PNG works best.</string>
 </resources>

@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** 设置里能进入的子页面;[Home] 是设置首页,[Advanced] 集中放置连接、维护和工程能力。 */
-private enum class SettingsPage { Home, Advanced, AppAccess, PhoneOps, Wechat, DuringWork, Capsule, Language, Notifications, CallNotes, Sandbox, Recovery, SelfCheck, ComputerAccess, McpServers, Root, Developer, RunStats }
+private enum class SettingsPage { Home, Advanced, AppAccess, PhoneOps, Wechat, DuringWork, Capsule, Language, Notifications, CallNotes, Sandbox, Recovery, SelfCheck, ComputerAccess, McpServers, Root, Developer, RunStats, Mascot }
 
 /**
  * 设置页:总状态卡 + 常用 / 我的数据 / 其他。高级与其他只增加一层,各子页返回来时的页面。
@@ -161,6 +161,7 @@ fun SettingsScreen(
             SettingsPage.SelfCheck -> SettingsPage.Recovery
             SettingsPage.Sandbox, SettingsPage.Recovery, SettingsPage.ComputerAccess,
             SettingsPage.McpServers, SettingsPage.Root, SettingsPage.Developer -> SettingsPage.Advanced
+            SettingsPage.Mascot -> SettingsPage.Home
             else -> SettingsPage.Home
         }
     }
@@ -189,6 +190,7 @@ fun SettingsScreen(
             onOpenMemory = onOpenMemory,
             onOpenAdvanced = { page = SettingsPage.Advanced },
             versionName = BuildConfig.VERSION_NAME, updateVersion = updateVersion, onOpenAbout = onOpenAbout,
+            onOpenMascot = { page = SettingsPage.Mascot },
         )
         SettingsPage.Advanced -> AdvancedSettingsContent(
             proxy = proxy, proxyNote = proxy?.let { NetProxyCopy.subtitle(it, browserProxy) }, onOpenProxy = { editingProxy = true },
@@ -247,6 +249,7 @@ fun SettingsScreen(
             onOpenRunStats = { page = SettingsPage.RunStats },
         )
         SettingsPage.RunStats -> RunStatsScreen(remember { RunStore(context).metrics }, onBack = back)
+        SettingsPage.Mascot -> MascotScreen(onBack = toHome)
     }
 
     if (editingProxy) NetProxyDialog(
@@ -345,6 +348,7 @@ fun SettingsContent(
     versionName: String = "",
     updateVersion: String? = null,
     onOpenAbout: () -> Unit = {},
+    onOpenMascot: () -> Unit = {},
 ) {
     val check = Prerequisites.check(status, hasMainModel = mainModel != null)
     PageScaffold(stringResource(R.string.settings_title), onBack) {
@@ -398,6 +402,9 @@ fun SettingsContent(
         GroupLabel(stringResource(R.string.settings_other))
         GroupCard {
             ListRow(NuoyiIcons.Wrench, stringResource(R.string.settings_advanced), stringResource(R.string.settings_advanced_sub), first = true, onClick = onOpenAdvanced) { RowChevron() }
+        }
+        GroupCard {
+            ListRow(NuoyiIcons.Spark, stringResource(R.string.mascot_title), stringResource(R.string.mascot_row_sub), first = true, onClick = onOpenMascot) { RowChevron() }
         }
         GroupCard {
             ListRow(NuoyiIcons.Info, stringResource(R.string.settings_about), first = true, onClick = onOpenAbout) {

@@ -487,7 +487,6 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
                                     is TaskState.Succeeded -> "任务完成" to Tone.Success
                                     is TaskState.Failed -> "任务失败" to Tone.Alert
                                     is TaskState.Cancelled -> "已取消" to Tone.Info
-                                    else -> "任务结束" to Tone.Info
                                 }
                                 val text = run.goal.takeIf { g -> g.isNotBlank() } ?: "一个任务结束了"
                                 NotificationCenter.post(

@@ -78,7 +78,8 @@ object CallStateMonitor {
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 val wasRinging = CallStateFlow.state.value.ringing
                 if (currentSessionId == null) {
-                    currentSessionId = CallSessionStore.of(context).begin(num, !wasRinging, System.currentTimeMillis())
+                    // 来电会先经过 RINGING（wasRinging=true）；去电不会触发 RINGING（wasRinging=false）
+                    currentSessionId = CallSessionStore.of(context).begin(num, wasRinging, System.currentTimeMillis())
                     answerMs = System.currentTimeMillis()
                 }
                 CallStateFlow.update(CallState(

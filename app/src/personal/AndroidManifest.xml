@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    仅个人版合并进来的声明。公版 APK 既没有 microphone 前台服务权限，
+    也没有下面这个常驻服务，因此不可能在对外分发的版本里偷偷开麦。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <application>
+        <service
+            android:name="com.wangzan101.mika.voice.AlwaysOnWakeWordService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+    </application>
+
+</manifest>

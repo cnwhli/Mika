@@ -1,2 +1,13 @@
 Mika
 Copyright 2026 wangzan101
+
+声舵 (VoiceHelm)
+基于 Mika (Apache-2.0, Copyright 2026 wangzan101) 二次开发，在其上新增了：
+语音会话编排、免手入口、双版本唤醒词能力边界、免费额度感知路由与修复。
+上游的 LICENSE（Apache-2.0）与 licenses/THIRD_PARTY_NOTICES.md 一并保留；
+其中 PRoot 为 GPL-2.0-or-later、talloc 为 LGPL-3.0-or-later，源码获取方式以上述
+THIRD_PARTY_NOTICES.md 中的说明为准。
+
+声舵与上游项目无隶属或背书关系；不使用上游的名称、图标、商标作为本产品的商业标识。
+代码包名 com.wangzan101.mika 因 R 类与既有 import 的兼容性暂予保留，applicationId
+与界面品牌已改为自有标识；彻底的包名重命名需单独一轮全量迁移。

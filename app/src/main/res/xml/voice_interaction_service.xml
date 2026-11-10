@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    系统判定「这是一个数字助手」的能力清单。
+    supportsAssist 必须为 true：系统设置里的「默认数字助手应用」列表只收录支持它的服务。
+    recognitionService 自 Android 12 起不再被系统用来做会话识别，但 VIA 规范要求登记；
+    会话内真正用的是 AssistantRecognizer 显式挑选的系统识别服务。
+-->
+<voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sessionService="com.wangzan101.mika.voice.AssistantSessionService"
+    android:recognitionService="com.wangzan101.mika.voice.AssistantRecognitionService"
+    android:settingsActivity="com.wangzan101.mika.voice.VoiceSetupActivity"
+    android:supportsAssist="true"
+    android:supportsLocalInteraction="true" />

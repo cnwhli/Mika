@@ -1,8 +1,10 @@
 package com.nuoyi.agent.notify
 
 import android.app.Service
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.ContextThemeWrapper
@@ -72,6 +74,10 @@ class DynamicIslandService : Service() {
     private var view: ComposeView? = null
     /** 胶囊窗口当前的布局参数;拖动时实时改 x/y 并写回,用于保存/恢复位置。 */
     private var params: WindowManager.LayoutParams? = null
+    /** 是否避开状态栏/挖孔区;设置页改开关后由 IslandContent 订阅实时同步。 */
+    private var avoidStatusBar = true
+    /** 监听横竖屏/分屏等配置变化,Service 本身没有 onConfigurationChanged 回调。 */
+    private var configCallback: ComponentCallbacks? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -84,6 +90,7 @@ class DynamicIslandService : Service() {
         startForeground(1, NotificationCenter.islandServiceNotification(this))
         // 顺带开始监听通话状态(需要 READ_PHONE_STATE,没有则静默跳过)
         CallStateMonitor.start(this)
+        avoidStatusBar = FeatureFlags.get(this).islandAvoidStatusBar()
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
         val compose = ComposeView(ContextThemeWrapper(this, R.style.Theme_Nuoyi)).apply { setContent { NuoyiTheme { IslandContent() } } }
         val params = WindowManager.LayoutParams().apply {
@@ -97,30 +104,75 @@ class DynamicIslandService : Service() {
             height = WindowManager.LayoutParams.WRAP_CONTENT
             y = statusBarTop()
         }
-        // 之前拖动过就用存下来的绝对坐标;否则保持顶部居中(拖动后会切到绝对坐标)
-        val (sx, sy) = FeatureFlags.get(this).islandPos()
-        if (sx >= 0 && sy >= 0) {
+        // 之前拖动过就按保存时的屏幕尺寸等比还原;否则保持顶部居中(拖动后会切到绝对坐标)
+        val dm = resources.displayMetrics
+        val saved = FeatureFlags.get(this).islandPosForScreen(dm.widthPixels, dm.heightPixels)
+        if (saved != null) {
             params.gravity = Gravity.TOP or Gravity.START
-            params.x = sx
-            params.y = sy
+            params.x = saved.first
+            params.y = saved.second
         }
         try {
             this.params = params
             wm!!.addView(compose, params)
             view = compose
+            // 视图测量完成后再 clamp 一次,确保胶囊完整落在当前屏幕内(旋转/分屏后尤其重要)
+            clampToScreen(params)
+            wm!!.updateViewLayout(compose, params)
         } catch (e: SecurityException) {
             stopSelf()
         } catch (e: Throwable) {
             stopSelf()
         }
+        // Service 没有 onConfigurationChanged,用 ComponentCallbacks 监听横竖屏/分屏变化
+        val cb = object : ComponentCallbacks {
+            override fun onConfigurationChanged(newConfig: Configuration) = relayoutForScreen()
+            override fun onLowMemory() = Unit
+        }
+        registerComponentCallbacks(cb)
+        configCallback = cb
     }
 
     override fun onDestroy() {
+        configCallback?.let { unregisterComponentCallbacks(it) }
+        configCallback = null
         CallStateMonitor.stop()
         view?.let { wm?.removeView(it) }
         view = null
         super.onDestroy()
     }
+
+    /**
+     * 横竖屏 / 分屏 / 外接屏变化时重算位置:按保存时的比例还原,再 clamp 到新屏幕内。
+     * 没拖动过的胶囊仍保持顶部居中,只更新离顶距离(横竖屏状态栏高度可能不同)。
+     */
+    private fun relayoutForScreen() {
+        val p = params ?: return
+        val v = view ?: return
+        val dm = resources.displayMetrics
+        val saved = FeatureFlags.get(this).islandPosForScreen(dm.widthPixels, dm.heightPixels)
+        if (saved == null) {
+            p.y = statusBarTop()
+        } else {
+            p.gravity = Gravity.TOP or Gravity.START
+            p.x = saved.first
+            p.y = saved.second
+        }
+        clampToScreen(p)
+        runCatching { wm?.updateViewLayout(v, p) }
+    }
+
+    /** 把窗口坐标限制在屏幕内;开启「避开状态栏」时 y 下限抬到状态栏下方。 */
+    private fun clampToScreen(p: WindowManager.LayoutParams) {
+        val w = view?.width ?: 0
+        val h = view?.height ?: 0
+        val dm = resources.displayMetrics
+        val low = minIslandY()
+        p.x = p.x.coerceIn(0, max(0, dm.widthPixels - w))
+        p.y = p.y.coerceIn(low, max(low, dm.heightPixels - h))
+    }
+
+    private fun minIslandY(): Int = if (avoidStatusBar) statusBarTop() else 0
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         // 被系统清掉时立刻把自己拉起来,尽量保证系统级胶囊常驻(仍需用户授予自启动白名单才真正有效)
@@ -170,12 +222,10 @@ class DynamicIslandService : Service() {
             detectDragGestures(
                 onDragStart = { ensureAbsoluteGravity() },
                 onDrag = { change, dragAmount ->
-                    val w = view?.width ?: 0
-                    val h = view?.height ?: 0
-                    val dm = resources.displayMetrics
                     params?.let { p ->
-                        p.x = (p.x + dragAmount.x).roundToInt().coerceIn(0, max(0, dm.widthPixels - w))
-                        p.y = (p.y + dragAmount.y).roundToInt().coerceIn(0, max(0, dm.heightPixels - h))
+                        p.x = (p.x + dragAmount.x).roundToInt()
+                        p.y = (p.y + dragAmount.y).roundToInt()
+                        clampToScreen(p)
                         view?.let { v -> wm?.updateViewLayout(v, p) }
                     }
                     change.consume()
@@ -198,7 +248,9 @@ class DynamicIslandService : Service() {
 
     private fun persistIslandPos() {
         val p = params ?: return
-        FeatureFlags.get(this).setIslandPos(p.x, p.y)
+        val dm = resources.displayMetrics
+        // 连屏幕尺寸一起存,下次横竖屏/分屏时才能按同一比例还原
+        FeatureFlags.get(this).setIslandPos(p.x, p.y, dm.widthPixels, dm.heightPixels)
     }
 
     @Composable
@@ -208,6 +260,15 @@ class DynamicIslandService : Service() {
         val flags = FeatureFlags.get(this@DynamicIslandService)
         val idlePill by flags.islandIdlePillChanges().collectAsState(initial = flags.islandIdlePill())
         val callMode by flags.islandCallModeChanges().collectAsState(initial = flags.islandCallMode())
+        val avoidStatus by flags.islandAvoidStatusBarChanges().collectAsState(initial = flags.islandAvoidStatusBar())
+        LaunchedEffect(avoidStatus) {
+            avoidStatusBar = avoidStatus
+            // 开关一改立即把胶囊挪出/放回状态栏区域,不用等重启服务
+            params?.let { p ->
+                clampToScreen(p)
+                view?.let { v -> runCatching { wm?.updateViewLayout(v, p) } }
+            }
+        }
 
         when {
             callMode && (call.offhook || call.ringing) -> CallPill(call)

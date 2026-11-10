@@ -19,6 +19,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import com.nuoyi.agent.i18n.AppLanguage
 import androidx.compose.runtime.getValue
@@ -73,6 +74,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 // ---------- 手机操作 ----------
 
@@ -173,6 +177,8 @@ fun NotificationsScreen(
     onIslandCallMode: (Boolean) -> Unit = {},
     islandIdlePill: Boolean = false,
     onIslandIdlePill: (Boolean) -> Unit = {},
+    islandAvoidStatusBar: Boolean = true,
+    onIslandAvoidStatusBar: (Boolean) -> Unit = {},
     islandDwellMs: Long = 6000L,
     onIslandDwell: (Long) -> Unit = {},
 ) {
@@ -200,6 +206,18 @@ fun NotificationsScreen(
                 context.stopService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
                 context.startForegroundService(Intent(context, com.nuoyi.agent.notify.DynamicIslandService::class.java))
             }
+        }
+        // 从系统设置页返回、或在别处改了权限后,重新读一次授权状态,避免界面一直停在「未授权」
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(lifecycle) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    overlayGranted = Settings.canDrawOverlays(context)
+                    phoneStateGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+                }
+            }
+            lifecycle.addObserver(observer)
+            onDispose { lifecycle.removeObserver(observer) }
         }
         GroupCard {
             ListRow(
@@ -256,6 +274,12 @@ fun NotificationsScreen(
                     onClick = { onIslandIdlePill(!islandIdlePill) },
                 ) {
                     NuoyiSwitch(islandIdlePill, onIslandIdlePill)
+                }
+                ListRow(
+                    NuoyiIcons.Shield, "避开状态栏 / 挖孔区", "胶囊最低只能拖到状态栏下方，不会压住时钟或前摄；横竖屏、分屏会按比例还原位置",
+                    onClick = { onIslandAvoidStatusBar(!islandAvoidStatusBar) },
+                ) {
+                    NuoyiSwitch(islandAvoidStatusBar, onIslandAvoidStatusBar)
                 }
                 ListRow(
                     NuoyiIcons.Spark, "预览一条灵动岛通知", "发一条示例通知，看看胶囊长什么样、能不能拖动",

@@ -66,6 +66,8 @@ import com.nuoyi.agent.voice.VoiceInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * 通话纪要:把系统 AI 通话纪要文件 / 一段录音,交给主模型抽取成「摘要 + 待办 + 日程 + 提醒」。
@@ -95,7 +97,20 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     var expandedId by remember { mutableStateOf<String?>(null) }
     var sessionNotes by remember { mutableStateOf<List<CallNote>>(emptyList()) }
     var deleteTargetId by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(Unit) { sessions = CallSessionStore.of(context).list() }
+    var query by remember { mutableStateOf("") }
+    /** 每通电话的要点拼成一段文本,供搜索直接命中要点内容(只读一次,避免输入时反复读文件)。 */
+    var notesIndex by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
+    suspend fun reloadSessions() {
+        val (list, index) = withContext(Dispatchers.IO) {
+            val s = CallSessionStore.of(context)
+            val l = s.list()
+            l to l.associate { it.id to s.notes(it.id).joinToString(" ") { n -> n.text } }
+        }
+        sessions = list
+        notesIndex = index
+    }
+    LaunchedEffect(Unit) { reloadSessions() }
 
     fun refresh() { todos = TodoStore.of(context).list() }
 
@@ -184,13 +199,21 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     val recPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) startRecording() else recError = "需要麦克风权限才能录音"
     }
-    // 导出全部通话记录 + 要点为本地 txt
+    // 导出全部通话记录 + 要点:txt 给人读,json 给别的工具继续处理
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
         if (uri != null) scope.launch {
             runCatching {
                 context.contentResolver.openOutputStream(uri)?.use { os -> os.write(buildExportText(context).toByteArray()) }
             }
-            status = "已导出通话记录"
+            status = "已导出通话记录 (TXT)"
+        }
+    }
+    val exportJsonLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) scope.launch {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { os -> os.write(buildExportJson(context).toByteArray()) }
+            }
+            status = "已导出通话记录 (JSON)"
         }
     }
 
@@ -224,27 +247,58 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
         }
 
         GroupLabel("通话记录")
+        // 搜索命中号码 / 日期 / 方向 / 要点正文;要点索引一次性加载,输入时不反复读文件
+        val shown = remember(sessions, notesIndex, query) {
+            val q = query.trim()
+            if (q.isBlank()) sessions
+            else sessions.filter { s ->
+                (s.number ?: "未知号码").contains(q, ignoreCase = true) ||
+                    fmtDate(s.startMs).contains(q) ||
+                    (if (s.isIncoming) "来电" else "去电").contains(q) ||
+                    (notesIndex[s.id] ?: "").contains(q, ignoreCase = true)
+            }
+        }
+        val countByNumber = remember(sessions) { sessions.groupingBy { it.number ?: "" }.eachCount() }
+        OutlinedTextField(
+            query, { query = it },
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            placeholder = { Text("搜号码 / 日期 / 方向 / 要点…") },
+            singleLine = true,
+        )
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             NuoyiButton(
-                "导出全部记录",
+                "导出 TXT",
                 onClick = { exportLauncher.launch("nuoyi-通话记录.txt") },
                 size = ButtonSize.Small, kind = ButtonKind.Tonal,
             )
+            NuoyiButton(
+                "导出 JSON",
+                onClick = { exportJsonLauncher.launch("nuoyi-通话记录.json") },
+                size = ButtonSize.Small, kind = ButtonKind.Secondary,
+            )
         }
         GroupCard {
-            if (sessions.isEmpty()) {
-                ListRow(null, "还没有通话记录", "通话结束会在这里留一条时间线", first = true) {}
+            if (shown.isEmpty()) {
+                ListRow(
+                    null,
+                    if (sessions.isEmpty()) "还没有通话记录" else "没有匹配的通话记录",
+                    if (sessions.isEmpty()) "通话结束会在这里留一条时间线" else "换个关键词试试，或清空搜索框",
+                    first = true,
+                ) {}
             } else {
-                sessions.forEachIndexed { i, s ->
+                shown.forEachIndexed { i, s ->
                     val expanded = expandedId == s.id
                     val dur = if (s.endMs > s.startMs) fmtDuration(s.endMs - s.startMs) else null
+                    val sameNumber = countByNumber[s.number ?: ""] ?: 0
                     ListRow(
                         NuoyiIcons.Phone,
                         (if (s.isIncoming) "来电 · " else "去电 · ") + (s.number ?: "未知号码"),
-                        fmtDate(s.startMs) + (dur?.let { " · 通话 $it" } ?: "") + (if (s.noteCount > 0) " · ${s.noteCount} 条要点" else ""),
+                        fmtDate(s.startMs) + (dur?.let { " · 通话 $it" } ?: "") +
+                            (if (s.noteCount > 0) " · ${s.noteCount} 条要点" else "") +
+                            (if (sameNumber > 1) " · 该号码共 $sameNumber 次" else ""),
                         first = i == 0,
                         onClick = {
                             expandedId = if (expanded) null else s.id
@@ -332,7 +386,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
             confirmButton = {
                 TextButton(onClick = {
                     deleteTargetId?.let { CallSessionStore.of(context).delete(it) }
-                    sessions = CallSessionStore.of(context).list()
+                    scope.launch { reloadSessions() }
                     if (expandedId == deleteTargetId) expandedId = null
                     deleteTargetId = null
                 }) { Text("删除", color = NuoyiTheme.colors.bad) }
@@ -362,6 +416,37 @@ private fun buildExportText(context: Context): String {
         sb.append("\n")
     }
     return sb.toString()
+}
+
+/** 结构化导出:保留时间戳与要点原文,方便别的工具/脚本继续处理这批通话记录。 */
+private fun buildExportJson(context: Context): String {
+    val s = CallSessionStore.of(context)
+    val root = JSONObject()
+    root.put("app", "诺伊 Nuoyi")
+    root.put("exportedAt", System.currentTimeMillis())
+    val arr = JSONArray()
+    s.list().forEach { c ->
+        val o = JSONObject()
+        o.put("id", c.id)
+        o.put("number", c.number ?: JSONObject.NULL)
+        o.put("incoming", c.isIncoming)
+        o.put("startMs", c.startMs)
+        o.put("endMs", c.endMs)
+        o.put("durationMs", if (c.endMs > c.startMs) c.endMs - c.startMs else 0)
+        o.put("noteCount", c.noteCount)
+        val notes = JSONArray()
+        s.notes(c.id).forEach { n ->
+            notes.put(JSONObject().apply {
+                put("text", n.text)
+                put("atMs", n.atMs)
+                put("kind", n.kind)
+            })
+        }
+        o.put("notes", notes)
+        arr.put(o)
+    }
+    root.put("calls", arr)
+    return root.toString(2)
 }
 
 /** 一条待办:点一下切换完成,右边「删除」直接删。 */

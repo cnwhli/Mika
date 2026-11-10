@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.roundToInt
 
 /** 功能开关。提速开关存成 [SpeedFlags.describe] 的格式,评测跑器可用参数覆盖。 */
 class FeatureFlags(private val prefs: SharedPreferences) {
@@ -184,8 +185,42 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     /** 灵动岛胶囊在屏幕上的位置(像素,左上角原点)。-1 表示用默认(顶部居中),拖动后才存绝对坐标。 */
     fun islandPos(): Pair<Int, Int> = prefs.getInt(ISLAND_POS_X, -1) to prefs.getInt(ISLAND_POS_Y, -1)
 
-    fun setIslandPos(x: Int, y: Int) {
-        prefs.edit().putInt(ISLAND_POS_X, x).putInt(ISLAND_POS_Y, y).apply()
+    /**
+     * 按保存时的屏幕尺寸等比还原位置:横竖屏切换、分屏、外接屏都不会让胶囊跑出屏幕。
+     * 返回 null 表示没拖动过(保持顶部居中)。老版本只存了像素、没存屏幕尺寸,按原值返回。
+     */
+    fun islandPosForScreen(w: Int, h: Int): Pair<Int, Int>? {
+        val x = prefs.getInt(ISLAND_POS_X, -1)
+        val y = prefs.getInt(ISLAND_POS_Y, -1)
+        if (x < 0 || y < 0) return null
+        val sw = prefs.getInt(ISLAND_POS_SW, -1)
+        val sh = prefs.getInt(ISLAND_POS_SH, -1)
+        if (sw <= 0 || sh <= 0 || w <= 0 || h <= 0) return x to y
+        return (x.toFloat() * w / sw).roundToInt() to (y.toFloat() * h / sh).roundToInt()
+    }
+
+    /** [screenW]/[screenH] 记录保存时的屏幕尺寸,供 [islandPosForScreen] 等比还原;传 -1 表示复位。 */
+    fun setIslandPos(x: Int, y: Int, screenW: Int = -1, screenH: Int = -1) {
+        prefs.edit()
+            .putInt(ISLAND_POS_X, x).putInt(ISLAND_POS_Y, y)
+            .putInt(ISLAND_POS_SW, screenW).putInt(ISLAND_POS_SH, screenH)
+            .apply()
+    }
+
+    /** 避开状态栏/挖孔区:开启时胶囊最低只能到状态栏下方,不会压住时钟或前摄。 */
+    fun islandAvoidStatusBar(): Boolean = prefs.getBoolean(ISLAND_AVOID_STATUS, true)
+
+    fun setIslandAvoidStatusBar(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_AVOID_STATUS, on).apply()
+    }
+
+    fun islandAvoidStatusBarChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_AVOID_STATUS, true)
+
+    /** 缺失权限时的首次引导通知只弹一次,避免每次启动都打扰。 */
+    fun islandPermHintShown(): Boolean = prefs.getBoolean(ISLAND_PERM_HINT_SHOWN, false)
+
+    fun setIslandPermHintShown(shown: Boolean) {
+        prefs.edit().putBoolean(ISLAND_PERM_HINT_SHOWN, shown).apply()
     }
 
     /** 上次选过的「系统通话纪要」目录(SAF 持久化 Uri 的字符串),下次直接进入该目录。 */
@@ -273,6 +308,10 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val ISLAND_IDLE_PILL = "island_idle_pill"
         private const val ISLAND_POS_X = "island_pos_x"
         private const val ISLAND_POS_Y = "island_pos_y"
+        private const val ISLAND_POS_SW = "island_pos_screen_w"
+        private const val ISLAND_POS_SH = "island_pos_screen_h"
+        private const val ISLAND_AVOID_STATUS = "island_avoid_status_bar"
+        private const val ISLAND_PERM_HINT_SHOWN = "island_perm_hint_shown"
         private const val LAST_MINUTES_TREE = "last_minutes_tree"
         private const val QUIT_REQUESTED = "quit_requested"
         private const val CAPSULE_SIDE = "capsule_side"

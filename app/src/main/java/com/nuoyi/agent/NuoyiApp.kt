@@ -405,8 +405,29 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
         // 灵动岛胶囊的停留时长跟着设置走,改了实时生效。
         NotificationCenter.defaultDwellMs = flags.islandDwellMs()
         scope.launch { flags.islandDwellChanges().collect { NotificationCenter.defaultDwellMs = it } }
-        if (android.provider.Settings.canDrawOverlays(this) && FeatureFlags.get(this).islandEnabled()) {
+        val islandWanted = flags.islandEnabled()
+        val overlayOk = android.provider.Settings.canDrawOverlays(this)
+        val phoneOk = checkSelfPermission(android.Manifest.permission.READ_PHONE_STATE) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (overlayOk && islandWanted) {
             runCatching { startForegroundService(Intent(this, DynamicIslandService::class.java)) }
+        }
+        // 首次缺权限时主动提示一次:否则用户不进设置页,根本不知道胶囊为什么没出现
+        if (islandWanted && (!overlayOk || !phoneOk) && !flags.islandPermHintShown()) {
+            flags.setIslandPermHintShown(true)
+            val missing = mutableListOf<String>()
+            if (!overlayOk) missing += "显示在其他应用上层"
+            if (!phoneOk) missing += "读取通话状态"
+            scope.launch(Dispatchers.Main) {
+                runCatching {
+                    NotificationCenter.post(this@NuoyiApp, NuoyiNotification(
+                        id = "island-perm-hint-${System.currentTimeMillis()}",
+                        title = "灵动岛胶囊还没生效",
+                        text = "缺少「${missing.joinToString("、")}」权限，到 设置 → 通知 → 系统授权 开启即可",
+                        tone = Tone.Warn,
+                        timeoutMillis = 0,
+                    ))
+                }
+            }
         }
         // 内置助手的真实现,并开始看着助手(Nuoyi 进程起来后,还活着的助手会自己交接 Binder)
         phone.shellManager.start()

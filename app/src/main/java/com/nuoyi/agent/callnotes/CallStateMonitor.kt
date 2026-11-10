@@ -39,6 +39,40 @@ object CallStateMonitor {
         listener = l
         @Suppress("DEPRECATION")
         mgr.listen(l, PhoneStateListener.LISTEN_CALL_STATE)
+        // 服务被杀后重启时,监听器从 IDLE 开始不会再补发一次「通话中」,必须主动对齐当前状态
+        recover(context, mgr)
+    }
+
+    /**
+     * 重启后对齐真实通话状态:
+     * - 当前不在通话:把上次没收到 IDLE、endMs 还是 0 的「僵尸」session 收尾,避免时间线里出现永不结束的记录;
+     * - 仍在通话:接回那条未结束的 session(没有就补一条),胶囊与速记台继续往里记要点。
+     * READ_PHONE_STATE 已在 [start] 里检查过,这里用 runCatching 兜住个别 ROM 的异常。
+     */
+    private fun recover(context: Context, mgr: TelephonyManager) {
+        val store = CallSessionStore.of(context)
+        val open = store.list().filter { it.endMs == 0L }
+        val live = runCatching { mgr.callState }.getOrDefault(TelephonyManager.CALL_STATE_IDLE)
+        if (live != TelephonyManager.CALL_STATE_OFFHOOK) {
+            open.forEach { store.end(it.id, System.currentTimeMillis()) }
+            CallStateFlow.update(
+                if (live == TelephonyManager.CALL_STATE_RINGING) {
+                    // 响铃阶段还没接通,不建 session;等 OFFHOOK 时按正常流程 begin
+                    CallState(ringing = true, isIncoming = true, startMs = System.currentTimeMillis())
+                } else CallState(),
+            )
+            return
+        }
+        val s = open.firstOrNull()
+        currentSessionId = s?.id ?: store.begin(null, false, System.currentTimeMillis())
+        answerMs = s?.startMs ?: System.currentTimeMillis()
+        CallStateFlow.update(CallState(
+            offhook = true,
+            number = s?.number,
+            // 重启后无法反推方向:没有历史 session 时按去电记,避免把方向标反
+            isIncoming = s?.isIncoming ?: false,
+            startMs = answerMs,
+        ))
     }
 
     fun stop() {

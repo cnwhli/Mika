@@ -42,35 +42,71 @@ object NotificationCenter {
     private const val ISLAND_CHANNEL = "nuoyi-island"
     /** 通知自带的 timeoutMillis 用这个值表示「走默认」,由 [defaultDwellMs] 决定。 */
     private const val DEFAULT_TIMEOUT = 6000L
+    /** 展开的卡片里最多能同时堆多少条通知;超出的挤掉最旧的。 */
+    const val MAX_STACK = 8
+    /** 卡片展开期间计时器到点后,每隔多久再检查一次是否该收起。 */
+    private const val HOLD_RECHECK_MS = 1500L
 
     private val _active = MutableStateFlow<List<NuoyiNotification>>(emptyList())
-    /** 此刻应该在灵动岛显示的(至多保留最近 3 条),按到达先后。 */
+    /** 此刻应该在灵动岛显示的(至多保留最近 [MAX_STACK] 条),按到达先后,最后一条最新。 */
     val active: StateFlow<List<NuoyiNotification>> = _active.asStateFlow()
     private val timers = LinkedHashMap<String, CountDownTimer>()
+    /** 用来在 dismiss / clearAll 时同步撤掉状态栏里的那条通知。 */
+    private var appContext: Context? = null
 
     /** 灵动岛胶囊默认停留时长(毫秒),可被设置页覆盖;0 = 不自动收起。 */
     var defaultDwellMs = 6000L
 
+    /**
+     * 卡片展开时由灵动岛服务置 true:到点的通知先留着,免得用户正在看某条时它被计时器撤掉;
+     * 收起后下一次复查(见 [HOLD_RECHECK_MS])就会正常清掉。
+     */
+    @Volatile
+    var expiryPaused = false
+
     /** 发一条通知:进系统通知栏 + 灵动岛。同一 id 先顶掉旧的。 */
     fun post(context: Context, n: NuoyiNotification) {
-        _active.value = (_active.value.filter { it.id != n.id } + n).takeLast(3)
+        appContext = context.applicationContext
+        _active.value = (_active.value.filter { it.id != n.id } + n).takeLast(MAX_STACK)
         postSystem(context, n)
         timers[n.id]?.cancel()
         // timeoutMillis == DEFAULT_TIMEOUT 表示「用默认停留时长」,否则用调用方指定的(例如长文案给更久)
         val dwell = if (n.timeoutMillis == DEFAULT_TIMEOUT) defaultDwellMs else n.timeoutMillis
         if (dwell <= 0) return // 不自动收起:等用户点开或长按划掉
+        schedule(n.id, dwell)
+    }
+
+    /** 到点不立刻撤,而是看卡片是否展开;展开了就稍后再查,收起了才真正撤掉。 */
+    private fun schedule(id: String, dwell: Long) {
         val timer = object : CountDownTimer(dwell, dwell) {
             override fun onTick(p0: Long) = Unit
-            override fun onFinish() = dismiss(n.id)
+            override fun onFinish() {
+                if (expiryPaused) schedule(id, HOLD_RECHECK_MS) else dismiss(id)
+            }
         }
-        timers[n.id] = timer
+        timers[id] = timer
         timer.start()
     }
 
-    /** 从灵动岛(和系统通知)撤掉一条。 */
+    /** 从灵动岛(和系统通知栏)撤掉一条。 */
     fun dismiss(id: String) {
         _active.value = _active.value.filter { it.id != id }
         timers.remove(id)?.cancel()
+        appContext?.let { ctx ->
+            (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.cancel(id.hashCode())
+        }
+    }
+
+    /** 卡片里的「全部清除」:灵动岛、系统通知栏、倒计时一起清干净。 */
+    fun clearAll() {
+        val ids = _active.value.map { it.id }
+        _active.value = emptyList()
+        timers.values.forEach { it.cancel() }
+        timers.clear()
+        appContext?.let { ctx ->
+            val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+            ids.forEach { nm.cancel(it.hashCode()) }
+        }
     }
 
     private fun postSystem(context: Context, n: NuoyiNotification) {

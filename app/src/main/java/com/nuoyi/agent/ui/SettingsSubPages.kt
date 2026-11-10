@@ -179,6 +179,8 @@ fun NotificationsScreen(
     onIslandIdlePill: (Boolean) -> Unit = {},
     islandAvoidStatusBar: Boolean = true,
     onIslandAvoidStatusBar: (Boolean) -> Unit = {},
+    islandExpandCard: Boolean = true,
+    onIslandExpandCard: (Boolean) -> Unit = {},
     islandDwellMs: Long = 6000L,
     onIslandDwell: (Long) -> Unit = {},
 ) {
@@ -276,18 +278,40 @@ fun NotificationsScreen(
                     NuoyiSwitch(islandIdlePill, onIslandIdlePill)
                 }
                 ListRow(
+                    NuoyiIcons.Lines, "点按展开通知卡片", "多条通知会堆叠成一个胶囊（角标显示条数）；点一下展开成卡片，可逐条查看、清除或直达对应页面。关掉则点按直接回 App",
+                    onClick = { onIslandExpandCard(!islandExpandCard) },
+                ) {
+                    NuoyiSwitch(islandExpandCard, onIslandExpandCard)
+                }
+                ListRow(
                     NuoyiIcons.Shield, "避开状态栏 / 挖孔区", "胶囊最低只能拖到状态栏下方，不会压住时钟或前摄；横竖屏、分屏会按比例还原位置",
                     onClick = { onIslandAvoidStatusBar(!islandAvoidStatusBar) },
                 ) {
                     NuoyiSwitch(islandAvoidStatusBar, onIslandAvoidStatusBar)
                 }
                 ListRow(
-                    NuoyiIcons.Spark, "预览一条灵动岛通知", "发一条示例通知，看看胶囊长什么样、能不能拖动",
+                    NuoyiIcons.Spark, "预览三条堆叠通知", "连发三条示例通知，点胶囊展开卡片，试堆叠、逐条清除、直达页面与拖动",
                     onClick = {
+                        val t = System.currentTimeMillis()
                         NotificationCenter.post(context, NuoyiNotification(
-                            id = "island-preview-${System.currentTimeMillis()}",
+                            id = "island-preview-$t-1",
+                            title = "任务完成",
+                            text = "已把通话纪要整理成 3 条待办，点这一行可直达通话纪要",
+                            tone = Tone.Success,
+                            openRoute = "callnotes",
+                            timeoutMillis = 0,
+                        ))
+                        NotificationCenter.post(context, NuoyiNotification(
+                            id = "island-preview-$t-2",
+                            title = "需要你确认",
+                            text = "日程里有两个时间冲突，请选一个保留",
+                            tone = Tone.Warn,
+                            timeoutMillis = 0,
+                        ))
+                        NotificationCenter.post(context, NuoyiNotification(
+                            id = "island-preview-$t-3",
                             title = "灵动岛预览",
-                            text = "按住可拖动胶囊 · 点一下回 App · 长按划掉",
+                            text = "点胶囊展开卡片 · 按住可拖动 · 长按划掉最新一条",
                             tone = Tone.Info,
                             timeoutMillis = 0,
                         ))
@@ -316,7 +340,7 @@ fun NotificationsScreen(
         GroupLabel("使用与常驻")
         GroupCard {
             ListRow(
-                null, "胶囊可以拖动", "按住胶囊拖到屏幕任意位置，位置会被记住；点一下打开对应页面，长按划掉这条通知。",
+                null, "胶囊可以拖动", "按住胶囊或卡片顶部拖到屏幕任意位置，位置会被记住；点一下展开通知卡片逐条查看，长按划掉最新一条。",
                 first = true,
             ) {}
             ListRow(

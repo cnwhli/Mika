@@ -127,6 +127,7 @@ fun SettingsScreen(
     var islandCallMode by remember { mutableStateOf(flags.islandCallMode()) }
     var islandIdlePill by remember { mutableStateOf(flags.islandIdlePill()) }
     var islandAvoidStatusBar by remember { mutableStateOf(flags.islandAvoidStatusBar()) }
+    var islandExpandCard by remember { mutableStateOf(flags.islandExpandCard()) }
     // 换语言时界面会重建,这里每次进来读一次即可
     val language = remember { AppLanguage.current(context) }
     val runtimeLimit by (context.applicationContext as com.nuoyi.agent.NuoyiApp).taskState.parallelLimit.collectAsState()
@@ -234,6 +235,8 @@ fun SettingsScreen(
             onIslandIdlePill = { flags.setIslandIdlePill(it); islandIdlePill = it },
             islandAvoidStatusBar = islandAvoidStatusBar,
             onIslandAvoidStatusBar = { flags.setIslandAvoidStatusBar(it); islandAvoidStatusBar = it },
+            islandExpandCard = islandExpandCard,
+            onIslandExpandCard = { flags.setIslandExpandCard(it); islandExpandCard = it },
             islandDwellMs = islandDwellMs,
             onIslandDwell = {
                 flags.setIslandDwellMs(it)

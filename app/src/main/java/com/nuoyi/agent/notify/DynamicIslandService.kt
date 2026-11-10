@@ -10,11 +10,13 @@ import android.os.IBinder
 import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.WindowManager
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
@@ -23,10 +25,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,11 +51,11 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nuoyi.agent.R
-import com.nuoyi.agent.callnotes.CallSessionStore
 import com.nuoyi.agent.callnotes.CallState
 import com.nuoyi.agent.callnotes.CallStateFlow
 import com.nuoyi.agent.callnotes.CallStateMonitor
@@ -61,12 +68,18 @@ import com.nuoyi.agent.ui.theme.NuoyiMascot
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.theme.NuoyiType
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * 系统级灵动岛:把 [NotificationCenter.active] 的通知、以及实时通话状态,显示在屏幕顶部居中的胶囊里(像 iOS 灵动岛),
- * 点一下回 App,长按划掉。它本身不依赖系统通知栏权限;若没有「显示在其他应用上层」权限就不显示。
+ * 系统级灵动岛:把 [NotificationCenter.active] 的通知、以及实时通话状态,显示在屏幕顶部居中的胶囊里(像 iOS 灵动岛)。
+ * 胶囊可拖动;多条通知会堆叠(角标显示条数),点一下展开成卡片逐条查看 / 清除 / 直达对应页面,长按划掉最新一条。
+ * 展开期间通知不会被倒计时撤掉,尺寸变化后会重新把窗口 clamp 回屏幕内。
+ * 它本身不依赖系统通知栏权限;若没有「显示在其他应用上层」权限就不显示。
  * 用前台服务保活(常驻低优先通知只用来保活,胶囊显示不靠它);被系统清掉时 [onTaskRemoved] 会再把自己拉起来。
  */
 class DynamicIslandService : Service() {
@@ -190,12 +203,22 @@ class DynamicIslandService : Service() {
         return h + (10 * resources.displayMetrics.density).toInt()
     }
 
-    private fun openApp() {
+    /** 打开 App;[route] 不为空时(如 "callnotes")由 MainActivity 直接跳到对应页面。 */
+    private fun openApp(route: String? = null) {
         val intent = Intent(this, MainActivity::class.java).apply {
             action = "com.nuoyi.agent.action.OPEN"
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            if (route != null) putExtra(EXTRA_OPEN_ROUTE, route)
         }
         startActivity(intent)
+    }
+
+    /** 胶囊/卡片尺寸变化(展开、收起、通知增减)后重新把窗口限制在屏幕内。 */
+    private fun clampAfterResize() {
+        val p = params ?: return
+        val v = view ?: return
+        clampToScreen(p)
+        runCatching { wm?.updateViewLayout(v, p) }
     }
 
     private fun openCallLive() {
@@ -261,6 +284,13 @@ class DynamicIslandService : Service() {
         val idlePill by flags.islandIdlePillChanges().collectAsState(initial = flags.islandIdlePill())
         val callMode by flags.islandCallModeChanges().collectAsState(initial = flags.islandCallMode())
         val avoidStatus by flags.islandAvoidStatusBarChanges().collectAsState(initial = flags.islandAvoidStatusBar())
+        val expandOnTap by flags.islandExpandCardChanges().collectAsState(initial = flags.islandExpandCard())
+        var expanded by remember { mutableStateOf(false) }
+
+        val inCall = callMode && (call.offhook || call.ringing)
+        val hasContent = inCall || active.isNotEmpty()
+        val duration = rememberCallDuration(if (inCall) call else null)
+
         LaunchedEffect(avoidStatus) {
             avoidStatusBar = avoidStatus
             // 开关一改立即把胶囊挪出/放回状态栏区域,不用等重启服务
@@ -269,108 +299,319 @@ class DynamicIslandService : Service() {
                 view?.let { v -> runCatching { wm?.updateViewLayout(v, p) } }
             }
         }
+        // 展开卡片期间暂停自动收起;尺寸动画走完后再按新的宽高把窗口 clamp 回屏幕内
+        LaunchedEffect(expanded, active.size, inCall) {
+            NotificationCenter.expiryPaused = expanded && expandOnTap
+            delay(280)
+            clampAfterResize()
+        }
+        // 通知清空或通话结束后别留一张空卡片
+        LaunchedEffect(hasContent) { if (!hasContent) expanded = false }
 
         when {
-            callMode && (call.offhook || call.ringing) -> CallPill(call)
-            active.isNotEmpty() -> NoticePill(active.last())
-            idlePill -> IdlePill()
-            else -> Spacer(Modifier.size(1.dp))
+            !hasContent && !idlePill -> Spacer(Modifier.size(1.dp))
+            !hasContent -> IdlePill()
+            else -> Box(Modifier.animateContentSize(animationSpec = tween(220))) {
+                if (expanded && expandOnTap) {
+                    IslandCard(
+                        call = if (inCall) call else null,
+                        active = active,
+                        duration = duration,
+                        onCollapse = { expanded = false },
+                    )
+                } else {
+                    IslandPillStack(
+                        call = if (inCall) call else null,
+                        active = active,
+                        expandOnTap = expandOnTap,
+                        duration = duration,
+                        onExpand = { expanded = true },
+                    )
+                }
+            }
         }
     }
 
+    /** 通话计时只起一个协程,胶囊和展开后的卡片共用同一份时长文本。 */
     @Composable
-    private fun CallPill(call: CallState) {
-        val c = NuoyiTheme.colors
-        val isCall = call.offhook
+    private fun rememberCallDuration(call: CallState?): String {
         var now by remember { mutableStateOf(System.currentTimeMillis()) }
-        LaunchedEffect(call.offhook, call.startMs) {
-            if (call.offhook) {
+        LaunchedEffect(call?.offhook, call?.startMs) {
+            if (call?.offhook == true) {
                 while (true) {
                     now = System.currentTimeMillis()
                     delay(1000)
                 }
             }
         }
-        val durMs = if (call.offhook) (now - call.startMs).coerceAtLeast(0) else 0
-        val dur = formatDuration(durMs)
-        val label = if (call.ringing) "来电" else "通话中"
-        val sub = if (call.ringing) (call.number ?: "未知号码") else if (call.number != null) "${call.number} · $dur" else dur
-        Box(
-            Modifier
-                .widthIn(max = 320.dp)
-                .shadow(14.dp, RoundedCornerShape(22.dp), clip = false)
-                .clip(RoundedCornerShape(22.dp))
-                .border(1.5.dp, c.accent.copy(alpha = 0.5f), RoundedCornerShape(22.dp))
-                .background(c.surface.copy(alpha = 0.98f))
-                .capsuleDrag(
-                    call.startMs,
-                    onTap = { openCallLive() },
-                    onLongPress = { NotificationCenter.post(this@DynamicIslandService, NuoyiNotification("call-hint", "通话中", "点胶囊可记要点 / 让 AI 助理记下待办", tone = Tone.Info)) },
+        val ms = if (call?.offhook == true) (now - call.startMs).coerceAtLeast(0) else 0L
+        return formatDuration(ms)
+    }
+
+    /**
+     * 收起态:主胶囊 + 背后两片"纸片"(多于一条时)+ 条数角标。
+     * 通话优先占用胶囊正文,通知条数仍照常堆叠;点一下展开卡片,长按划掉最新一条。
+     */
+    @Composable
+    private fun IslandPillStack(
+        call: CallState?,
+        active: List<NuoyiNotification>,
+        expandOnTap: Boolean,
+        duration: String,
+        onExpand: () -> Unit,
+    ) {
+        val c = NuoyiTheme.colors
+        val shown = active.lastOrNull()
+        val count = active.size
+        val label: String
+        val sub: String
+        val tint: Color
+        val mood: MascotMood
+        if (call != null) {
+            label = if (call.ringing) "来电" else "通话中"
+            sub = if (call.ringing) (call.number ?: "未知号码")
+            else if (call.number != null) "${call.number} · $duration" else duration
+            tint = c.accent
+            mood = if (call.offhook) MascotMood.Listening else MascotMood.Happy
+        } else {
+            label = shown?.title ?: "通知"
+            sub = shown?.text ?: ""
+            tint = toneTint(shown?.tone ?: Tone.Info)
+            mood = toneMood(shown?.tone ?: Tone.Info)
+        }
+
+        // 进度条只在通知态且有默认停留时长时跑;通话不自动收起
+        val dwell = NotificationCenter.defaultDwellMs
+        val progress = remember { Animatable(1f) }
+        LaunchedEffect(shown?.id, dwell, call) {
+            progress.snapTo(1f)
+            if (call == null && dwell > 0) progress.animateTo(0f, tween(dwell.toInt(), easing = LinearEasing))
+        }
+
+        Box(Modifier.widthIn(max = 340.dp).padding(bottom = 10.dp)) {
+            // 背后露出的两片圆角,视觉上像叠了一摞通知
+            if (count > 2) {
+                Box(
+                    Modifier.matchParentSize().offset(y = 10.dp).padding(horizontal = 15.dp)
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(c.surface.copy(alpha = 0.45f))
+                        .border(1.dp, c.edge, RoundedCornerShape(22.dp)),
                 )
-                .padding(horizontal = 14.dp, vertical = 9.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(Modifier.size(34.dp), contentAlignment = Alignment.Center) {
-                    Icon(NuoyiIcons.Phone, null, tint = c.accent, modifier = Modifier.size(20.dp))
+            }
+            if (count > 1) {
+                Box(
+                    Modifier.matchParentSize().offset(y = 5.dp).padding(horizontal = 7.dp)
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(c.surface.copy(alpha = 0.72f))
+                        .border(1.dp, c.edge, RoundedCornerShape(22.dp)),
+                )
+            }
+            Box(
+                Modifier
+                    .widthIn(max = 340.dp)
+                    .shadow(14.dp, RoundedCornerShape(24.dp), clip = false)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.5.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
+                    .background(c.surface.copy(alpha = 0.98f))
+                    .capsuleDrag(
+                        if (call != null) call.startMs to count else (shown?.id ?: "none") to count,
+                        onTap = {
+                            if (expandOnTap) onExpand()
+                            else if (call != null) openCallLive()
+                            else openApp(shown?.openRoute)
+                        },
+                        onLongPress = {
+                            if (call != null) {
+                                NotificationCenter.post(
+                                    this@DynamicIslandService,
+                                    NuoyiNotification("call-hint", "通话中", "点胶囊可记要点 / 让 AI 助理记下待办", tone = Tone.Info),
+                                )
+                            } else if (shown != null) {
+                                NotificationCenter.dismiss(shown.id)
+                            }
+                        },
+                    )
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (call != null) {
+                        Box(Modifier.size(34.dp), contentAlignment = Alignment.Center) {
+                            Icon(NuoyiIcons.Phone, null, tint = c.accent, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                    NuoyiMascot(mood, size = 40.dp)
+                    Column(Modifier.weight(1f, fill = false), verticalArrangement = Arrangement.Center) {
+                        Text(label, style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold),
+                            color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(sub, style = NuoyiType.Hint, color = c.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    if (count > 1) {
+                        Box(
+                            Modifier.clip(RoundedCornerShape(10.dp))
+                                .background(tint.copy(alpha = 0.14f))
+                                .padding(horizontal = 7.dp, vertical = 3.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("$count 条", style = NuoyiType.Hint.copy(fontWeight = FontWeight.SemiBold),
+                                color = tint, maxLines = 1)
+                        }
+                    }
                 }
-                NuoyiMascot(if (isCall) MascotMood.Listening else MascotMood.Happy, size = 38.dp)
-                Column(Modifier.weight(1f, fill = false), verticalArrangement = Arrangement.Center) {
-                    Text(label, style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold), color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(sub, style = NuoyiType.Hint, color = c.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (call == null) {
+                    Box(
+                        Modifier.align(Alignment.BottomCenter).fillMaxWidth(progress.value)
+                            .height(3.dp).background(tint.copy(alpha = 0.9f)),
+                    )
                 }
             }
         }
     }
 
+    /** 展开态:顶部把手(可拖动 / 点按收起)+ 通话信息 + 可滚动的通知堆叠 + 底部操作。 */
     @Composable
-    private fun NoticePill(shown: NuoyiNotification) {
+    private fun IslandCard(
+        call: CallState?,
+        active: List<NuoyiNotification>,
+        duration: String,
+        onCollapse: () -> Unit,
+    ) {
         val c = NuoyiTheme.colors
-        val mood = when (shown.tone) {
-            Tone.Success -> MascotMood.Happy
-            Tone.Warn, Tone.Alert -> MascotMood.Listening
-            else -> MascotMood.Idle
+        val cardW = min(340, LocalConfiguration.current.screenWidthDp - 24).dp
+        Column(
+            Modifier
+                .width(cardW)
+                .shadow(18.dp, RoundedCornerShape(24.dp), clip = false)
+                .clip(RoundedCornerShape(24.dp))
+                .border(1.5.dp, c.edge, RoundedCornerShape(24.dp))
+                .background(c.surface.copy(alpha = 0.99f)),
+        ) {
+            // 把手:整张卡片靠它拖动,点一下收起;下面各按钮单独 clickable,不受拖动手势影响
+            Row(
+                Modifier.fillMaxWidth()
+                    .capsuleDrag("card-handle", onTap = onCollapse, onLongPress = onCollapse)
+                    .padding(horizontal = 14.dp, vertical = 11.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                Icon(if (call != null) NuoyiIcons.Phone else NuoyiIcons.Bell, null,
+                    tint = c.accent, modifier = Modifier.size(18.dp))
+                Text(
+                    if (call != null) "通话中 · ${active.size} 条通知" else "通知 · ${active.size} 条",
+                    style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold), color = c.ink,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Text("收起", style = NuoyiType.Hint, color = c.accent,
+                    modifier = Modifier.clickable(onClick = onCollapse).padding(horizontal = 6.dp, vertical = 3.dp))
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(c.hair))
+            if (call != null) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    NuoyiMascot(MascotMood.Listening, size = 40.dp)
+                    Column(Modifier.weight(1f, fill = false)) {
+                        Text(if (call.ringing) "来电" else "通话中 · $duration",
+                            style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold), color = c.ink, maxLines = 1)
+                        Text(call.number ?: "未知号码", style = NuoyiType.Hint, color = c.ink2, maxLines = 1)
+                    }
+                    Text("记要点", style = NuoyiType.Hint.copy(fontWeight = FontWeight.SemiBold), color = c.onAccent,
+                        modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(c.accent)
+                            .clickable { openCallLive(); onCollapse() }
+                            .padding(horizontal = 12.dp, vertical = 7.dp))
+                }
+                Box(Modifier.fillMaxWidth().height(1.dp).background(c.hair))
+            }
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 224.dp).verticalScroll(rememberScrollState()),
+            ) {
+                if (active.isEmpty()) {
+                    Text("暂无通知", style = NuoyiType.Hint, color = c.ink3,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
+                } else {
+                    val items = active.asReversed() // 最新的排最上面
+                    items.forEachIndexed { i, n ->
+                        NoticeRow(
+                            n,
+                            onOpen = {
+                                openApp(n.openRoute)
+                                NotificationCenter.dismiss(n.id)
+                                onCollapse()
+                            },
+                            onDismiss = { NotificationCenter.dismiss(n.id) },
+                        )
+                        if (i < items.size - 1) {
+                            Box(Modifier.fillMaxWidth().height(1.dp).background(c.hair))
+                        }
+                    }
+                }
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(c.hair))
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text("全部清除", style = NuoyiType.Hint, color = if (active.isEmpty()) c.ink3 else c.ink2,
+                    modifier = Modifier.clickable(enabled = active.isNotEmpty()) {
+                        NotificationCenter.clearAll()
+                        onCollapse()
+                    }.padding(6.dp))
+                Spacer(Modifier.weight(1f))
+                Text("打开诺伊", style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold), color = c.onAccent,
+                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(c.accent)
+                        .clickable { openApp(); onCollapse() }
+                        .padding(horizontal = 14.dp, vertical = 7.dp))
+            }
         }
-        val tint = when (shown.tone) {
+    }
+
+    /** 卡片里的单条通知:点整行直达 openRoute 并撤掉该条,点右侧 × 只清除。 */
+    @Composable
+    private fun NoticeRow(n: NuoyiNotification, onOpen: () -> Unit, onDismiss: () -> Unit) {
+        val c = NuoyiTheme.colors
+        val tint = toneTint(n.tone)
+        Row(
+            Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Box(Modifier.padding(top = 6.dp).size(8.dp).clip(RoundedCornerShape(4.dp)).background(tint))
+            Column(Modifier.weight(1f)) {
+                Text(n.title, style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold),
+                    color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(2.dp))
+                Text(n.text, style = NuoyiType.Hint, color = c.ink2,
+                    maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(4.dp))
+                Text(timeLabel(n.atMillis), style = NuoyiType.Hint, color = c.ink3)
+            }
+            Icon(NuoyiIcons.Close, null, tint = c.ink3,
+                modifier = Modifier.size(18.dp).clickable(onClick = onDismiss))
+        }
+    }
+
+    @Composable
+    private fun toneTint(tone: Tone): Color {
+        val c = NuoyiTheme.colors
+        return when (tone) {
             Tone.Success -> c.ok
             Tone.Warn -> Color(0xFFFF9F0A)
             Tone.Alert -> c.bad
             else -> c.accent
         }
-        val dwell = NotificationCenter.defaultDwellMs
-        val progress = remember { Animatable(1f) }
-        LaunchedEffect(shown.id, dwell) {
-            progress.snapTo(1f)
-            if (dwell > 0) progress.animateTo(0f, tween(dwell.toInt(), easing = LinearEasing))
-            else progress.snapTo(1f)
-        }
-        Box(
-            Modifier
-                .widthIn(max = 360.dp)
-                .shadow(14.dp, RoundedCornerShape(24.dp), clip = false)
-                .clip(RoundedCornerShape(24.dp))
-                .border(1.5.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
-                .background(c.surface.copy(alpha = 0.98f))
-                .capsuleDrag(
-                    shown.id,
-                    onTap = { openApp() },
-                    onLongPress = { NotificationCenter.dismiss(shown.id) },
-                )
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                NuoyiMascot(mood, size = 44.dp)
-                Column(Modifier.weight(1f, fill = false), verticalArrangement = Arrangement.Center) {
-                    Text(shown.title, style = NuoyiType.Caption.copy(fontWeight = FontWeight.SemiBold),
-                        color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(shown.text, style = NuoyiType.Hint, color = c.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-            Box(
-                Modifier.align(Alignment.BottomCenter).fillMaxWidth(progress.value)
-                    .height(3.dp).background(tint.copy(alpha = 0.9f)),
-            )
-        }
     }
+
+    private fun toneMood(tone: Tone): MascotMood = when (tone) {
+        Tone.Success -> MascotMood.Happy
+        Tone.Warn, Tone.Alert -> MascotMood.Listening
+        else -> MascotMood.Idle
+    }
+
+    private val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private fun timeLabel(ms: Long): String = timeFmt.format(Date(ms))
 
     @Composable
     private fun IdlePill() {

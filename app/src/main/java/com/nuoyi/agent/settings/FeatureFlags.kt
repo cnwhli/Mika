@@ -178,9 +178,20 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         prefs.edit().putBoolean(ISLAND_IDLE_PILL, on).commit()
     }
 
+    /**
+     * 点胶囊是否展开成通知卡片(多条堆叠、逐条查看/清除)。默认开;
+     * 关掉则保持旧行为——点一下直接回 App,长按划掉。
+     */
+    fun islandExpandCard(): Boolean = prefs.getBoolean(ISLAND_EXPAND_CARD, true)
+
+    fun setIslandExpandCard(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_EXPAND_CARD, on).commit()
+    }
+
     fun islandEnabledChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_ENABLED, true)
     fun islandCallModeChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_CALL_MODE, true)
     fun islandIdlePillChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_IDLE_PILL, false)
+    fun islandExpandCardChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_EXPAND_CARD, true)
 
     /** 灵动岛胶囊在屏幕上的位置(像素,左上角原点)。-1 表示用默认(顶部居中),拖动后才存绝对坐标。 */
     fun islandPos(): Pair<Int, Int> = prefs.getInt(ISLAND_POS_X, -1) to prefs.getInt(ISLAND_POS_Y, -1)
@@ -306,6 +317,7 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val ISLAND_ENABLED = "island_enabled"
         private const val ISLAND_CALL_MODE = "island_call_mode"
         private const val ISLAND_IDLE_PILL = "island_idle_pill"
+        private const val ISLAND_EXPAND_CARD = "island_expand_card"
         private const val ISLAND_POS_X = "island_pos_x"
         private const val ISLAND_POS_Y = "island_pos_y"
         private const val ISLAND_POS_SW = "island_pos_screen_w"

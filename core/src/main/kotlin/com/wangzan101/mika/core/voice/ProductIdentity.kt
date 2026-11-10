@@ -5,7 +5,9 @@ package com.wangzan101.mika.core.voice
  *
  * 「我是李万禧的女儿，数字女儿」是产品设定，不是模型可以发挥的内容：
  * - 语音链路在 [VoiceDialog] / [VoiceSessionController] 里直接短路到 TTS，一个字都不经过模型；
- * - 系统提示词里写着同一句，保证从输入框打字问、或在任务中被问到时口径一致。
+ * - 所有其它入口（打字、通知回复、channel、trigger、任务中插话）在模型调用层的
+ *   IdentityGate 硬闸短路，模型连请求都收不到，也不花 token；
+ * - 系统提示词里写着同一句，作为万一绕过前两道闸时的口径兜底。
  * 所以改这句话只需要改 [REPLY] 和 prompts/system/identity.md 两处，测试会盯住它们。
  *
  * 识别只收短问句：[matches] 要求句子基本就是一句身份问话，前面最多带几个礼貌前缀。
@@ -46,6 +48,9 @@ object ProductIdentity {
     // 「吗」不削：它是「你是AI吗 / 你是真人吗」这类问句的一部分，削掉反而认不出
     private const val TAIL_FILLERS = "啊呀呢嘛吧哦噢哈"
     private val TRIM_CHARS = " \t，,、：:；;。.！!？?~—-\"'".toCharArray()
+
+    /** 命中身份问句时返回那句固定回答，否则 null。所有入口的统一判定入口。 */
+    fun answerFor(raw: String): String? = if (matches(raw)) REPLY else null
 
     /** 这句话是不是在问「你是谁」。 */
     fun matches(raw: String): Boolean {

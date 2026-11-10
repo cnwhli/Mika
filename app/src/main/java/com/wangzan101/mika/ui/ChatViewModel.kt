@@ -25,6 +25,7 @@ import com.wangzan101.mika.core.agent.QuoteMessage
 import com.wangzan101.mika.core.agent.TaskState
 import com.wangzan101.mika.task.TaskGate
 import com.wangzan101.mika.core.agent.Turn
+import com.wangzan101.mika.core.voice.ProductIdentity
 import com.wangzan101.mika.core.memory.MemoryItem
 import com.wangzan101.mika.core.memory.MemoryNote
 import com.wangzan101.mika.core.record.RunEvent
@@ -932,7 +933,10 @@ class ChatViewModel(
             ComposerMode.Busy -> return if (_ui.value.followUpMode == FollowUpMode.Queue) enqueue(goal, check) else steer(goal, check)
             ComposerMode.Idle -> Unit
         }
-        if (!check.canStartTask) {
+        // 身份问答是代码里的固定应答,不需要配对执行运行时(root/无线调试/无障碍):
+        // 刚装上 APK 的公版用户也该能问「你是谁」并听到那句话。仍走正常任务链路,
+        // 模型调用层的 IdentityGate 会替模型答,一个字都不经过模型、也不花 token。
+        if (!check.canStartTask && ProductIdentity.answerFor(goal) == null) {
             _ui.update { it.copy(blocked = check.blockers) }
             return false
         }

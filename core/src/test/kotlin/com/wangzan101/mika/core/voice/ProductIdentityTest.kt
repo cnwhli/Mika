@@ -2,6 +2,7 @@ package com.wangzan101.mika.core.voice
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,10 +31,17 @@ class ProductIdentityTest {
         ).forEach { assertFalse("不该拦下任务: $it", ProductIdentity.matches(it)) }
     }
 
-    /** 打字问、执行中被问，靠系统提示词保持同一口径；语音链路另有硬编码短路。 */
+    /** 打字问、执行中被问，靠模型调用层的硬闸；系统提示词只是口径兜底。 */
     @Test fun systemPromptCarriesTheSameIdentity() {
         val system = com.wangzan101.mika.core.agent.SystemPrompt.identity()
         assertTrue(system.startsWith("You are Nuoyi"))
         assertTrue(ProductIdentity.REPLY in system)
+    }
+
+    @Test fun answerForReturnsTheFixedReplyOrNull() {
+        assertEquals(ProductIdentity.REPLY, ProductIdentity.answerFor("你是谁"))
+        assertEquals(ProductIdentity.REPLY, ProductIdentity.answerFor("诺伊，你是谁呀"))
+        assertNull(ProductIdentity.answerFor("帮我打开微信"))
+        assertNull(ProductIdentity.answerFor(""))
     }
 }

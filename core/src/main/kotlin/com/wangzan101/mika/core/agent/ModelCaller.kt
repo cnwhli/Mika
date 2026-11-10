@@ -1,6 +1,7 @@
 package com.wangzan101.mika.core.agent
 
 import com.wangzan101.mika.core.trace.RunTrace
+import com.wangzan101.mika.core.identity.IdentityGate
 import com.wangzan101.mika.core.action.ConfirmDecision
 import com.wangzan101.mika.core.model.ChatModel
 import com.wangzan101.mika.core.model.Message
@@ -8,6 +9,7 @@ import com.wangzan101.mika.core.model.ModelError
 import com.wangzan101.mika.core.model.ModelReply
 import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.model.Role
+import com.wangzan101.mika.core.model.StopReason
 import com.wangzan101.mika.core.model.StreamingChatModel
 import com.wangzan101.mika.core.model.ToolSpec
 import com.wangzan101.mika.core.model.Usage
@@ -52,6 +54,11 @@ internal class ModelCaller(
      * 好让会把输入用于训练的免费档被跳过。默认按主角色的最坏情况处理。
      */
     private val quotaRequirement: (List<Message>) -> QuotaRequirement = { QuotaRequirement() },
+    /**
+     * 产品身份硬闸：命中「你是谁」时直接返回固定回答，不把请求发给模型。
+     * 默认开启；测试可注入 `{ null }` 关掉。语音链路另有自己的 TTS 短路，这里覆盖其余所有入口。
+     */
+    private val identityGate: (List<Message>) -> String? = IdentityGate::answerFor,
 ) {
     /** 每个模型一份压缩状态:各自的上下文、各自发出的那份历史,轻量模型那次压缩不连累主模型的请求前缀。 */
     private val compressors = java.util.IdentityHashMap<ChatModel, ContextCompressor>()
@@ -115,6 +122,8 @@ internal class ModelCaller(
         history: List<Message>, specs: List<ToolSpec>, track: StepTrack, step: Int, restarted: (Long) -> Unit,
         onText: ((String) -> Unit)? = null,
     ): Pair<ModelReply, ChatModel> {
+        // 身份问答连模型都不叫：不必先让轻量模型白问一次、判定没调工具再改问主模型。
+        identityGate(history)?.let { return fixedReply(it, model, onText) }
         val r = router?.takeIf { routing } ?: return askWithModel(history, specs, step, onText = onText)
         val picked = r.pick(track.context(step, history.any { m -> m.parts.any { it is Part.Image } }))
         if (!r.isLight(picked)) return askWithModel(history, specs, step, onText = onText)
@@ -166,6 +175,12 @@ internal class ModelCaller(
         onText: ((String) -> Unit)? = null): Pair<ModelReply, ChatModel> =
         complete(viewFor(history, using), specs, using, retry, step, onText)
 
+    /** 身份问答的固定答复：一句文本、正常收尾、零用量，照常走界面／通知／记账通道。 */
+    private fun fixedReply(answer: String, using: ChatModel, onText: ((String) -> Unit)?): Pair<ModelReply, ChatModel> {
+        onText?.invoke(answer)
+        return ModelReply(listOf(Part.Text(answer)), StopReason.EndTurn, Usage(0, 0)) to using
+    }
+
     /**
      * 发给 [to] 的历史:别的模型给出的回复去掉思考内容和调用上的私有数据(这些只能原样回给产生它的那个模型)。
      * 只看字段在不在,不分服务商。
@@ -188,6 +203,9 @@ internal class ModelCaller(
 
     private suspend fun complete(history: List<Message>, specs: List<ToolSpec>, using: ChatModel, policy: RetryPolicy, step: Int,
         onText: ((String) -> Unit)? = null): Pair<ModelReply, ChatModel> {
+        // 兜底硬闸：只要请求历史里最近一句用户原话在问身份，就不发请求。
+        // 放在这里而非某个 UI 入口，是为了让新加的入口默认也受同一句固定回答约束。
+        identityGate(history)?.let { return fixedReply(it, using, onText) }
         var retries = 0
         lastRetryWaitMs = 0
         val began = now()

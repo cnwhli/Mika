@@ -1,22 +1,22 @@
 {
-  "tag_name": "v0.1.39",
-  "name": "诺伊 0.1.39",
-  "body": "### 本次更新\n\n- 全新吉祥物形象「诺伊」：带天线、科技耳与微笑的可爱未来人。作启动图标，常驻对话页顶栏，浮在悬浮小窗里（带呼吸 / 眨眼 / 说话动作），并贯穿屏幕顶部的灵动岛胶囊。\n- 通知进灵动岛：任务完成 / 失败 / 取消时，除系统通知栏外，还在屏幕顶部居中弹出灵动岛风格胶囊（带相应表情的诺伊），点一下回 App；未授权「显示在其他应用上层」时退化为普通通知。\n- 两个发行版本说明更新：个人版强调为「全功能定制版」，常驻热词仅个人版提供（公版受 Android 系统限制，系统级常驻热词接口不对普通应用开放）。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。普通用户选「公版 · 全架构」；arm64 设备可选体积更小的专用包。\n个人版仅供自用侧载，包名与公版不同，可并排安装。\n\n安装前请核对下载页给出的 SHA-256 与签名证书指纹。App 内更新会自动校验\n大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，\n详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
-  "published_at": "2026-11-10T00:00:00Z",
+  "tag_name": "v0.1.40",
+  "name": "诺伊 0.1.40",
+  "body": "### 本次更新\n\n- **灵动岛胶囊展开成卡片**：多条通知会堆叠成一个胶囊（角标显示条数），点一下展开成卡片，可逐条查看、单条清除、一键清空，还能点某条直达对应页面（如通话纪要）。卡片顶部仍可拖动；展开期间通知不会被自动收起。\n- **胶囊位置与常驻打磨**：位置按屏幕比例记忆，横竖屏 / 分屏自动还原；新增「避开状态栏 / 挖孔区」开关、首次权限引导、权限状态刷新；开机自启 + 被杀重启保活。\n- **通话感知与通话后整理**：来电 / 通话中显示号码与实时时长、通话中速记台、挂断后自动提醒整理；支持导入系统通话纪要（记住上次目录、单文件导入、厂商路径提示），并自动拆成日程 / 待办 / 提醒。\n- **通话记录时间线**：搜索（号码 / 日期 / 方向 / 要点）、同号码累计次数、单条删除、TXT / JSON 导出；修正来电 / 去电方向记录反了；服务重启后能接回未结束的通话。\n- 版本号升至 0.1.40（versionCode 41），签名证书不变，旧版可直接覆盖安装。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。普通用户选「公版 · 全架构」；arm64 设备可选体积更小的专用包。\n个人版仅供自用侧载，包名与公版不同，可并排安装。\n\n安装前请核对下载页给出的 SHA-256 与签名证书指纹。App 内更新会自动校验\n大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，\n详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
+  "published_at": "2026-11-10T11:55:31Z",
   "html_url": "https://noy.127068.xyz/download/",
   "prerelease": false,
   "assets": [
     {
-      "name": "Nuoyi-v0.1.39-public-arm64.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.39/Nuoyi-v0.1.39-public-arm64.apk",
-      "size": 82058921,
-      "digest": "sha256:0b2e334da49057d802d75eacab069b9b96750b56be781bf4adf6ae669b1d5729"
+      "name": "Nuoyi-v0.1.40-public-arm64.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.40/Nuoyi-v0.1.40-public-arm64.apk",
+      "size": 82354550,
+      "digest": "sha256:60194b86141cac0af3917163fa325a11761b13c1f5a523c06a2a38e768247ba5"
     },
     {
-      "name": "Nuoyi-v0.1.39-public.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.39/Nuoyi-v0.1.39-public.apk",
-      "size": 94655064,
-      "digest": "sha256:d61c0416bf48fb63c549f09e05395fc1739424c8265c6b7bf8a267d53cab6e00"
+      "name": "Nuoyi-v0.1.40-public.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.40/Nuoyi-v0.1.40-public.apk",
+      "size": 94950693,
+      "digest": "sha256:f866d254c12e125d36e61987914bef15b04894f4154d146aca4d1555ec423c71"
     }
   ]
 }

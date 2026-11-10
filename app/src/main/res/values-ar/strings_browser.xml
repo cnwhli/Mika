@@ -60,8 +60,8 @@
     <string name="browser_home">صفحة البدء</string>
     <string name="share">مشاركة</string>
     <string name="more">المزيد</string>
-    <string name="browser_login_for_mika">تسجيل الدخول إلى Nuoyi</string>
-    <string name="browser_login_for_mika_sub">" · يفتح إصدار %1$s الذي يستخدمه Nuoyi للمهام؛ وبعد تسجيل الدخول، يمكن لـNuoyi استخدامه أيضًا"</string>
+    <string name="browser_login_for_nuoyi">تسجيل الدخول إلى Nuoyi</string>
+    <string name="browser_login_for_nuoyi_sub">" · يفتح إصدار %1$s الذي يستخدمه Nuoyi للمهام؛ وبعد تسجيل الدخول، يمكن لـNuoyi استخدامه أيضًا"</string>
     <string name="browser_mobile">الهاتف</string>
     <string name="browser_copy_link">نسخ الرابط</string>
     <string name="browser_open_outside">الفتح في متصفح آخر</string>

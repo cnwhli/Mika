@@ -37,7 +37,7 @@ class AesGcmKeyCipher(private val key: () -> SecretKey) : KeyCipher {
 }
 
 /** 密钥存在 Android 密钥库里,不出硬件/系统保护区,卸载即失效。 */
-fun KeystoreKeyCipher(alias: String = "mika-provider-keys"): KeyCipher = AesGcmKeyCipher {
+fun KeystoreKeyCipher(alias: String = "nuoyi-provider-keys"): KeyCipher = AesGcmKeyCipher {
     val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
     (ks.getKey(alias, null) as? SecretKey) ?: KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").run {
         init(

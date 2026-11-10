@@ -29,7 +29,7 @@ class RemoteEndpoints(
         val rpc = McpRpc(McpTaskTools(service, device.takeIf { deviceAccess }), serverVersion) { remote, name -> seen(remote, name) }
         if (req.path == McpRpc.PATH) return rpc.handle(req)
         if (req.path == RemoteTaskApi.ROOT || req.path.startsWith("${RemoteTaskApi.ROOT}/")) {
-            seen(req.remote, req.header("x-mika-client")?.take(64))
+            seen(req.remote, req.header("x-nuoyi-client")?.take(64))
             val api = RemoteTaskApi(service, serverVersion, device.takeIf { deviceAccess }, history.takeIf { historyAccess })
             return api.handle(req)
         }

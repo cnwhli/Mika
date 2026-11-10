@@ -64,7 +64,7 @@ enum class TranscribeMethod { AudioTranscriptions, ChatInputAudio, GeminiInline,
  * (一次卡住多半是识别服务冷启动慢,不该从此关掉这条路);中间任何一次回了话就重新数。
  * 用户在设置里选「自动」或「手机自带」时记号和次数都清掉,好让换了识别服务、更新过系统的手机能再试。
  */
-class SpeechSettings(private val prefs: SharedPreferences, private val cipher: KeyCipher = KeystoreKeyCipher("mika-speech-keys")) {
+class SpeechSettings(private val prefs: SharedPreferences, private val cipher: KeyCipher = KeystoreKeyCipher("nuoyi-speech-keys")) {
     private val _choice = MutableStateFlow(read())
     val choice: StateFlow<SpeechChoice> = _choice.asStateFlow()
 

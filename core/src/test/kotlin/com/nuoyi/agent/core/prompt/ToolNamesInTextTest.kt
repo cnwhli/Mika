@@ -58,7 +58,7 @@ class ToolNamesInTextTest {
             val entry = rel.removePrefix("knowledge/").split('/').take(2).joinToString("/")
             val text = f.readText()
             for (m in scriptPath.findAll(text)) {
-                val path = m.value.removePrefix("/opt/mika/skills/").let { if (it.startsWith("scripts/")) "$entry/$it" else it }
+                val path = m.value.removePrefix("/opt/nuoyi/skills/").let { if (it.startsWith("scripts/")) "$entry/$it" else it }
                 if (path !in runnable) bad += "$rel: ${m.value}"
             }
             scriptFile.findAll(text).map { it.value }.filter { it !in byFileName }.forEach { bad += "$rel: $it" }

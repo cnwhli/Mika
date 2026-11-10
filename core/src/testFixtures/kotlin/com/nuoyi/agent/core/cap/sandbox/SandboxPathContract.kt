@@ -34,15 +34,15 @@ abstract class SandboxPathContract {
     }
 
     @Test fun escapesRejected() {
-        for (p in listOf("../x", "/workspace/../x", "/etc/passwd", "/workspacex/a", "/opt/mika/skills/../../../x")) {
+        for (p in listOf("../x", "/workspace/../x", "/etc/passwd", "/workspacex/a", "/opt/nuoyi/skills/../../../x")) {
             assertNull(p, sb.hostPath(workspace, p, forWrite = false))
             assertNull(p, sb.hostPath(workspace, p, forWrite = true))
         }
     }
 
     @Test fun skillsReadableNotWritable() {
-        assertNotNull(sb.hostPath(workspace, "/opt/mika/skills/domain/x/SKILL.md", forWrite = false))
-        assertNull(sb.hostPath(workspace, "/opt/mika/skills/domain/x/SKILL.md", forWrite = true))
+        assertNotNull(sb.hostPath(workspace, "/opt/nuoyi/skills/domain/x/SKILL.md", forWrite = false))
+        assertNull(sb.hostPath(workspace, "/opt/nuoyi/skills/domain/x/SKILL.md", forWrite = true))
     }
 
     @Test fun symlinkOutOfWorkspaceRejected() {
@@ -63,18 +63,18 @@ abstract class SandboxPathContract {
 
     @Test fun saveOutputStaysInWorkspace() {
         val path = sb.saveOutput(workspace, "完整输出")
-        assertTrue(path, path.startsWith("/workspace/.mika/out-"))
+        assertTrue(path, path.startsWith("/workspace/.nuoyi/out-"))
         assertEquals("完整输出", sb.hostPath(workspace, path, forWrite = false)!!.readText())
-        // .mika 被换成指到外面的链接:不写,抛异常
+        // .nuoyi 被换成指到外面的链接:不写,抛异常
         val out = freshOutside()
-        val mika = File(wsRoot(), ".mika")
-        mika.deleteRecursively()
-        Files.createSymbolicLink(mika.toPath(), out.toPath())
+        val nuoyi = File(wsRoot(), ".nuoyi")
+        nuoyi.deleteRecursively()
+        Files.createSymbolicLink(nuoyi.toPath(), out.toPath())
         try {
             assertThrows(Exception::class.java) { sb.saveOutput(workspace, "leak") }
             assertTrue(out.list()!!.isEmpty())
         } finally {
-            Files.delete(mika.toPath())
+            Files.delete(nuoyi.toPath())
         }
     }
 }

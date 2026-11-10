@@ -115,7 +115,7 @@ class MemoryRuntime(context: Context) {
     }
 
     companion object {
-        const val KEY_ALIAS = "mika-memory"
+        const val KEY_ALIAS = "nuoyi-memory"
 
         fun of(context: Context): MemoryRuntime = (context.applicationContext as? Owner)?.memory
             ?: error("the Application (${context.applicationContext.javaClass.name}) must implement MemoryRuntime.Owner to give the memory runtime")

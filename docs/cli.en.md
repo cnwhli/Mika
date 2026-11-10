@@ -28,16 +28,16 @@ flowchart LR
 
 See the [CLI / Skill installation guide](computer-install.en.md) for installation, updates, rollback and removal. Normally choose either the CLI or MCP. The phone must support task API v1, first shipped in official APK v0.1.23.
 
-With only the Skill installed, `mika` below means `python3 <skills-directory>/mika/scripts/mika_cli.py` (`py -3` on Windows).
+With only the Skill installed, `nuoyi` below means `python3 <skills-directory>/nuoyi/scripts/mika_cli.py` (`py -3` on Windows).
 
 ## Connect
 
 ADB mode requires Android platform-tools and either USB or connected wireless ADB. For wireless ADB, this computer must be paired and connected to the phone, which must appear as `device` in `adb devices`. Pairing Nuoyi's built-in helper on the phone does not pair the computer; both also differ from direct LAN access below.
 
 ```bash
-mika devices --json
-mika connect --device SERIAL --json
-mika doctor --device SERIAL --json
+nuoyi devices --json
+nuoyi connect --device SERIAL --json
+nuoyi doctor --device SERIAL --json
 ```
 
 You may omit `--device` when exactly one device is online; the existing ANDROID_SERIAL environment variable is also supported. Multiple devices require a choice, and connection failure never selects a different phone. `connect` runs Nuoyi's official bootstrap script to enable computer access and start the required helper; it does not submit a task. Other commands only read the current connection.
@@ -49,7 +49,7 @@ The CLI handles forwarding; you do not need the MCP instructions for manually fo
 For LAN/private-network access explicitly enabled in the phone's settings:
 
 ```bash
-mika --url http://PHONE:8765 --token-file /path/to/private-token-file doctor --json
+nuoyi --url http://PHONE:8765 --token-file /path/to/private-token-file doctor --json
 ```
 
 The private token file contains only the access token. Use the server origin or `/api/v1` URL, not `/mcp`; URL credentials are rejected. The CLI refuses redirects and ignores ambient HTTP proxies. The server retains its private-network restrictions. Plain LAN HTTP does not encrypt traffic; ADB or a trusted private network can be used.
@@ -57,14 +57,14 @@ The private token file contains only the access token. Use the server origin or 
 ## Tasks
 
 ```bash
-mika --device SERIAL task run --goal-file task.txt --json
-mika --device SERIAL task status TASK_ID --json
-mika --device SERIAL task wait TASK_ID --timeout 45 --json
-mika --device SERIAL task answer TASK_ID --text-file answer.txt --json
-mika --device SERIAL task steer TASK_ID --text "Only summarize today's messages" --json
-mika --device SERIAL task cancel TASK_ID --json
-mika --device SERIAL task list --limit 10 --json
-mika --device SERIAL task export TASK_OR_RUN_ID --json
+nuoyi --device SERIAL task run --goal-file task.txt --json
+nuoyi --device SERIAL task status TASK_ID --json
+nuoyi --device SERIAL task wait TASK_ID --timeout 45 --json
+nuoyi --device SERIAL task answer TASK_ID --text-file answer.txt --json
+nuoyi --device SERIAL task steer TASK_ID --text "Only summarize today's messages" --json
+nuoyi --device SERIAL task cancel TASK_ID --json
+nuoyi --device SERIAL task list --limit 10 --json
+nuoyi --device SERIAL task export TASK_OR_RUN_ID --json
 ```
 
 Use `--goal` / `--text` for simple text, or UTF-8 files for multiline input. A file argument of `-` reads stdin. `run --conversation CONVERSATION_ID` starts another task in an existing remote conversation; `answer` only answers an open question. Existing mcp- conversation IDs remain valid across both interfaces. Their historical prefix does not mean the CLI uses MCP.
@@ -87,7 +87,7 @@ Queued, paused, question-waiting, phone-handoff and terminal tasks reject steeri
 | 4 | Write outcome unknown; the phone may have accepted it, and it was not retried. |
 | 130 | A local read/wait was interrupted; no phone task cancellation was requested. |
 
-On a phone advertising `task_recovery`, the CLI generates a lowercase UUID before submitting and the phone records it before starting the task. For automation, save your own UUID first and pass it to `task run --request-id UUID --goal ...`. A lost receipt returns exit 4 with the `task_id`. Reconnect to the same phone and run `mika task status UUID`. If the phone still returns 404 and you intend to retry, use the same ID, goal and conversation argument. A replay returns the existing task. Reusing the ID for a different request returns 409. The CLI never automatically resends a write.
+On a phone advertising `task_recovery`, the CLI generates a lowercase UUID before submitting and the phone records it before starting the task. For automation, save your own UUID first and pass it to `task run --request-id UUID --goal ...`. A lost receipt returns exit 4 with the `task_id`. Reconnect to the same phone and run `nuoyi task status UUID`. If the phone still returns 404 and you intend to retry, use the same ID, goal and conversation argument. A replay returns the existing task. Reusing the ID for a different request returns 409. The CLI never automatically resends a write.
 
 After an app process restart the same ID retrieves the answer and verification fields, failure reason or cancellation. An unfinished task returns `failed` with `failure_kind=interrupted`. Deleting a conversation clears its remote task contents. Its used IDs return 410 and cannot start tasks again. Finished task records are kept for 30 days, up to the latest 1000; after that the same ID counts as a new request. IDs held only in memory before upgrading cannot be reconstructed. Ordinary submissions still work on older phones with the previous recent-task lookup. An explicit `--request-id` requires a compatible phone.
 
@@ -98,9 +98,9 @@ After an app process restart the same ID retrieves the answer and verification f
 Phones advertising `task_files` accept up to 9 attachments totalling 200 MiB per task. The client transfers them in chunks and the phone imports them into the conversation workspace before starting the task. Answers and steering messages accept text.
 
 ```bash
-mika task run --goal "Check the list and export the result" --attach list.csv --attach photo.png --json
-mika task status TASK_ID --json
-mika task download TASK_ID FILE_ID --output checked.csv
+nuoyi task run --goal "Check the list and export the result" --attach list.csv --attach photo.png --json
+nuoyi task status TASK_ID --json
+nuoyi task download TASK_ID FILE_ID --output checked.csv
 ```
 
 Use the file ID, name, size and export digest in the task’s `files` field. The CLI stages the download in the destination directory and creates the requested file only after verification. An existing file is preserved. On macOS and Linux volumes without hard links, such as exFAT, it copies the verified file into an exclusively created destination. Check that file if the final local write is interrupted. Files can be downloaded while the phone retains the remote task ID. The original export remains in the phone’s Downloads after the task receipt expires. If a submission with attachments loses its receipt, look up the original request ID. The desk retries with the same upload IDs in their original order. Running the CLI again with local paths creates new upload IDs. If the original request was accepted, the phone returns 409 and you can retrieve the task by its original request ID.
@@ -108,11 +108,11 @@ Use the file ID, name, size and export digest in the task’s `files` field. The
 ## Browser task desk
 
 ```bash
-mika ui                      # open the task desk in a local browser
-mika ui --device SERIAL --no-open
+nuoyi ui                      # open the task desk in a local browser
+nuoyi ui --device SERIAL --no-open
 ```
 
-`mika ui` serves a page for this computer only on a random `127.0.0.1` port. It uses the same task commands to start tasks, follow progress, answer questions, add instructions and cancel, and shows Simplified Chinese or English depending on the browser's language. The part of the link after `#` is the session secret for this run; browsers do not send it anywhere. The server also checks Host and Origin and accepts only a fixed set of actions. It is an interactive page for people and does not support `--json`. See [Use Nuoyi from a computer](computer.en.md#task-desk-mika-ui).
+`nuoyi ui` serves a page for this computer only on a random `127.0.0.1` port. It uses the same task commands to start tasks, follow progress, answer questions, add instructions and cancel, and shows Simplified Chinese or English depending on the browser's language. The part of the link after `#` is the session secret for this run; browsers do not send it anywhere. The server also checks Host and Origin and accepts only a fixed set of actions. It is an interactive page for people and does not support `--json`. See [Use Nuoyi from a computer](computer.en.md#task-desk-nuoyi-ui).
 
 ## HTTP contract
 
@@ -153,7 +153,7 @@ Only `offset` and `limit` query parameters are accepted. Pages default to 20 ite
 
 ```bash
 ./gradlew :core:test :core:cliTest :app:testDebugUnitTest :app:assembleDebug
-# Python tests alone; use -PmikaPython=/path/to/python3 to select an interpreter
+# Python tests alone; use -PnuoyiPython=/path/to/python3 to select an interpreter
 python3 -m unittest discover -s tools/mika/tests -v
 ```
 

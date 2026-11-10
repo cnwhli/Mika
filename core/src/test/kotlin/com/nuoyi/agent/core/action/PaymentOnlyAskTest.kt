@@ -245,17 +245,17 @@ class PaymentOnlyAskTest {
         assertEquals(listOf(null, "timed_out"), sink.all.filterIsInstance<RunEvent.Confirmation>().map { it.decision })
     }
 
-    @Test fun mikaNeverOperatesItself() = runTest {
+    @Test fun nuoyiNeverOperatesItself() = runTest {
         // 屏上是 Nuoyi 自己:不点
-        val s = Chat(app = "com.mika")
+        val s = Chat(app = "com.nuoyi")
         val m = FakeModel(OBSERVE, tap("@e6"), GIVE_UP)
-        loop(m, s, self = "com.mika").run("t")
+        loop(m, s, self = "com.nuoyi").run("t")
         assertTrue(s.taps.isEmpty())
         assertEquals("own_app", m.result(2).s("error"))
         // 从别的 App 打开 Nuoyi、打开它的应用详情:不做
         s.app = "com.chat"
-        val m2 = FakeModel(OBSERVE, tools(call("phone_launch_app", """{"package":"com.mika"}""")), tools(call("phone_open_link", """{"uri":"package:com.mika"}""")), GIVE_UP)
-        loop(m2, s, self = "com.mika").run("t")
+        val m2 = FakeModel(OBSERVE, tools(call("phone_launch_app", """{"package":"com.nuoyi"}""")), tools(call("phone_open_link", """{"uri":"package:com.nuoyi"}""")), GIVE_UP)
+        loop(m2, s, self = "com.nuoyi").run("t")
         assertTrue(s.opened.isEmpty())
         assertEquals("own_app", m2.result(2).s("error"))
         assertEquals("own_app", m2.result(3).s("error"))

@@ -57,8 +57,8 @@
     <string name="browser_home">Página inicial</string>
     <string name="share">Compartilhar</string>
     <string name="more">Mais</string>
-    <string name="browser_login_for_mika">Entrar para o Nuoyi</string>
-    <string name="browser_login_for_mika_sub">" · abre a versão %1$s que o Nuoyi usa nas tarefas; depois que você entrar, o Nuoyi também poderá usá-la"</string>
+    <string name="browser_login_for_nuoyi">Entrar para o Nuoyi</string>
+    <string name="browser_login_for_nuoyi_sub">" · abre a versão %1$s que o Nuoyi usa nas tarefas; depois que você entrar, o Nuoyi também poderá usá-la"</string>
     <string name="browser_mobile">Celular</string>
     <string name="browser_copy_link">Copiar link</string>
     <string name="browser_open_outside">Abrir em outro navegador</string>

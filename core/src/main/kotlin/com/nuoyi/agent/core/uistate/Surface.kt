@@ -18,7 +18,7 @@ class ScreenFamily(
     val keysHint: String? = null,
     /** 经验路线记它的动作、回放它们。 */
     val routable: Boolean = false,
-    /** 这一套里结果是文字的工具,沙箱里的 `mika phone` 能调。 */
+    /** 这一套里结果是文字的工具,沙箱里的 `nuoyi phone` 能调。 */
     val sandboxCallable: Boolean = false,
     /** 这些动词的说明用本屏自己的一份(prompts/tools/<id>_<动词>.md),其余用共用的模板。 */
     val ownPrompts: Set<String> = emptySet(),

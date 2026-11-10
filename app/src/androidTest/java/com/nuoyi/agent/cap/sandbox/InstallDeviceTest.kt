@@ -15,7 +15,7 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** 真安装(解自带的运行环境,不联网);装好后在沙箱里跑 Python、Node 与 `mika`。 */
+/** 真安装(解自带的运行环境,不联网);装好后在沙箱里跑 Python、Node 与 `nuoyi`。 */
 @RunWith(AndroidJUnit4::class)
 class InstallDeviceTest {
     private val sb = AndroidSandbox(context, SandboxState.get(context))
@@ -28,7 +28,7 @@ class InstallDeviceTest {
         assertEquals(SandboxStatus.Ready(network = false), SandboxState.get(context).status.value)
         sh("python3 -c 'print(1+1)'").let { assertEquals(it.output, 0, it.exitCode); assertEquals("2", it.output.trim()) }
         sh("node -e 'console.log(2+2)'").let { assertEquals(it.output, 0, it.exitCode); assertEquals("4", it.output.trim()) }
-        sh("mika info").let { r ->
+        sh("nuoyi info").let { r ->
             assertEquals(r.output, 0, r.exitCode)
             Json.parseToJsonElement(r.output.trim()).jsonObject // 是 JSON 对象
         }

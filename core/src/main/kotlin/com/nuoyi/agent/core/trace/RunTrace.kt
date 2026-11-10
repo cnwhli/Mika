@@ -123,8 +123,8 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
     private val tickStart = System.nanoTime()
     private fun nowNanos() = wallStart + (System.nanoTime() - tickStart)
     private val root = LocalSpan(LocalSpan.randomId(16), "invoke_agent Nuoyi", start = nowNanos())
-        .setAttribute("gen_ai.operation.name", "invoke_agent").setAttribute("mika.status", "partial")
-        .setAttribute("mika.trace.format_version", 2L)
+        .setAttribute("gen_ai.operation.name", "invoke_agent").setAttribute("nuoyi.status", "partial")
+        .setAttribute("nuoyi.trace.format_version", 2L)
     private val pending = mutableSetOf<LocalSpan>()
     private val toolSpans = mutableMapOf<Pair<Int, String>, LocalSpan>()
     private val previous = IdentityHashMap<ChatModel, List<Pair<String, String>>>()
@@ -179,10 +179,10 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
         val index = (attempts[call.step] ?: 0) + 1
         attempts[call.step] = index
         span.setAttribute("gen_ai.operation.name", "chat").setAttribute("gen_ai.request.model", TracePayload.label(call.model.name))
-            .setAttribute("mika.attempt", index).setAttribute("mika.request.captured", true)
+            .setAttribute("nuoyi.attempt", index).setAttribute("nuoyi.request.captured", true)
         span.setAttribute("gen_ai.provider.name", provider)
         val change = listOfNotNull("tools_opened".takeIf { toolsOpened }, call.takeChange()).joinToString(",")
-        if (change.isNotEmpty()) span.setAttribute("mika.context.change", change)
+        if (change.isNotEmpty()) span.setAttribute("nuoyi.context.change", change)
         toolsOpened = false
         val signatures = blocks.map { it.path to it.digest }
         val last = previous.put(call.model, signatures)
@@ -197,14 +197,14 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
                 "removed " + last[prefix].first
             else -> blocks[prefix].path
         }
-        span.setAttribute("mika.context.first_changed_block", diff)
+        span.setAttribute("nuoyi.context.first_changed_block", diff)
         val parts = ArrayList<BodyPart>()
         for (b in blocks) {
             val content = b.text.toByteArray()
             val key = content.toByteString().sha256().hex()
             val extra = if (archive.hasBlock(key)) 0 else content.size
             if (bytes + extra + (parts.size + 1) * 192 > byteLimit) {
-                span.setAttribute("mika.status", "truncated")
+                span.setAttribute("nuoyi.status", "truncated")
                 parts.add(BodyPart(b.path, null, true, "run_body_limit"))
                 bytes += archive.writeBody(span.id, parts)
                 checkpoint(span)
@@ -239,13 +239,13 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
                 val reason = if (fits) reply.truncation else "run_body_limit"
                 if (reason != null) {
                     truncated = true
-                    span.setAttribute("mika.trace.reply_truncation", reason)
+                    span.setAttribute("nuoyi.trace.reply_truncation", reason)
                 }
                 val saved = if (fits) data else "[truncated]".toByteArray()
                 archive.writeReply(span.id, saved)
                 bytes += saved.size
             }
-            span.setAttribute("mika.status", status)
+            span.setAttribute("nuoyi.status", status)
             if (status == "error") span.error()
             pending.remove(span)
             seal(span)
@@ -275,10 +275,10 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
                 is RunEvent.ToolResult -> if (e.source == "model") {
                     val span = e.callId?.let { toolSpans.remove(e.step to it) }
                         ?: tool(e.step, e.tool, e.callId, e.atMs - e.durationMs)
-                    span.setAttribute("mika.tool.duration_ms", e.durationMs)
+                    span.setAttribute("nuoyi.tool.duration_ms", e.durationMs)
                     val failed = runCatching { Json.parseToJsonElement(e.resultJson).jsonObject["ok"]?.jsonPrimitive?.booleanOrNull == false }
                         .getOrDefault(false) || Regex("""^\{\s*"ok"\s*:\s*false\b""").containsMatchIn(e.resultJson)
-                    span.setAttribute("mika.status", if (failed) "error" else "ok")
+                    span.setAttribute("nuoyi.status", if (failed) "error" else "ok")
                     if (failed) span.error()
                     seal(span, TimeUnit.MILLISECONDS.toNanos(e.atMs))
                     pending.remove(span)
@@ -294,8 +294,8 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
         if (count >= 1024) throw SpanLimitReached()
         count++
         return LocalSpan(root.traceId, name, root, kind, step.toLong(), TimeUnit.MILLISECONDS.toNanos(start))
-            .setAttribute("mika.step.index", step.toLong()).setAttribute("mika.sequence", count.toLong())
-            .setAttribute("mika.status", "partial")
+            .setAttribute("nuoyi.step.index", step.toLong()).setAttribute("nuoyi.sequence", count.toLong())
+            .setAttribute("nuoyi.status", "partial")
             .also { pending.add(it) }
     }
 
@@ -317,11 +317,11 @@ class RunTrace internal constructor(internal val archive: TraceArchive, private 
             else -> null
         }
         val state = if (stop != null || truncated) "partial" else outcome!!
-        stop?.let { root.setAttribute("mika.trace.stop_reason", it) }
-        (step ?: failedWriteStep)?.let { root.setAttribute("mika.trace.stopped_step", it) }
-        (block ?: (failure as? TraceDiskFull)?.block)?.let { root.setAttribute("mika.trace.stopped_block", it) }
-        outcome?.let { root.setAttribute("mika.run.outcome", it) }
-        root.setAttribute("mika.status", state)
+        stop?.let { root.setAttribute("nuoyi.trace.stop_reason", it) }
+        (step ?: failedWriteStep)?.let { root.setAttribute("nuoyi.trace.stopped_step", it) }
+        (block ?: (failure as? TraceDiskFull)?.block)?.let { root.setAttribute("nuoyi.trace.stopped_block", it) }
+        outcome?.let { root.setAttribute("nuoyi.run.outcome", it) }
+        root.setAttribute("nuoyi.status", state)
         if (state == "failed" || state == "error") root.error()
         seal(root)
     }

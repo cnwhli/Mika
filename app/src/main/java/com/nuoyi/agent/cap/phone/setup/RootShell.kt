@@ -47,7 +47,7 @@ object RootShell {
 
     /** 在单独的线程上做阻塞的读(不占公共线程池)。 */
     fun <T> onThread(block: () -> T): CompletableFuture<T> = CompletableFuture<T>().also { f ->
-        Thread({ runCatching(block).fold({ f.complete(it) }, { f.completeExceptionally(it) }) }, "mika-su").apply { isDaemon = true }.start()
+        Thread({ runCatching(block).fold({ f.complete(it) }, { f.completeExceptionally(it) }) }, "nuoyi-su").apply { isDaemon = true }.start()
     }
 
     /** 在另一条线程上把 [stream] 读完(最多 [max] 字节,多的丢掉)。 */

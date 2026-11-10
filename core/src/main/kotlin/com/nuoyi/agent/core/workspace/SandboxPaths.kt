@@ -6,7 +6,7 @@ import java.nio.file.Files
 /** 模型只看到沙箱里的路径;这里规范化并判断越界。 */
 object SandboxPaths {
     const val WORKSPACE = "/workspace"
-    const val SKILLS = "/opt/mika/skills"
+    const val SKILLS = "/opt/nuoyi/skills"
 
     /** 单个文件名:不含路径分隔符、控制字符、格式字符(改写方向、零宽等,能让显示的名字和实际的对不上)与行/段分隔符。 */
     fun plainName(n: String): Boolean =

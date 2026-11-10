@@ -154,7 +154,7 @@ class RootfsExtractorTest {
 
     @Test fun absoluteEntryRejected() {
         val d = dest()
-        assertUnsafe(tarGz(Reg("/tmp/mika-evil-${System.nanoTime()}", "x")), d)
+        assertUnsafe(tarGz(Reg("/tmp/nuoyi-evil-${System.nanoTime()}", "x")), d)
     }
 
     @Test fun hardlinkOutsideRejected() {

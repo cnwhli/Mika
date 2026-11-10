@@ -10,14 +10,14 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 
 /**
- * 页面脚本(web_script)里 `mika.*` 的调用交给 Nuoyi 的入口。端口只管传话:
+ * 页面脚本(web_script)里 `nuoyi.*` 的调用交给 Nuoyi 的入口。端口只管传话:
  * 每个调用原样交给 [call],返回值(`{ok, value}` 或 `{ok:false, error, message}`)原样交回脚本。
  * 读页面的调用(query、queryAll、text)返回 `{ok:true, read:{…}}`:参数已校验、已计数,由端口在读取世界里照它读。
  */
 interface ScriptBridge {
     /** 抛 [ScriptAbort] 结束整个脚本(超上限、要确认、被守卫叫停、页面交给了用户)。 */
     suspend fun call(op: String, args: JsonObject): JsonObject
-    /** `mika.log`:不等回复。 */
+    /** `nuoyi.log`:不等回复。 */
     fun log(text: String)
 }
 
@@ -32,25 +32,25 @@ sealed interface ScriptRun {
     data class Failed(val error: String, val message: String, val line: Int? = null) : ScriptRun
 }
 
-/** 页面脚本里一次 `mika.*` 调用。[id] 为 0 表示不等回复(log)。 */
+/** 页面脚本里一次 `nuoyi.*` 调用。[id] 为 0 表示不等回复(log)。 */
 data class ScriptCall(val id: Int, val op: String, val args: JsonObject)
 
 /**
  * 页面脚本的做法:模型代码拿不到任何页面对象(按构造,不靠禁用清单)。
  * - 脚本世界:一个新的隔离世界,前置脚本只做两件事——用事先存下的 AsyncFunction 编译模型代码,把这个世界全局对象上
  *   (含原型链)所有名字都当成参数遮住、传 undefined,只放行 [ALLOWED_GLOBALS](纯 ECMAScript 内置,碰不到 DOM);
- *   再把能把字符串当代码跑、能拿到全局对象的路(Function 构造器家族、eval、调用栈 API)封掉。模型代码能用的只有 `mika`,
- *   `mika` 的每个调用都是发给 Nuoyi 的 JSON 消息,回来的也只是 JSON。
+ *   再把能把字符串当代码跑、能拿到全局对象的路(Function 构造器家族、eval、调用栈 API)封掉。模型代码能用的只有 `nuoyi`,
+ *   `nuoyi` 的每个调用都是发给 Nuoyi 的 JSON 消息,回来的也只是 JSON。
  * - 读取世界:另一个隔离世界,只装固定的 [READER](Nuoyi 自己写的),按校验过的参数读 DOM、返回纯数据(密码一类的值打码);
  *   模型代码和它不在一个世界,拿不到它手里的任何对象。
  */
 object PageScriptProtocol {
-    const val SOURCE_URL = "mika-script.js"
-    const val PRELUDE_URL = "mika-prelude.js"
-    /** 单次 mika.wait 的上限(毫秒)。 */
+    const val SOURCE_URL = "nuoyi-script.js"
+    const val PRELUDE_URL = "nuoyi-prelude.js"
+    /** 单次 nuoyi.wait 的上限(毫秒)。 */
     const val MAX_WAIT_MS = 10_000
-    const val WORLD_PREFIX = "mika-script-"
-    const val READER_WORLD_PREFIX = "mika-reader-"
+    const val WORLD_PREFIX = "nuoyi-script-"
+    const val READER_WORLD_PREFIX = "nuoyi-reader-"
     /** 脚本读到密码一类输入框的值时得到的东西(和运行记录的打码一致)。 */
     const val SECRET_MASK = "***"
 
@@ -76,7 +76,7 @@ object PageScriptProtocol {
         "eval", "arguments", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "enum",
         "export", "extends", "false", "finally", "for", "function", "if", "import", "in", "instanceof", "new", "null", "return", "super",
         "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with", "yield", "let", "static", "implements",
-        "interface", "package", "private", "protected", "public", "await", "async", "mika",
+        "interface", "package", "private", "protected", "public", "await", "async", "nuoyi",
     )
 
     /** 模型代码的第 1 行前面,编译后的源码还有几行(`(async function anonymous(…`、`) {`、`'use strict';`、`return (async () => {`)。 */
@@ -87,19 +87,19 @@ object PageScriptProtocol {
     private fun js(v: List<String>): String = v.joinToString(",", "[", "]") { JsonPrimitive(it).toString() }
 
     /**
-     * 装进脚本世界的前置脚本:存下要用的原件,封掉把字符串当代码跑的路,算出要遮住的名字,定义 `__mikaRun`。
-     * 每个 mika 调用带编号放进发件箱,Kotlin 一直挂着一个 [TAKE](等到下一条就交回),结果用 `__mikaSettle(id, r)` 回传;
-     * `__mikaEnd()` 让之后的调用都失败,挂着的 [TAKE] 交回 null。不用 DevTools 的绑定:绑定要打开 Runtime,开着它页面察觉得到调试器。
+     * 装进脚本世界的前置脚本:存下要用的原件,封掉把字符串当代码跑的路,算出要遮住的名字,定义 `__nuoyiRun`。
+     * 每个 nuoyi 调用带编号放进发件箱,Kotlin 一直挂着一个 [TAKE](等到下一条就交回),结果用 `__nuoyiSettle(id, r)` 回传;
+     * `__nuoyiEnd()` 让之后的调用都失败,挂着的 [TAKE] 交回 null。不用 DevTools 的绑定:绑定要打开 Runtime,开着它页面察觉得到调试器。
      */
     val PRELUDE: String = """
 (() => {
   'use strict';
   const G = globalThis, O = Object;
-  if (O.prototype.hasOwnProperty.call(G, '__mikaRun')) return;
+  if (O.prototype.hasOwnProperty.call(G, '__nuoyiRun')) return;
   const AsyncFunction = O.getPrototypeOf(async function () {}).constructor;
   const stringify = JSON.stringify, apply = Reflect.apply, timer = G.setTimeout, freeze = O.freeze;
   const fixed = (o, k, v) => { try { O.defineProperty(o, k, { value: v, writable: false, enumerable: false, configurable: false }); } catch (e) {} };
-  const unavailable = function () { throw new TypeError('not available in web_script: the script has no access to the page; use mika.*'); };
+  const unavailable = function () { throw new TypeError('not available in web_script: the script has no access to the page; use nuoyi.*'); };
   // 把字符串当代码跑(会在全局作用域里跑,拿得到全局对象)、调用栈 API(拿得到函数和 this)
   for (const f of [function () {}, async function () {}, function* () {}, async function* () {}]) fixed(O.getPrototypeOf(f), 'constructor', unavailable);
   fixed(G, 'eval', unavailable);
@@ -108,10 +108,10 @@ object PageScriptProtocol {
 
   const pending = new Map();
   let seq = 0, ended = false;
-  // 发件箱:Kotlin 挂着的 __mikaTake 等在 takers 里,来一条交一条
+  // 发件箱:Kotlin 挂着的 __nuoyiTake 等在 takers 里,来一条交一条
   const outbox = [], takers = [];
   const post = (s) => { const t = takers.shift(); if (t) t(s); else outbox.push(s); };
-  fixed(G, '__mikaTake', () => new Promise((r) => {
+  fixed(G, '__nuoyiTake', () => new Promise((r) => {
     if (outbox.length) r(outbox.shift()); else if (ended) r(null); else takers.push(r);
   }));
   const call = (op, args) => new Promise((resolve, reject) => {
@@ -120,7 +120,7 @@ object PageScriptProtocol {
     pending.set(id, { resolve, reject });
     post(stringify({ id, op, args: args || {} }));
   });
-  fixed(G, '__mikaSettle', (id, r) => {
+  fixed(G, '__nuoyiSettle', (id, r) => {
     const p = pending.get(id);
     if (!p) return;
     pending.delete(id);
@@ -129,7 +129,7 @@ object PageScriptProtocol {
     e.code = r && r.error;
     p.reject(e);
   });
-  fixed(G, '__mikaEnd', () => {
+  fixed(G, '__nuoyiEnd', () => {
     ended = true;
     for (const p of pending.values()) p.reject(new Error('script_ended'));
     pending.clear();
@@ -138,7 +138,7 @@ object PageScriptProtocol {
   const sleep = (ms) => new Promise((r) => timer(r, ms));
   const refOf = (r) => (r && typeof r === 'object') ? r.ref : r;
   const str = (x) => { if (typeof x === 'string') return x; try { return stringify(x); } catch (e) { return String(x); } };
-  const mika = freeze({
+  const nuoyi = freeze({
     snapshot: () => call('snapshot'),
     read: (opts) => call('read', opts || {}),
     query: (selector, opts) => call('query', { selector, ...(opts || {}) }),
@@ -150,7 +150,7 @@ object PageScriptProtocol {
     navigate: (url) => call('navigate', { url }),
     wait: async (w) => {
       if (typeof w === 'number') { await sleep(Math.max(0, Math.min(w, $MAX_WAIT_MS))); return true; }
-      if (!w || typeof w.text !== 'string' || !w.text) throw new Error('invalid_arguments: mika.wait takes milliseconds or {text, timeoutMs}');
+      if (!w || typeof w.text !== 'string' || !w.text) throw new Error('invalid_arguments: nuoyi.wait takes milliseconds or {text, timeoutMs}');
       return call('waitText', { text: w.text, timeoutMs: w.timeoutMs });
     },
     log: (...xs) => { if (!ended) post(stringify({ id: 0, op: 'log', args: { text: xs.map(str).join(' ') } })); },
@@ -163,20 +163,20 @@ object PageScriptProtocol {
   for (let o = G; o; o = O.getPrototypeOf(o)) for (const k of O.getOwnPropertyNames(o)) {
     if (/^[A-Za-z_$][\w$]*$/.test(k) && !ALLOWED.has(k) && !RESERVED.has(k)) names.add(k);
   }
-  names.add('__mikaRun');
+  names.add('__nuoyiRun');
   const shadow = [...names];
   const blanks = shadow.map(() => undefined);
-  fixed(G, '__mikaRun', (code) => {
+  fixed(G, '__nuoyiRun', (code) => {
     // 模型代码放在里层的箭头函数里:它声明的名字(哪怕和遮住的同名)在自己的作用域里,不和参数冲突
-    const fn = new AsyncFunction(...shadow, 'mika', "'use strict';\nreturn (async () => {\n" + code + '\n})();\n//# sourceURL=$SOURCE_URL');
-    return apply(fn, undefined, [...blanks, mika]).then((r) => (r === undefined ? null : stringify(r)));
+    const fn = new AsyncFunction(...shadow, 'nuoyi', "'use strict';\nreturn (async () => {\n" + code + '\n})();\n//# sourceURL=$SOURCE_URL');
+    return apply(fn, undefined, [...blanks, nuoyi]).then((r) => (r === undefined ? null : stringify(r)));
   });
 })();
 //# sourceURL=$PRELUDE_URL
 """.trimStart()
 
     /** 跑模型代码的表达式(在脚本世界里求值,等 Promise)。 */
-    fun run(code: String): String = "globalThis.__mikaRun(${JsonPrimitive(code)})"
+    fun run(code: String): String = "globalThis.__nuoyiRun(${JsonPrimitive(code)})"
 
     /**
      * 模型代码里不许有 import(按词法查,字符串、注释、正则之外出现就拦):动态 import 在全局作用域里跑模块,拿得到全局对象。
@@ -193,7 +193,7 @@ object PageScriptProtocol {
     val READER: String = """
 (() => {
   'use strict';
-  if (Object.prototype.hasOwnProperty.call(globalThis, '__mikaRead')) return;
+  if (Object.prototype.hasOwnProperty.call(globalThis, '__nuoyiRead')) return;
   const MASK = '$SECRET_MASK';
   const SECRET_AC = new Set(${js(SECRET_AUTOCOMPLETE)});
   const SECRET_TYPES = new Set(${js(SECRET_INPUT_TYPES)});
@@ -229,7 +229,7 @@ object PageScriptProtocol {
     }
     return o;
   };
-  Object.defineProperty(globalThis, '__mikaRead', { value: (q) => {
+  Object.defineProperty(globalThis, '__nuoyiRead', { value: (q) => {
     if (q.mode === 'has') return { ok: true, value: String(document.body ? document.body.innerText : '').includes(q.selector) };
     let list;
     try { list = document.querySelectorAll(q.selector); } catch (e) { return { ok: false, error: 'invalid_selector', message: String(e.message) }; }
@@ -247,7 +247,7 @@ object PageScriptProtocol {
 """.trimStart()
 
     /** 在读取世界里照 [spec] 读的表达式。 */
-    fun read(spec: JsonObject): String = "globalThis.__mikaRead($spec)"
+    fun read(spec: JsonObject): String = "globalThis.__nuoyiRead($spec)"
 
     /**
      * 兜底:脚本还是发出了请求时,`Network.requestWillBeSent` 的发起调用栈里会有模型脚本或前置脚本。
@@ -264,14 +264,14 @@ object PageScriptProtocol {
         return false
     }
 
-    /** 兜底:脚本跑着、又没有 mika 动作在做时,主框架要跳转——不是 mika 动作带来的,一律拦下。 */
+    /** 兜底:脚本跑着、又没有 nuoyi 动作在做时,主框架要跳转——不是 nuoyi 动作带来的,一律拦下。 */
     fun navigationOutsideAction(params: JsonObject, mainFrameId: String, inAction: Boolean): Boolean =
         !inAction && (params["frameId"] as? JsonPrimitive)?.contentOrNull == mainFrameId
 
     private val SCRIPT_URLS = setOf(SOURCE_URL, PRELUDE_URL)
 
     /** 取发件箱里下一条消息的表达式(在脚本世界里求值,等 Promise;收尾后交回 null)。 */
-    const val TAKE = "globalThis.__mikaTake()"
+    const val TAKE = "globalThis.__nuoyiTake()"
 
     /** 发件箱里的一条消息;不是合法的调用为 null。 */
     fun parseCall(payload: String): ScriptCall? {
@@ -283,9 +283,9 @@ object PageScriptProtocol {
     }
 
     /** 回传第 [id] 个调用的结果。结果是 JSON 对象字面量,直接嵌进表达式。 */
-    fun settle(id: Int, result: JsonObject): String = "globalThis.__mikaSettle && globalThis.__mikaSettle($id, $result)"
+    fun settle(id: Int, result: JsonObject): String = "globalThis.__nuoyiSettle && globalThis.__nuoyiSettle($id, $result)"
 
-    const val END = "globalThis.__mikaEnd && globalThis.__mikaEnd()"
+    const val END = "globalThis.__nuoyiEnd && globalThis.__nuoyiEnd()"
 
     private val STACK_LINE = Regex(Regex.escape(SOURCE_URL) + ":(\\d+):\\d+")
 

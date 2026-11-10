@@ -45,7 +45,7 @@ class UploadStagingTest {
         assertEquals("file_not_found", refused("/workspace/link.txt"))
         assertEquals("linked_file", refused("/workspace/hard.txt"))
         assertEquals("path_outside_workspace", refused("/workspace/../etc/passwd"))
-        assertEquals("path_outside_workspace", refused("/opt/mika/skills/x"))
+        assertEquals("path_outside_workspace", refused("/opt/nuoyi/skills/x"))
         assertEquals("file_not_found", refused("/workspace/none.txt"))
         assertEquals("file_too_large", refused("/workspace/big.bin"))
         assertEquals("file_too_large", refused("/workspace/a.bin", "/workspace/b.bin"))

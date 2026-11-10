@@ -20,7 +20,7 @@ const val SCRIPT_DEFAULT_TIMEOUT_MS = 30_000
 const val SCRIPT_MAX_TIMEOUT_MS = 60_000
 /** 一次脚本里最多几个动作(点、输入、打开网址)。 */
 const val SCRIPT_MAX_ACTIONS = 20
-/** 一次脚本里最多几次 mika.navigate;整页跳走本来就会结束脚本,这条只管同页内跳转后继续的情况。 */
+/** 一次脚本里最多几次 nuoyi.navigate;整页跳走本来就会结束脚本,这条只管同页内跳转后继续的情况。 */
 const val SCRIPT_MAX_NAVIGATIONS = 3
 /** 一次脚本里最多几次读(snapshot、read):每次都进运行记录。 */
 const val SCRIPT_MAX_READS = 40
@@ -42,7 +42,7 @@ private const val WAIT_DEFAULT_MS = 5_000
 private val FATAL = setOf("confirmation_required", "guard_stopped", "handed_over", "tab_crashed", "no_tab_open")
 
 /**
- * 一次 web_script 的 `mika.*` 调用:校验参数、计上限、翻译成工具调用交给 [sub](子步编号 `<callId>.<n>`),
+ * 一次 web_script 的 `nuoyi.*` 调用:校验参数、计上限、翻译成工具调用交给 [sub](子步编号 `<callId>.<n>`),
  * 把结果整理成脚本拿到的值;记下每一步的结局,最后整理成工具结果。
  */
 internal class ScriptCalls(private val callId: String, private val sub: SubActions?, private val tools: ToolIndex) : ScriptBridge {
@@ -69,7 +69,7 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
         if (op in PAGE_READS) return pageRead(op, args)
         val (tool, toolArgs) = when (op) {
             "waitText" -> {
-                val text = str(args, "text") ?: return bad("mika.wait needs {text}")
+                val text = str(args, "text") ?: return bad("nuoyi.wait needs {text}")
                 val ms = int(args, "timeoutMs", 0, PageScriptProtocol.MAX_WAIT_MS) ?: return bad("timeoutMs must be 0-${PageScriptProtocol.MAX_WAIT_MS}")
                 tool(Verb.WaitFor) to buildJsonObject {
                     put("condition", "text_present"); put("value", text)
@@ -77,7 +77,7 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
                 }
             }
             "scroll" -> {
-                val dir = str(args, "direction")?.takeIf { it in setOf("up", "down", "left", "right") } ?: return bad("mika.scroll takes 'up', 'down', 'left' or 'right'")
+                val dir = str(args, "direction")?.takeIf { it in setOf("up", "down", "left", "right") } ?: return bad("nuoyi.scroll takes 'up', 'down', 'left' or 'right'")
                 val amount = int(args, "amount", 1, 20) ?: return bad("amount must be 1-20")
                 tool(Verb.Scroll) to buildJsonObject { put("direction", dir); if (amount > 0) put("amount", amount) }
             }
@@ -88,11 +88,11 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
                 tool(Verb.ReadPage) to buildJsonObject { put("maxChars", max.takeIf { it > 0 } ?: READ_DEFAULT_CHARS); put("offset", offset) }
             }
             "tap", "type" -> {
-                val ref = str(args, "ref") ?: return bad("mika.$op needs an element ref from mika.snapshot(), e.g. \"@e3\"")
-                val sid = snapshotId ?: return fail("no_snapshot", "call mika.snapshot() first; tap and type use refs from the latest snapshot in this script")
+                val ref = str(args, "ref") ?: return bad("nuoyi.$op needs an element ref from nuoyi.snapshot(), e.g. \"@e3\"")
+                val sid = snapshotId ?: return fail("no_snapshot", "call nuoyi.snapshot() first; tap and type use refs from the latest snapshot in this script")
                 if (op == "tap") tool(Verb.Tap) to buildJsonObject { put("ref", ref); put("snapshotId", sid) }
                 else {
-                    val text = str(args, "text") ?: return bad("mika.type needs the text to type")
+                    val text = str(args, "text") ?: return bad("nuoyi.type needs the text to type")
                     tool(Verb.TypeText) to buildJsonObject {
                         put("ref", ref); put("snapshotId", sid); put("text", text)
                         if (args["enter"] == JsonPrimitive(true)) put("pressEnter", true)
@@ -100,10 +100,10 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
                 }
             }
             "navigate" -> {
-                val url = str(args, "url") ?: return bad("mika.navigate needs a full http(s) url")
+                val url = str(args, "url") ?: return bad("nuoyi.navigate needs a full http(s) url")
                 tool(Verb.Navigate) to buildJsonObject { put("url", url) }
             }
-            else -> return fail("unknown_call", "mika.$op does not exist")
+            else -> return fail("unknown_call", "nuoyi.$op does not exist")
         }
         val write = op == "tap" || op == "type" || op == "navigate" || op == "scroll"
         if (write && actions >= SCRIPT_MAX_ACTIONS) stop("limit_exceeded", "the script reached its limit of $SCRIPT_MAX_ACTIONS actions")
@@ -129,7 +129,7 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
             val message = (c["message"] as? JsonPrimitive)?.contentOrNull ?: error ?: "failed"
             if (error in FATAL) {
                 abortExtra = buildJsonObject { c["action"]?.let { put("action", it) }; c["matched"]?.let { put("matched", it) } }
-                stop(error!!, "mika.$op (action ${steps.size}) stopped the script: $message")
+                stop(error!!, "nuoyi.$op (action ${steps.size}) stopped the script: $message")
             }
             return fail(error ?: "failed", message)
         }
@@ -162,11 +162,11 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
     }
 
     /**
-     * mika.query / queryAll / text:校验、计数,交回 `{ok, read:{mode, selector, fields, limit, maxChars}}`,由端口在读取世界里读。
+     * nuoyi.query / queryAll / text:校验、计数,交回 `{ok, read:{mode, selector, fields, limit, maxChars}}`,由端口在读取世界里读。
      * 按 value 属性选元素不行(能一位一位猜出隐藏字段的值),转义、注释、命名空间的写法也认([SelectorPolicy])。
      */
     private fun pageRead(op: String, args: JsonObject): JsonObject {
-        val selector = str(args, "selector")?.takeIf { it.length <= SELECTOR_MAX_CHARS } ?: return bad("mika.$op needs a CSS selector (at most $SELECTOR_MAX_CHARS characters)")
+        val selector = str(args, "selector")?.takeIf { it.length <= SELECTOR_MAX_CHARS } ?: return bad("nuoyi.$op needs a CSS selector (at most $SELECTOR_MAX_CHARS characters)")
         if (SelectorPolicy.selectsByValue(selector)) return fail("invalid_selector", "selecting by the value attribute is not allowed; read values with fields: ['value']")
         val fields = when (val f = args["fields"]) {
             null, is JsonNull -> listOf("text")
@@ -236,8 +236,8 @@ internal class ScriptCalls(private val callId: String, private val sub: SubActio
         "limit_exceeded" -> ". Split the work: return what you have and continue with another script."
         "timeout" -> ". Do less per script, or raise timeoutMs (at most $SCRIPT_MAX_TIMEOUT_MS)."
         "devtools_unavailable" -> ". Do the steps with web_observe, web_tap and web_type_text instead."
-        "script_error" -> ". Fix the script and run it again. The script has no DOM (document, window and the like are undefined): read with mika.query / mika.queryAll / mika.text, act with mika.tap / mika.type / mika.scroll / mika.navigate."
-        "blocked_network", "blocked_navigation" -> ". The script stopped: only mika actions may change the page. Observe before going on."
+        "script_error" -> ". Fix the script and run it again. The script has no DOM (document, window and the like are undefined): read with nuoyi.query / nuoyi.queryAll / nuoyi.text, act with nuoyi.tap / nuoyi.type / nuoyi.scroll / nuoyi.navigate."
+        "blocked_network", "blocked_navigation" -> ". The script stopped: only nuoyi actions may change the page. Observe before going on."
         else -> ""
     }
 

@@ -264,7 +264,7 @@ class ElementProbe(private val session: CdpSession, private val timeoutMs: Long 
         private const val RELEASE_TIMEOUT_MS = 300L
         /** 除主文档外最多读这么多个框架的无障碍树。 */
         const val MAX_FRAMES = 12
-        private const val GROUP = "mika-elements"
+        private const val GROUP = "nuoyi-elements"
         private val POINTER_EVENTS = setOf("click", "mousedown", "mouseup", "pointerdown", "pointerup", "touchstart", "touchend")
 
         /** `Page.getFrameTree` 的 frameTree → 先序的帧列表,主文档在最前。 */

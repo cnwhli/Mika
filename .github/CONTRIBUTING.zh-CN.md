@@ -20,7 +20,7 @@
 
 ### 构建与测试
 
-需要 JDK 17 和 Android SDK（`local.properties` 里的 `sdk.dir`，或环境变量 `ANDROID_HOME`）。CLI 测试另需 Python 3.10+，可用 `-PmikaPython=/path/to/python3` 指定解释器。
+需要 JDK 17 和 Android SDK（`local.properties` 里的 `sdk.dir`，或环境变量 `ANDROID_HOME`）。CLI 测试另需 Python 3.10+，可用 `-PnuoyiPython=/path/to/python3` 指定解释器。
 
 ```bash
 ./gradlew :app:assembleDebug                  # 调试包

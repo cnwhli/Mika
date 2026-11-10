@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * 整份记忆加密成 `memory/memory.bin`(AES-GCM,密钥由调用方给,正式用 `KeystoreKeyCipher("mika-memory")`)。
+ * 整份记忆加密成 `memory/memory.bin`(AES-GCM,密钥由调用方给,正式用 `KeystoreKeyCipher("nuoyi-memory")`)。
  * 写临时文件后原子改名,文件要么是完整密文要么不变。
  * 解不开(密钥丢了)或内容坏了:不覆盖,改名另存,从空开始,[brokenNotice] 给界面提示用。
  */

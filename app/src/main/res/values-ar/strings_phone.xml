@@ -75,7 +75,7 @@
     <string name="fail_revoked">انتهت صلاحية الاقتران</string>
     <string name="fail_revoked_body">ربما ألغى النظام الاقتران بعد فترة طويلة من عدم الاستخدام، أو أُزيل. أجرِ الاقتران مجددًا فحسب. فعّل «Disable adb authorization timeout» في خيارات المطوّر كيلا تنتهي صلاحيته مجددًا.</string>
     <string name="fail_key_unreadable">تعذّرت قراءة مفتاح الاقتران</string>
-    <string name="fail_key_unreadable_body">لم يعد بإمكان Nuoyi قراءة المفتاح الذي استخدمه للاقتران. أجرِ الاقتران مجددًا مرة واحدة؛ سينشئ Nuoyi مفتاحًا جديدًا ويمكن إزالة الإدخال القديم «mika@…» من Paired devices.</string>
+    <string name="fail_key_unreadable_body">لم يعد بإمكان Nuoyi قراءة المفتاح الذي استخدمه للاقتران. أجرِ الاقتران مجددًا مرة واحدة؛ سينشئ Nuoyi مفتاحًا جديدًا ويمكن إزالة الإدخال القديم «nuoyi@…» من Paired devices.</string>
     <string name="fail_helper">تم الاتصال، لكن تعذّر الاستعداد</string>
     <string name="fail_helper_body">عادةً ما تحل إعادة المحاولة المشكلة.</string>
     <string name="fail_unknown">حدث خطأ ما</string>

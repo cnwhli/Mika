@@ -255,7 +255,7 @@ adb shell sh /sdcard/Android/data/com.nuoyi.agent/files/usb-start.sh
 可以先用进程做辅助检查：
 
 ```
-adb shell ps -A -o USER,PID,NAME | grep -i mika
+adb shell ps -A -o USER,PID,NAME | grep -i nuoyi
 ```
 
 通常会看到 `shell ... com.nuoyi.agent:helper`，以及 `u0_aXXX ... com.nuoyi.agent`。进程存在不等于交接已经完成；最后请用户打开 Nuoyi 的设置，看顶上的状态卡片：「手机操作」显示可用（模型也配好时显示「模型已配置 · 手机操作可用」）。如果显示「手机操作还没准备好」，按上面的步骤重做，或者看下面的「常见问题」。
@@ -329,7 +329,7 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
    ```json
    {
      "mcpServers": {
-       "mika": {
+       "nuoyi": {
          "type": "http",
          "url": "http://127.0.0.1:8765/mcp",
          "headers": { "Authorization": "Bearer <令牌>" }

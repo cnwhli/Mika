@@ -70,7 +70,7 @@ class WorkspaceFileGate(private val sys: FdSys) {
         val segs = segments(rel)
         if (segs.isEmpty()) throw outside()
         anchored(root, segs.dropLast(1), create = true) { rootReal, dir ->
-            val tmp = ".mika-new-" + UUID.randomUUID()
+            val tmp = ".nuoyi-new-" + UUID.randomUUID()
             val f = file(dir, tmp, OpenHow.CREATE_NEW)
             try {
                 f.use {
@@ -93,7 +93,7 @@ class WorkspaceFileGate(private val sys: FdSys) {
         if (segs.isEmpty()) throw outside()
         anchored(root, segs.dropLast(1), create = true) { _, dir ->
             if (sys.readlink(dir, segs.last()) == target) return@anchored
-            val tmp = ".mika-link-" + UUID.randomUUID()
+            val tmp = ".nuoyi-link-" + UUID.randomUUID()
             sys.symlink(dir, tmp, target)
             try { sys.rename(dir, tmp, segs.last()) } catch (e: Exception) { runCatching { sys.remove(dir, tmp) }; throw e }
         }

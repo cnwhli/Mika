@@ -253,7 +253,7 @@ class ChatScreenDeviceTest {
     fun fileCardOpens() {
         val ws = SandboxDirs(context).workspace("card-device-test").apply { mkdirs() }
         val f = File(ws, "card.txt").apply { writeText("hello") }
-        val name = "mika-card-${System.currentTimeMillis()}.txt"
+        val name = "nuoyi-card-${System.currentTimeMillis()}.txt"
         val card = runBlocking { com.nuoyi.agent.cap.sandbox.AndroidFdSys.gate.openRead(ws, f.name).use { ShareExporter(context).export(it, name) } }
         val store = ConversationStore(context)
         val id = store.newConversation()

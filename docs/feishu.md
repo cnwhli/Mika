@@ -12,7 +12,7 @@
 
 ```bash
 pipx install ./tools/mika-feishu
-mika-feishu setup
+nuoyi-feishu setup
 ```
 
 手机打开「设置 › 连接电脑 › 网络访问」，复制该连接的令牌。地址填手机私网地址，例如 `http://100.64.1.2:8765`，端口以手机显示为准。USB 专用令牌、模型 API Key、Tailscale Auth Key 都不能代替它。本版通过私网直连，不负责 USB/ADB 启动。
@@ -25,7 +25,7 @@ mika-feishu setup
 2. **关联已有应用**：输入已有 App ID，或留空后在飞书授权页选择应用。核对变更后再授权，只关联自己有权管理的应用。
 3. **手动填写**：输入已有 App ID 和 App Secret，密钥输入不回显；在开发者后台完成以下权限和事件设置。
 
-也可以直接使用 `mika-feishu setup --mode create`、`--mode existing` 或 `--mode manual`。加 `--no-browser` 不自动打开浏览器，仍显示二维码和链接。授权拒绝、过期、返回信息不全时不覆盖原配置。二维码链接是临时授权材料，不要分享。
+也可以直接使用 `nuoyi-feishu setup --mode create`、`--mode existing` 或 `--mode manual`。加 `--no-browser` 不自动打开浏览器，仍显示二维码和链接。授权拒绝、过期、返回信息不全时不覆盖原配置。二维码链接是临时授权材料，不要分享。
 
 扫码使用官方 SDK 的 `register_app` 和最小模板（`preset: false`），只声明以下两个应用身份权限和一个事件：
 
@@ -44,8 +44,8 @@ mika-feishu setup
 ## 检查、绑定与运行
 
 ```bash
-mika-feishu doctor
-mika-feishu run
+nuoyi-feishu doctor
+nuoyi-feishu run
 ```
 
 `doctor` 分别检查手机 API 版本及能力、飞书应用认证和本地绑定。它不派任务、不发消息，不能证明事件订阅或真实任务已经验收，报告会标明未核实部分。
@@ -73,7 +73,7 @@ mika-feishu run
 
 ## 配置和升级
 
-macOS/Linux 配置默认放在 `$XDG_CONFIG_HOME/mika-feishu/config.json` 或 `~/.config/mika-feishu/config.json`，Windows 放在 `%LOCALAPPDATA%\mika-feishu\config.json`。覆盖路径时将 `--config 路径` 放在子命令前。凭据是本机明文：POSIX 文件权限 600、目录 700；Windows 依赖用户目录的私有 NTFS 权限。不要提交或分享配置目录。任务和结果经过飞书传递。
+macOS/Linux 配置默认放在 `$XDG_CONFIG_HOME/nuoyi-feishu/config.json` 或 `~/.config/nuoyi-feishu/config.json`，Windows 放在 `%LOCALAPPDATA%\nuoyi-feishu\config.json`。覆盖路径时将 `--config 路径` 放在子命令前。凭据是本机明文：POSIX 文件权限 600、目录 700；Windows 依赖用户目录的私有 NTFS 权限。不要提交或分享配置目录。任务和结果经过飞书传递。
 
 SQLite 按「应用 + 手机地址」保存账号绑定、消息去重、任务/对话关联，可能包含任务文字。换应用或手机地址后需重新绑定，单独轮换令牌不影响绑定。重新 `setup` 或 `unpair` 前先停止连接器，进程锁会防止同配置多开。
 
@@ -92,4 +92,4 @@ SQLite 按「应用 + 手机地址」保存账号绑定、消息去重、任务/
 | SDK 不支持扫码 | 升级工具/SDK，或选择手动配置。 |
 | 手机重启后旧任务查不到 | 核对手机后 `/reset checked`，不要自动重发。 |
 
-解除本机绑定：先停进程，再运行 `mika-feishu unpair`。手动配置的固定 `allowed_open_ids` 不受影响；这不会撤销飞书应用本身，也不会取消手机任务。
+解除本机绑定：先停进程，再运行 `nuoyi-feishu unpair`。手动配置的固定 `allowed_open_ids` 不受影响；这不会撤销飞书应用本身，也不会取消手机任务。

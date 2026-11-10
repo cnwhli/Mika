@@ -7,7 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HelperRestoreTest {
-    private val mika = PermissionCommands.accessibilityService("com.nuoyi.agent")
+    private val nuoyi = PermissionCommands.accessibilityService("com.nuoyi.agent")
     private val other = "com.example.reader/.ReaderService"
     private val yes = RestoreWish(revive = true, accessibility = true)
 
@@ -125,18 +125,18 @@ class HelperRestoreTest {
     @Test
     fun accessibilityCommandsAppendWithoutDuplicates() {
         assertEquals(
-            listOf("settings put secure enabled_accessibility_services '$other:$mika'", "settings put secure accessibility_enabled 1"),
-            RestoreCommands.accessibility(other, mika),
+            listOf("settings put secure enabled_accessibility_services '$other:$nuoyi'", "settings put secure accessibility_enabled 1"),
+            RestoreCommands.accessibility(other, nuoyi),
         )
         assertEquals(
-            listOf("settings put secure enabled_accessibility_services '$mika'", "settings put secure accessibility_enabled 1"),
-            RestoreCommands.accessibility("null", mika),
+            listOf("settings put secure enabled_accessibility_services '$nuoyi'", "settings put secure accessibility_enabled 1"),
+            RestoreCommands.accessibility("null", nuoyi),
         )
         // 已经在列表里(哪种写法都算):不重写列表,只开总开关
-        assertEquals(listOf(RestoreCommands.ENABLE_ACCESSIBILITY), RestoreCommands.accessibility("$mika:$other", mika))
+        assertEquals(listOf(RestoreCommands.ENABLE_ACCESSIBILITY), RestoreCommands.accessibility("$nuoyi:$other", nuoyi))
         assertEquals(
             listOf(RestoreCommands.ENABLE_ACCESSIBILITY),
-            RestoreCommands.accessibility("com.nuoyi.agent/com.nuoyi.agent.a11y.NuoyiAccessibilityService", mika),
+            RestoreCommands.accessibility("com.nuoyi.agent/com.nuoyi.agent.a11y.NuoyiAccessibilityService", nuoyi),
         )
     }
 

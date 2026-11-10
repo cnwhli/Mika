@@ -151,13 +151,13 @@ class AdbIdentityTest {
 
         val (b64, name) = id.adbPublicKey.split(" ", limit = 2)
         assertArrayEquals(raw, Base64.getDecoder().decode(b64))
-        assertEquals("mika@test", name)
+        assertEquals("nuoyi@test", name)
     }
 
     @Test
     fun adbKeyNameHasNoWhitespace() {
-        val id = AdbIdentity(TestTls.client.keyPair, "mika@Pixel 4\tXL")
-        assertEquals("mika@Pixel_4_XL", id.adbPublicKey.substringAfter(' '))
+        val id = AdbIdentity(TestTls.client.keyPair, "nuoyi@Pixel 4\tXL")
+        assertEquals("nuoyi@Pixel_4_XL", id.adbPublicKey.substringAfter(' '))
     }
 
     @Test
@@ -186,11 +186,11 @@ class AdbIdentityTest {
         val file = java.io.File(dir, "k.bin")
         val store = WrappedKeyFile(file) { aes }
         assertNull(store.read())
-        val a = AdbIdentitySource(store, { "mika@x" }).forConnect()
+        val a = AdbIdentitySource(store, { "nuoyi@x" }).forConnect()
         val raw = file.readBytes()
         assertTrue("not stored in clear", !String(raw, Charsets.ISO_8859_1).contains(String(a.keyPair.private.encoded.copyOfRange(30, 60), Charsets.ISO_8859_1)))
         // 另一个进程(新的来源)读回同一把
-        val b = AdbIdentitySource(store, { "mika@x" }).forConnect()
+        val b = AdbIdentitySource(store, { "nuoyi@x" }).forConnect()
         assertEquals(a.publicKey, b.publicKey)
         assertEquals(a.adbPublicKey, b.adbPublicKey)
 
@@ -198,7 +198,7 @@ class AdbIdentityTest {
         val other = KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()
         val otherStore = WrappedKeyFile(file) { other }
         assertThrows(AdbKeyUnreadableException::class.java) { otherStore.read() }
-        val src = AdbIdentitySource(otherStore, { "mika@x" })
+        val src = AdbIdentitySource(otherStore, { "nuoyi@x" })
         assertThrows(AdbKeyUnreadableException::class.java) { src.forConnect() }
         assertEquals(AdbKeyState.Unreadable, src.state)
         assertArrayEquals(raw, file.readBytes())

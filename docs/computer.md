@@ -15,7 +15,7 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 | 你的情况 | 选 | 去看 |
 | --- | --- | --- |
 | 电脑上的 Agent 能执行命令、支持 Skill | **Skill**：自带 CLI 脚本，不用另装 CLI，也不用配 MCP | [安装 Skill](computer-install.md#skill安装) |
-| 想在终端或脚本里派任务 | **CLI**：`mika` 命令 | [安装 CLI](computer-install.md#cli安装)，[连接与任务命令](cli.md) |
+| 想在终端或脚本里派任务 | **CLI**：`nuoyi` 命令 | [安装 CLI](computer-install.md#cli安装)，[连接与任务命令](cli.md) |
 | 用的是支持 MCP 的客户端 | **MCP**：Nuoyi 当 MCP 服务器 | [电脑连接（MCP）](mcp.md) |
 
 拿不准时：Agent 支持 Skill 就用 Skill，否则用 MCP。
@@ -39,11 +39,11 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 - **MCP**：按[电脑连接（MCP）](mcp.md)，USB 和 Wi-Fi / VPN 两种连法都有一步步的说明。
 - **让电脑上的 AI 助手替你装**：手机经 USB 连着电脑时，把[用电脑上的 AI 助手安装](install-with-agent.md)这份说明交给它：它先把 Nuoyi 装到手机上；你也要电脑访问的话，它会按你选的入口接着配好。
 
-## 电脑任务台（`mika ui`）
+## 电脑任务台（`nuoyi ui`）
 
 也可以通过可选的[飞书连接器](feishu.md)扫码创建或关联机器人，在飞书私聊中派任务和接收结果；电脑仍需保持在线。
 
-不想敲命令时，连好手机后运行 `mika ui`，电脑浏览器会打开一个任务台：派任务、看步骤进度、回答追问、追加要求、取消任务，其他入口派的近期任务也会列出来。页面在后台时暂停读取，切回来再更新；需要接管的步骤要在手机上处理。界面按浏览器语言显示简体中文或英文。
+不想敲命令时，连好手机后运行 `nuoyi ui`，电脑浏览器会打开一个任务台：派任务、看步骤进度、回答追问、追加要求、取消任务，其他入口派的近期任务也会列出来。页面在后台时暂停读取，切回来再更新；需要接管的步骤要在手机上处理。界面按浏览器语言显示简体中文或英文。
 
 左侧把最近 50 个远程任务按对话归组。中央按轮次显示要求和答复。一轮结束后，在底部继续输入会沿用同一对话。点某一轮的「查看过程」，手机状态和本页观察到的进展会在这一轮的答复上方展开。点「收起过程」即可合上。底部输入框保留当前草稿。需要另起一段时，点「新对话」。
 
@@ -53,8 +53,8 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 
 支持任务恢复的手机会记住每次提交的编号。如果断线时没有收到回执，重新连接后任务台会按编号核对近期任务。原任务没出现在近期列表时，可以点「查找原任务」。找不到时可点「用同一编号重试」。刷新同一标签页后仍可核对，任务台会保留待核对的原始要求，直到找回、重试成功或手动放弃核对。
 
-- 多台 ADB 设备时，在页面里选一台，或启动时用 `mika ui --device SERIAL` 指定；Wi-Fi / 私有 VPN 连接沿用 `--url` 和 `--token-file`。
-- 只装了 Skill 时用 `python3 <技能目录>/mika/scripts/mika_cli.py ui`（Windows 用 `py -3`）。
+- 多台 ADB 设备时，在页面里选一台，或启动时用 `nuoyi ui --device SERIAL` 指定；Wi-Fi / 私有 VPN 连接沿用 `--url` 和 `--token-file`。
+- 只装了 Skill 时用 `python3 <技能目录>/nuoyi/scripts/mika_cli.py ui`（Windows 用 `py -3`）。
 - 浏览器没自动打开时加 `--no-open`，把终端打出的链接复制到本机浏览器。
 - 任务台只监听本机 `127.0.0.1` 的随机端口，每次启动生成新的链接；链接里的密钥就是使用权，不要发给别人。终端按 Ctrl+C 关掉任务台，已经交给手机的任务照常运行。
 
@@ -63,9 +63,9 @@ AI Agent 请直接看 [Agent 快速路径](agent-quickstart.md)。
 任务卡住、结果不对，或要交给电脑上的另一个工具排障时，用同一套连接把手机上这一轮的脱敏记录拉下来。它和手机里「查看过程」是同一份事件，再过一遍脱敏；默认不带截图文件。
 
 ```bash
-mika task export TASK_OR_RUN_ID --json
+nuoyi task export TASK_OR_RUN_ID --json
 ```
 
-返回的 JSON 里 `exportFormat` 为 1，并写明 `task_id`、`conversation_id`、run_id（和 `task status` 里的 `conversation` 是同一个对话编号）。`partial` 为 true 表示这一轮还在进行，内容是到目前为止的事件。编号不存在时命令会失败并给出明确错误。只要事件、一行一个：`mika task export ID --events`。
+返回的 JSON 里 `exportFormat` 为 1，并写明 `task_id`、`conversation_id`、run_id（和 `task status` 里的 `conversation` 是同一个对话编号）。`partial` 为 true 表示这一轮还在进行，内容是到目前为止的事件。编号不存在时命令会失败并给出明确错误。只要事件、一行一个：`nuoyi task export ID --events`。
 
 任务台里的「查看过程」仍是本页观察到的进度，不是这份完整事件流。在任务台上下载同一份 JSON、附带 OTLP Trace 或截图，留作后续。

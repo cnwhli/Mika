@@ -30,9 +30,9 @@ class ProxiedApkDownloadTest {
         proxy.enqueue(MockResponse().setBody(okio.Buffer().write(body)))
         val target = File(dir, "update.apk")
         val seen = mutableListOf<Pair<Long, Long>>()
-        ProxiedApkDownload.fetch(client(), "http://releases.example.test/mika.apk", target) { done, total -> seen += done to total }
+        ProxiedApkDownload.fetch(client(), "http://releases.example.test/nuoyi.apk", target) { done, total -> seen += done to total }
         assertTrue(target.readBytes().contentEquals(body))
-        assertEquals("GET http://releases.example.test/mika.apk HTTP/1.1", proxy.takeRequest().requestLine)
+        assertEquals("GET http://releases.example.test/nuoyi.apk HTTP/1.1", proxy.takeRequest().requestLine)
         assertEquals(body.size.toLong() to body.size.toLong(), seen.last())
         assertFalse(File(dir, "update.apk.part").exists())
     }
@@ -41,7 +41,7 @@ class ProxiedApkDownloadTest {
         proxy.enqueue(MockResponse().setResponseCode(404))
         val target = File(dir, "update.apk")
         try {
-            ProxiedApkDownload.fetch(client(), "http://releases.example.test/mika.apk", target) { _, _ -> }
+            ProxiedApkDownload.fetch(client(), "http://releases.example.test/nuoyi.apk", target) { _, _ -> }
             fail("expected an error")
         } catch (e: IOException) {
             assertFalse(target.exists())

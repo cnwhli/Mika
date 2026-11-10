@@ -87,5 +87,5 @@ class AccessibilityReconnectDeviceTest {
         this.text.add(text)
     }
 
-    private companion object { const val PROBE_PACKAGE = "mika.test.reconnect" }
+    private companion object { const val PROBE_PACKAGE = "nuoyi.test.reconnect" }
 }

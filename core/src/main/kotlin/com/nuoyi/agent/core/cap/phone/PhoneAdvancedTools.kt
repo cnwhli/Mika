@@ -316,7 +316,7 @@ internal object PhoneCommand : PhoneTool {
     override val offScreen = true
     override val label = "系统命令"
     override val def = ToolDef("phone_system_command", Prompts.tool("phone_system_command"), mapOf(
-        "command" to str("Android shell command. MIKA_DISPLAY_ID is the current task's virtual display ID."),
+        "command" to str("Android shell command. NUOYI_DISPLAY_ID is the current task's virtual display ID."),
     ), listOf("command"))
 
     override suspend fun execute(a: Args, ctx: ToolContext): ToolExecution {

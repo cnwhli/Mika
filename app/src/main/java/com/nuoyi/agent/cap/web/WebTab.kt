@@ -44,7 +44,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 /**
  * 一个网页标签:一个 WebView 加它的加载状态。默认打开桌面版网页,按站点可换回手机版(见 [WebDevtools])。
  * 必须在主线程创建;[assetLoaders] 只给本地夹具这类 App 自带的网页用(每个域名一个)。
- * 系统支持多配置时用名为 mika 的独立网页配置(Cookie、存储与系统里别的 WebView 分开)。
+ * 系统支持多配置时用名为 nuoyi 的独立网页配置(Cookie、存储与系统里别的 WebView 分开)。
  * 页面的权限申请(定位、相机、麦克风、MIDI、受保护媒体)默认静默拒绝;用户自己看的标签由界面问用户。
  * 跳 App 的链接不跳;下载暂不接收。
  * 页面弹框(alert/confirm/prompt、离开页面确认)不弹系统对话框,记进 [dialogs] 等 Agent(或用户自己用的浏览器页)回话。
@@ -469,10 +469,10 @@ class WebTab(
 
     companion object {
         private const val TAG = "NuoyiWebTab"
-        private const val PROFILE = "mika"
+        private const val PROFILE = "nuoyi"
 
         /**
-         * 网页登录数据所在的 Cookie 库:支持多配置时是 mika 配置的,否则是默认的。主线程调用。
+         * 网页登录数据所在的 Cookie 库:支持多配置时是 nuoyi 配置的,否则是默认的。主线程调用。
          * 不支持多配置时它和本 App 进程里任何别的 WebView 共用:App 里不得再有别的 WebView 处理网站登录,否则登录态会混在一起。
          */
         fun cookieManager(): CookieManager =

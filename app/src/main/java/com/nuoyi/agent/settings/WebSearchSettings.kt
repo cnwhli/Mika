@@ -37,7 +37,7 @@ data class WebSearchConfig(
 
 class WebSearchSettings(
     private val prefs: SharedPreferences,
-    private val cipher: KeyCipher = KeystoreKeyCipher("mika-web-search-key"),
+    private val cipher: KeyCipher = KeystoreKeyCipher("nuoyi-web-search-key"),
 ) {
     fun get(): WebSearchConfig {
         val stored = WebSearchProvider.entries.associateWith { p ->

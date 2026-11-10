@@ -165,11 +165,11 @@ class RelayClient(private val scope: CoroutineScope, private val handle: (HttpRe
     }
 
     companion object {
-        const val PROTOCOL = "mika-relay.v2"
+        const val PROTOCOL = "nuoyi-relay.v2"
         const val MAX_BODY = 1_048_576
         private const val MAX_FRAME = 2 * MAX_BODY
         private val json = Json { encodeDefaults = false }
-        private val REQUEST_HEADERS = setOf("authorization", "origin", "x-mika-client", "content-type", "accept", "mcp-protocol-version", "mcp-method", "mcp-name", "mcp-session-id", "last-event-id")
+        private val REQUEST_HEADERS = setOf("authorization", "origin", "x-nuoyi-client", "content-type", "accept", "mcp-protocol-version", "mcp-method", "mcp-name", "mcp-session-id", "last-event-id")
         private val RESPONSE_HEADERS = setOf("content-type", "allow", "retry-after", "www-authenticate", "mcp-protocol-version")
         /** 网关看到的调用方:IPv4 地址或 IPv6 的 /64 前缀;网关没给时为空,这些调用方共用一份冷却。 */
         private val CLIENT = Regex("[0-9A-Fa-f.:/]{0,64}")

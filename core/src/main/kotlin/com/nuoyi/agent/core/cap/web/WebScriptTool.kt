@@ -32,7 +32,7 @@ internal object WebScriptTool : WebTool {
         mapOf(
             "code" to buildJsonObject {
                 put("type", "string"); put("minLength", 1); put("maxLength", SCRIPT_CODE_MAX_CHARS)
-                put("description", "Body of an async function, e.g. `const s = await mika.snapshot(); return s.elements.filter(e => e.role === 'link').map(e => e.name);`")
+                put("description", "Body of an async function, e.g. `const s = await nuoyi.snapshot(); return s.elements.filter(e => e.role === 'link').map(e => e.name);`")
             },
             "timeoutMs" to buildJsonObject {
                 put("type", "integer"); put("minimum", 1000); put("maximum", SCRIPT_MAX_TIMEOUT_MS)

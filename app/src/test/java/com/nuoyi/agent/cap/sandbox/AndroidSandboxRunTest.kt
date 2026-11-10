@@ -19,7 +19,7 @@ class AndroidSandboxRunTest {
     private val sb = AndroidSandbox(SandboxDirs(File(tmp, "files/sandbox"), File(tmp, "cache"), File(tmp, "lib"), JVM_GATE, SandboxTree()), { SandboxStatus.Ready(false) }, { emptyList() })
 
     @Test fun cwdOutsideWorkspaceRejected() = runBlocking {
-        for (cwd in listOf("../..", "/etc", "/opt/mika/skills/x", "a/../../b")) {
+        for (cwd in listOf("../..", "/etc", "/opt/nuoyi/skills/x", "a/../../b")) {
             try {
                 sb.run("c1", listOf("true"), cwd, 1_000) {}
                 fail("cwd $cwd was accepted")
@@ -42,7 +42,7 @@ class AndroidSandboxRunTest {
 
     @Test fun existingSandboxGetsUpdatedClientScript() = runBlocking {
         val dirs = SandboxDirs(File(tmp, "client/files/sandbox"), File(tmp, "client/cache"), File(tmp, "client/lib"), JVM_GATE, SandboxTree())
-        val client = File(dirs.rootfs, "usr/local/bin/mika")
+        val client = File(dirs.rootfs, "usr/local/bin/nuoyi")
         client.parentFile!!.mkdirs()
         client.writeText("old bridge")
         val sb = AndroidSandbox(dirs, { SandboxStatus.Ready(false) }, { emptyList() },
@@ -123,7 +123,7 @@ class AndroidSandboxRunTest {
         assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.Ok, sb.uploadCheck("c1", "/workspace/in/a.pdf"))
         assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.NotFound, sb.uploadCheck("c1", "/workspace/in/none.pdf"))
         assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.NotFound, sb.uploadCheck("c1", "/workspace/in"))
-        assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.Outside, sb.uploadCheck("c1", "/opt/mika/skills/skills/x/SKILL.md"))
+        assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.Outside, sb.uploadCheck("c1", "/opt/nuoyi/skills/skills/x/SKILL.md"))
         assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.Outside, sb.uploadCheck("c1", "/workspace/../etc/passwd"))
         assertEquals(com.nuoyi.agent.core.workspace.WorkspacePathCheck.NotFound, sb.uploadCheck("c2", "/workspace/in/a.pdf")) // 别的对话看不到
         // 指向工作区外的链接不跟过去

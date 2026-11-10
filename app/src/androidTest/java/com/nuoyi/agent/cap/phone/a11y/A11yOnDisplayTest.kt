@@ -59,11 +59,11 @@ class A11yOnDisplayTest {
         private fun rebindAccessibility() {
             if (ScreenAccessibility.instance.value != null) return
             val key = "enabled_accessibility_services"
-            val mika = "com.nuoyi.agent/${NuoyiAccessibilityService::class.java.name}"
+            val nuoyi = "com.nuoyi.agent/${NuoyiAccessibilityService::class.java.name}"
             val enabled = shellCommand("settings get secure $key").trim().split(':')
-            if (mika !in enabled) return
+            if (nuoyi !in enabled) return
             try {
-                shellCommand("settings put secure $key ${enabled.filter { it != mika }.joinToString(":").ifEmpty { "\"\"" }}")
+                shellCommand("settings put secure $key ${enabled.filter { it != nuoyi }.joinToString(":").ifEmpty { "\"\"" }}")
                 Thread.sleep(500)
             } finally {
                 // 无论如何恢复原来的完整列表(含其他 App 的服务)

@@ -11,7 +11,7 @@
     <string name="install_no_space">Not enough space: needs %1$d MB (%2$d MB free)</string>
     <string name="install_cannot_start">The environment won’t start: %1$s</string>
     <string name="install_exit_code">exit code %1$d</string>
-    <string name="install_no_client">The mika command is missing (incomplete package)</string>
+    <string name="install_no_client">The nuoyi command is missing (incomplete package)</string>
     <string name="sandbox_resetting">Resetting</string>
     <string name="sandbox_incomplete">Environment files are incomplete; you can reset it in Settings → Advanced</string>
     <string name="sandbox_not_finished">Setup didn’t finish; you can retry</string>

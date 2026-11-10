@@ -160,7 +160,7 @@ class RunTraceTest {
         store.stopAll()
         assertNull(TraceCall(other, 1, model, { null }, null).begin(JsonObject(emptyMap()), emptyList()))
         assertEquals("partial", store.archive("stopped")!!.rows().single().status)
-        assertEquals("recording_disabled", store.archive("stopped")!!.exported().single().attr("mika.trace.stop_reason").stringValue)
+        assertEquals("recording_disabled", store.archive("stopped")!!.exported().single().attr("nuoyi.trace.stop_reason").stringValue)
         assertNull(store.archive("../limited"))
         assertNull(store.archive("older-run"))
     }
@@ -171,9 +171,9 @@ class RunTraceTest {
 
     private fun Span.attr(name: String) = attributesList.single { it.key == name }.value
 
-    private fun Span.cuts() = eventsList.filter { it.name == "mika.trace.truncated" }.associate { event ->
+    private fun Span.cuts() = eventsList.filter { it.name == "nuoyi.trace.truncated" }.associate { event ->
         val attrs = event.attributesList.associate { it.key to it.value.stringValue }
-        attrs.getValue("mika.block.path") to attrs.getValue("mika.truncation.reason")
+        attrs.getValue("nuoyi.block.path") to attrs.getValue("nuoyi.truncation.reason")
     }
 
     @Test fun protobufLocatesEachRequestAndReplyCutAndCanReexportALegacyManifest() {
@@ -194,11 +194,11 @@ class RunTraceTest {
         store.finish(trace)
         val archive = store.archive("case")!!
         val (root, child) = archive.exported()
-        assertEquals("partial", root.attr("mika.status").stringValue)
-        assertEquals("succeeded", root.attr("mika.run.outcome").stringValue)
-        assertEquals(setOf("block_size_limit", "nesting_limit"), root.attr("mika.trace.partial_reasons").arrayValue.valuesList.map { it.stringValue }.toSet())
-        assertEquals(7L, child.attr("mika.step.index").intValue)
-        assertEquals(1L, child.attr("mika.attempt").intValue)
+        assertEquals("partial", root.attr("nuoyi.status").stringValue)
+        assertEquals("succeeded", root.attr("nuoyi.run.outcome").stringValue)
+        assertEquals(setOf("block_size_limit", "nesting_limit"), root.attr("nuoyi.trace.partial_reasons").arrayValue.valuesList.map { it.stringValue }.toSet())
+        assertEquals(7L, child.attr("nuoyi.step.index").intValue)
+        assertEquals(1L, child.attr("nuoyi.attempt").intValue)
         assertEquals(mapOf("input[1]" to "block_size_limit", "input[2]" to "nesting_limit", "response" to "block_size_limit"), child.cuts())
         assertFalse(child.toString().contains("private-body"))
 
@@ -208,9 +208,9 @@ class RunTraceTest {
             b.removeAttributes(b.attributesList.indexOfFirst { it.key == key })
             file.writeBytes(b.build().toByteArray())
         }
-        strip(File(dir, "case/root.pb"), "mika.trace.format_version")
+        strip(File(dir, "case/root.pb"), "nuoyi.trace.format_version")
         val id = attempt.id
-        strip(File(dir, "case/spans/$id.pb"), "mika.trace.reply_truncation")
+        strip(File(dir, "case/spans/$id.pb"), "nuoyi.trace.reply_truncation")
         val manifest = File(dir, "case/requests/$id.json")
         manifest.writeText(JsonArray(Json.parseToJsonElement(manifest.readText()).jsonArray.map {
             JsonObject(it.jsonObject - "reason")
@@ -254,9 +254,9 @@ class RunTraceTest {
         assertNull(TraceCall(trace, 4, model, { null }, null).begin(body, emptyList()))
         store.finish(trace)
         val root = store.archive("full")!!.exported().first()
-        assertEquals(listOf("storage_limit"), root.attr("mika.trace.partial_reasons").arrayValue.valuesList.map { it.stringValue })
-        assertEquals(4L, root.attr("mika.trace.stopped_step").intValue)
-        assertEquals("input[0]", root.attr("mika.trace.stopped_block").stringValue)
+        assertEquals(listOf("storage_limit"), root.attr("nuoyi.trace.partial_reasons").arrayValue.valuesList.map { it.stringValue })
+        assertEquals(4L, root.attr("nuoyi.trace.stopped_step").intValue)
+        assertEquals("input[0]", root.attr("nuoyi.trace.stopped_block").stringValue)
         assertTrue(dir.walkTopDown().filter { it.isFile }.sumOf { it.length() } <= 2_000)
     }
 

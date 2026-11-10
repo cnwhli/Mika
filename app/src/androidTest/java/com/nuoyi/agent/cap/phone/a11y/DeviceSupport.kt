@@ -70,11 +70,11 @@ object DeviceSupport {
     private fun rebindAccessibility() {
         if (ScreenAccessibility.instance.value != null) return
         val key = "enabled_accessibility_services"
-        val mika = "${InstrumentationRegistry.getInstrumentation().targetContext.packageName}/${NuoyiAccessibilityService::class.java.name}"
+        val nuoyi = "${InstrumentationRegistry.getInstrumentation().targetContext.packageName}/${NuoyiAccessibilityService::class.java.name}"
         val enabled = sh("settings get secure $key").trim().split(':')
-        if (mika !in enabled) return
+        if (nuoyi !in enabled) return
         try {
-            sh("settings put secure $key ${enabled.filter { it != mika }.joinToString(":").ifEmpty { "\"\"" }}")
+            sh("settings put secure $key ${enabled.filter { it != nuoyi }.joinToString(":").ifEmpty { "\"\"" }}")
             Thread.sleep(500)
         } finally {
             sh("settings put secure $key ${enabled.joinToString(":")}")

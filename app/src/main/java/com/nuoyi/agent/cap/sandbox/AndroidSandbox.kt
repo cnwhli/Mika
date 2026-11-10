@@ -58,7 +58,7 @@ internal const val SHARE_MAX_FILES = 20
 internal const val SHARE_MAX_BYTES = 500L shl 20
 
 /**
- * 一个任务(一个 AndroidSandbox)的导出额度,share_file 与 `mika share` 共用。
+ * 一个任务(一个 AndroidSandbox)的导出额度,share_file 与 `nuoyi share` 共用。
  * 复制前按文件大小预留,复制完按实际字节结算;导出失败不占额度。
  */
 internal class ShareQuota(private val maxFiles: Int = SHARE_MAX_FILES, private val maxBytes: Long = SHARE_MAX_BYTES) {
@@ -86,7 +86,7 @@ internal class ShareQuota(private val maxFiles: Int = SHARE_MAX_FILES, private v
  * 它跟的是 fork 出它的那个线程:线程池回收空闲线程时,那条线程起的命令会被当成「Nuoyi 死了」而杀掉。
  * 协程调度器把 start() 的异常交回调用方,线程本身不会因异常退出。
  */
-private val launcherThread = Executors.newSingleThreadExecutor { r -> Thread(r, "mika-sandbox-launcher").apply { isDaemon = true } }
+private val launcherThread = Executors.newSingleThreadExecutor { r -> Thread(r, "nuoyi-sandbox-launcher").apply { isDaemon = true } }
     .asCoroutineDispatcher()
 
 /** [SandboxPort] 的安卓实现:启动器 + PRoot 跑命令,文件类操作直接读写宿主目录。 */
@@ -123,7 +123,7 @@ class AndroidSandbox internal constructor(
         startPreparing = { RuntimePreparer.ensure(context, retryFailed = true) },
         allowNetwork = { state.networkAllowed },
         proxy = { NetProxyStore.get(context).get() },
-        clientScript = { context.assets.open("sandbox/mika").use { it.readBytes() } },
+        clientScript = { context.assets.open("sandbox/nuoyi").use { it.readBytes() } },
     )
 
     private val quota = ShareQuota()
@@ -331,15 +331,15 @@ class AndroidSandbox internal constructor(
         return bytes
     }
 
-    /** 经关口在 .mika/ 里新建(不覆盖已有的);.mika 被换成链接等时抛出,不写任何东西。 */
+    /** 经关口在 .nuoyi/ 里新建(不覆盖已有的);.nuoyi 被换成链接等时抛出,不写任何东西。 */
     @Synchronized
     override fun saveOutput(workspace: String, text: String): String {
         val root = dirs.workspace(workspace).apply { mkdirs() }
-        var next = (files.list(root, ".mika").mapNotNull { OUT_NAME.matchEntire(it)?.groupValues?.get(1)?.toIntOrNull() }.maxOrNull() ?: 0) + 1
+        var next = (files.list(root, ".nuoyi").mapNotNull { OUT_NAME.matchEntire(it)?.groupValues?.get(1)?.toIntOrNull() }.maxOrNull() ?: 0) + 1
         repeat(100) {
-            val rel = ".mika/out-$next.txt"
+            val rel = ".nuoyi/out-$next.txt"
             try {
-                files.createNew(root, rel, under = ".mika").use { it.write(text.toByteArray(Charsets.UTF_8)) }
+                files.createNew(root, rel, under = ".nuoyi").use { it.write(text.toByteArray(Charsets.UTF_8)) }
                 return "${SandboxPaths.WORKSPACE}/$rel"
             } catch (e: SandboxError) {
                 if (e.code != WorkspaceFileGate.FILE_EXISTS) throw IOException("cannot save output: ${e.code}")
@@ -364,7 +364,7 @@ class AndroidSandbox internal constructor(
     /** 已安装的根文件系统版本可能没变，但 APK 中的桥客户端已经更新。 */
     private fun syncClientScript() {
         val expected = bundledClient ?: return
-        val rel = "usr/local/bin/mika"
+        val rel = "usr/local/bin/nuoyi"
         val matches = runCatching {
             dirs.gate.openRead(dirs.rootfs, rel).use { it.size == expected.size.toLong() && it.read(0, expected.size).contentEquals(expected) }
         }.getOrDefault(false)
@@ -379,7 +379,7 @@ class AndroidSandbox internal constructor(
         return withContext(Dispatchers.IO) { SkillsSync.matches(dirs, rel, expected) }
     }
 
-    /** `mika share` 与 share_file 走同一套路径规则。 */
+    /** `nuoyi share` 与 share_file 走同一套路径规则。 */
     private fun bridgeFor(workspace: String, network: Boolean, onProgress: (String) -> Unit, phone: PhoneCommandHandler?): SandboxBridge {
         return SandboxBridge(
         onProgress = onProgress,
@@ -460,7 +460,7 @@ class AndroidSandbox internal constructor(
             val p = started!!
             // 读输出用普通线程:阻塞的 read 取消不了,放在协程里会让取消一直等下去
             val collector = OutputCollector()
-            val reader = thread(isDaemon = true, name = "mika-sandbox-output") { runCatching { p.inputStream.use(collector::drain) } }
+            val reader = thread(isDaemon = true, name = "nuoyi-sandbox-output") { runCatching { p.inputStream.use(collector::drain) } }
             try {
                 // 启动期间已被取消:在这里抛出,由下面的 catch 杀掉刚起的进程
                 currentCoroutineContext().ensureActive()
@@ -483,7 +483,7 @@ class AndroidSandbox internal constructor(
         /** 先 SIGTERM(启动器收到后清掉整个进程树),[DESTROY_GRACE_MS] 后还在就 SIGKILL。 */
         private fun abandon(p: Process) {
             p.destroy()
-            thread(isDaemon = true, name = "mika-sandbox-reaper") { if (!p.waitFor(DESTROY_GRACE_MS, TimeUnit.MILLISECONDS)) p.destroyForcibly() }
+            thread(isDaemon = true, name = "nuoyi-sandbox-reaper") { if (!p.waitFor(DESTROY_GRACE_MS, TimeUnit.MILLISECONDS)) p.destroyForcibly() }
         }
     }
 }
@@ -511,7 +511,7 @@ private class SandboxProcessHandle(
         runCatching { process.outputStream.close() }
         runCatching { process.destroy() }
         // 进程树退干净了才交还租约:还在写工作区的进程不该和重置撞上(重置会先收回、自己停进程,不等这里)
-        thread(isDaemon = true, name = "mika-sandbox-stdio-reaper") {
+        thread(isDaemon = true, name = "nuoyi-sandbox-stdio-reaper") {
             try {
                 if (!process.waitFor(DESTROY_GRACE_MS, TimeUnit.MILLISECONDS)) process.destroyForcibly()
             } finally {

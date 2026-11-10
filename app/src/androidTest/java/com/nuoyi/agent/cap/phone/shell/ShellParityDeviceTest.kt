@@ -90,7 +90,7 @@ class ShellParityDeviceTest {
         val s = newScreen(720, 1600, 320)
         val d = context.getSystemService(DisplayManager::class.java).getDisplay(s.id)
         assertNotNull("display ${s.id} not visible in DisplayManager", d)
-        assertEquals("mika-agent", d.name)
+        assertEquals("nuoyi-agent", d.name)
         assertEquals(720, d.mode.physicalWidth)
         assertEquals(1600, d.mode.physicalHeight)
         @Suppress("DEPRECATION")
@@ -268,7 +268,7 @@ class ShellParityDeviceTest {
     @Test
     fun startViewReportsUnresolvedLink() {
         val s = newScreen()
-        assertEquals(ShellService.START_UNRESOLVED, shell.startView(s.id, null, "mika-no-such-scheme://page/1", null))
+        assertEquals(ShellService.START_UNRESOLVED, shell.startView(s.id, null, "nuoyi-no-such-scheme://page/1", null))
     }
 
     @Test

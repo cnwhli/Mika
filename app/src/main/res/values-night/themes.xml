@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Nuoyi" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/mika_bg</item>
+        <item name="android:windowBackground">@color/nuoyi_bg</item>
     </style>
-    <color name="mika_bg">#0E0E10</color>
+    <color name="nuoyi_bg">#0E0E10</color>
 </resources>

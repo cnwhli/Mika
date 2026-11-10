@@ -5,7 +5,7 @@ import com.nuoyi.agent.core.cap.web.cdp.CdpTargetInfo
 /** 标签与 DevTools 目标的对应:先在标签里写下标记,再逐个候选目标求值找它。 */
 object TargetMatch {
     /** 页面里放标记的全局变量名;找到后删掉。 */
-    const val KEY = "__mikaDevtoolsMark"
+    const val KEY = "__nuoyiDevtoolsMark"
 
     fun markScript(marker: String): String = "window['$KEY']='$marker';1"
     const val READ_SCRIPT = "window['$KEY']||''"

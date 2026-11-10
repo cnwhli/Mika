@@ -37,7 +37,7 @@ class SharedImageDeviceTest {
         val bytes = encoded.toByteArray()
         val resolver = target.contentResolver
         val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "mika-share-${SystemClock.uptimeMillis()}.png")
+            put(MediaStore.Images.Media.DISPLAY_NAME, "nuoyi-share-${SystemClock.uptimeMillis()}.png")
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }

@@ -86,7 +86,7 @@ Optional.
 
 `pace` on an app is the same kind of fact: an app marked `careful` limits how fast one account can act (tapping too fast or scrolling too much gets blocked, asks for verification, or even logs you out). Nuoyi recognizes the app by package name (any of those in `packages`) and waits longer before each step (about 2.5–5 seconds on a new screen, plus reading time based on how much text the screen has, at most 15 seconds; about 1–2 seconds when continuing on the same screen), now and then scrolls down a little while waiting, and types more slowly. In one task it moves to a new screen in that app at most 24 times (opening and going back each count once; scrolling to read the same page doesn't; the count restarts after the user agrees to keep going; it stops applying once an outward action such as sending or submitting has succeeded). None of this applies when the operation pace in Settings is set to "Fast".
 
-A website directory can have `scripts/`: site commands (.js files with a `/* mika-command` header) or sandbox scripts (listed in `scripts/manifest.json`).
+A website directory can have `scripts/`: site commands (.js files with a `/* nuoyi-command` header) or sandbox scripts (listed in `scripts/manifest.json`).
 
 ## SKILL.md
 

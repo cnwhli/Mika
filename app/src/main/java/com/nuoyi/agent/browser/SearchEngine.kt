@@ -121,7 +121,7 @@ data class CustomSearchEngine private constructor(
             val authorityEnd = listOf(template.indexOf('/', hostStart), template.indexOf('?', hostStart), template.indexOf('#', hostStart))
                 .filter { it >= 0 }.minOrNull() ?: template.length
             if (template.indexOf(PLACEHOLDER) < authorityEnd) return false
-            return runCatching { URI(template.replace(PLACEHOLDER, "mika")).rawAuthority?.isNotBlank() == true }.getOrDefault(false)
+            return runCatching { URI(template.replace(PLACEHOLDER, "nuoyi")).rawAuthority?.isNotBlank() == true }.getOrDefault(false)
         }
     }
 }

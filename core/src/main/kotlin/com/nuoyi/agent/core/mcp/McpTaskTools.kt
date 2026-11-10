@@ -35,7 +35,7 @@ class McpTaskTools(
     val tools: List<Tool> = listOf(
         Tool(RUN, "Hand Nuoyi a task to do on the Android phone. Nuoyi runs its own agent on the phone (apps, web, files) " +
             "and records the task in a conversation the user can see in the app. Returns a task_id right away; " +
-            "follow it with mika_wait_task. Payments and confirmations are never approved over MCP.",
+            "follow it with nuoyi_wait_task. Payments and confirmations are never approved over MCP.",
             schema(required = listOf("goal")) {
                 putJsonObject("goal") { put("type", "string"); put("description", "What to get done, in plain words, as you would tell a person.") }
                 putJsonObject("request_id") {
@@ -65,7 +65,7 @@ class McpTaskTools(
                 putJsonObject("text") { put("type", "string"); put("description", "The answer.") }
             }, readOnly = false),
         Tool(STEER, "Add instructions to a running remote task, keeping its task_id and context. " +
-            "Accepted means queued, not executed; check steers in mika_task_status for the message_id. " +
+            "Accepted means queued, not executed; check steers in nuoyi_task_status for the message_id. " +
             "Does not answer questions, approve payments, resume paused tasks, or start a new task.",
             schema(required = listOf("task_id", "text")) {
                 taskIdProp()
@@ -142,7 +142,7 @@ class McpTaskTools(
             is RemoteTaskError.NoSuchRecord -> e.message.orEmpty()
             is RemoteTaskError.BadConversation -> "conversation must be one returned by an earlier MCP task (looks like mcp-<uuid>)"
             is RemoteTaskError.NeedsPhone -> ON_PHONE_NOTE
-            is RemoteTaskError.QuestionClosed -> "The question is no longer open; check mika_task_status."
+            is RemoteTaskError.QuestionClosed -> "The question is no longer open; check nuoyi_task_status."
             is RemoteTaskError.General -> e.message.orEmpty()
         })
     }
@@ -153,7 +153,7 @@ class McpTaskTools(
         RemoteStatus.describe(task).forEach { (k, v) -> put(k, v) }
         when (RemoteStatus.of(task.state)) {
             RemoteStatus.WAITING_ON_PHONE -> put("note", ON_PHONE_NOTE)
-            RemoteStatus.WAITING_FOR_ANSWER -> put("note", "Nuoyi is asking a question. Reply with mika_answer; the user can also answer on the phone.")
+            RemoteStatus.WAITING_FOR_ANSWER -> put("note", "Nuoyi is asking a question. Reply with nuoyi_answer; the user can also answer on the phone.")
         }
     }
 
@@ -174,13 +174,13 @@ class McpTaskTools(
     }
 
     companion object {
-        const val RUN = "mika_run_task"
-        const val STEER = "mika_steer_task"
-        const val STATUS = "mika_task_status"
-        const val WAIT = "mika_wait_task"
-        const val ANSWER = "mika_answer"
-        const val CANCEL = "mika_cancel_task"
-        const val LIST = "mika_list_tasks"
+        const val RUN = "nuoyi_run_task"
+        const val STEER = "nuoyi_steer_task"
+        const val STATUS = "nuoyi_task_status"
+        const val WAIT = "nuoyi_wait_task"
+        const val ANSWER = "nuoyi_answer"
+        const val CANCEL = "nuoyi_cancel_task"
+        const val LIST = "nuoyi_list_tasks"
         const val DEFAULT_WAIT_S = RemoteTaskService.DEFAULT_WAIT_S
         const val MAX_WAIT_S = RemoteTaskService.MAX_WAIT_S
         const val DEFAULT_LIST = RemoteTaskService.DEFAULT_LIST
@@ -188,7 +188,7 @@ class McpTaskTools(
         const val MAX_GOAL = RemoteTaskService.MAX_GOAL
         const val MAX_ANSWER = RemoteTaskService.MAX_ANSWER
         private const val ON_PHONE_NOTE = "This step needs the user on the phone and cannot be answered over MCP. " +
-            "Nuoyi has shown its usual notification there; keep waiting with mika_wait_task or cancel the task."
+            "Nuoyi has shown its usual notification there; keep waiting with nuoyi_wait_task or cancel the task."
 
         fun newConversation(): String = RemoteTaskService.newConversation()
         fun isConversation(id: String): Boolean = RemoteTaskService.isConversation(id)
@@ -201,6 +201,6 @@ class McpTaskTools(
         }
 
         private fun kotlinx.serialization.json.JsonObjectBuilder.taskIdProp() =
-            putJsonObject("task_id") { put("type", "string"); put("description", "The task_id returned by mika_run_task.") }
+            putJsonObject("task_id") { put("type", "string"); put("description", "The task_id returned by nuoyi_run_task.") }
     }
 }

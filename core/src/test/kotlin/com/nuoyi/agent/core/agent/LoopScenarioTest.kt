@@ -216,7 +216,7 @@ class LoopScenarioTest {
         }
         val main = fakeModel("main") {
             call("web_navigate", "url" to "https://shop.example.com/")
-            call(WEB_SCRIPT_TOOL, "code" to "await mika.tap('@e1'); await mika.tap('@e2')")
+            call(WEB_SCRIPT_TOOL, "code" to "await nuoyi.tap('@e1'); await nuoyi.tap('@e2')")
             reportFailure("下单需要用户确认,脚本没有执行")
         }
         val end = loop(main, toolDispatcher(FakeScreen(), web = port)).run("搜一下再下单")

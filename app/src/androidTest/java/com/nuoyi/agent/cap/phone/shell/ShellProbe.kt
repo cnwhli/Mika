@@ -68,7 +68,7 @@ class ShellProbe(private val context: Context) : AutoCloseable {
     companion object {
         const val BROADCAST = ShellProbeActivity.BROADCAST
         const val COMPONENT = "com.nuoyi.agent.test/com.nuoyi.agent.shell.ShellProbeActivity"
-        const val LINK = "mika-parity://probe"
+        const val LINK = "nuoyi-parity://probe"
 
         const val RESUMED = ShellProbeActivity.RESUMED
         const val FOCUSED = ShellProbeActivity.FOCUSED

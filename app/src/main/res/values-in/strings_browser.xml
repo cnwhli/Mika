@@ -55,8 +55,8 @@
     <string name="browser_home">Halaman awal</string>
     <string name="share">Bagikan</string>
     <string name="more">Lainnya</string>
-    <string name="browser_login_for_mika">Masuk untuk Nuoyi</string>
-    <string name="browser_login_for_mika_sub">" · membuka versi %1$s yang dipakai Nuoyi untuk tugas; setelah Anda masuk, Nuoyi juga bisa memakainya"</string>
+    <string name="browser_login_for_nuoyi">Masuk untuk Nuoyi</string>
+    <string name="browser_login_for_nuoyi_sub">" · membuka versi %1$s yang dipakai Nuoyi untuk tugas; setelah Anda masuk, Nuoyi juga bisa memakainya"</string>
     <string name="browser_mobile">Seluler</string>
     <string name="browser_copy_link">Salin tautan</string>
     <string name="browser_open_outside">Buka di browser lain</string>

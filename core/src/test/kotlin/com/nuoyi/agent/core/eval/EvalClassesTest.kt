@@ -148,11 +148,11 @@ class EvalClassesTest {
         assertEquals(listOf("com.example.calendar", "org.other.cal"), AppCapabilities.packagesIn(query))
         assertTrue(AppCapabilities.commands(APP_CAPABILITIES.getValue("calendar").single()).all { "-c android.intent.category.APP_CALENDAR" in it })
         // Agent 打开过的候选优先;没有候选时取 Agent 打开的第一个 App(Nuoyi 自己不算)
-        assertEquals("org.other.cal", AppCapabilities.choose(listOf("com.example.calendar", "org.other.cal"), listOf("com.mika", "org.other.cal"), "com.mika"))
+        assertEquals("org.other.cal", AppCapabilities.choose(listOf("com.example.calendar", "org.other.cal"), listOf("com.nuoyi", "org.other.cal"), "com.nuoyi"))
         assertEquals("com.example.calendar", AppCapabilities.choose(listOf("com.example.calendar"), emptyList()))
         // 没有候选时只认 Agent 打字时在前台的那一个 App;只打开过、或在几个 App 里都打过字,说不准就不定
-        assertEquals("com.example.notes", AppCapabilities.choose(emptyList(), listOf("com.example.other"), "com.mika", written = listOf("com.mika", "com.example.notes")))
-        assertNull(AppCapabilities.choose(emptyList(), listOf("com.mika", "com.example.notes"), "com.mika"))
+        assertEquals("com.example.notes", AppCapabilities.choose(emptyList(), listOf("com.example.other"), "com.nuoyi", written = listOf("com.nuoyi", "com.example.notes")))
+        assertNull(AppCapabilities.choose(emptyList(), listOf("com.nuoyi", "com.example.notes"), "com.nuoyi"))
         assertNull(AppCapabilities.choose(emptyList(), emptyList(), written = listOf("com.a.notes", "com.b.notes")))
         assertNull(AppCapabilities.choose(emptyList(), emptyList()))
     }

@@ -70,7 +70,7 @@ sealed interface PermissionResult {
 object PermissionCommands {
     const val WRITE_SECURE_SETTINGS = "android.permission.WRITE_SECURE_SETTINGS"
     const val READ_ACCESSIBILITY = "settings get secure enabled_accessibility_services"
-    const val EXIT_MARK = "__mika_exit="
+    const val EXIT_MARK = "__nuoyi_exit="
 
     fun accessibilityService(pkg: String): String {
         // 包名(applicationId)可能带后缀(并存安装的版本),服务类却仍在 App 的命名空间里:包名是类名前缀时用简写,否则写完整类名

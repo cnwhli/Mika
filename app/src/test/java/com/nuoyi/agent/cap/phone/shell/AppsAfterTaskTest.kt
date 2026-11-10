@@ -36,7 +36,7 @@ class AppsAfterTaskTest {
     }
 
     @Test fun ownPagesAndNonAppPagesAlwaysClose() {
-        val f = fates(task(1, "mika", own = true), task(2, "a.home", standard = false), keep = setOf("mika", "a.home"))
+        val f = fates(task(1, "nuoyi", own = true), task(2, "a.home", standard = false), keep = setOf("nuoyi", "a.home"))
         assertEquals(false to Why.Own, f[1])
         assertEquals(false to Why.NotApp, f[2])
     }

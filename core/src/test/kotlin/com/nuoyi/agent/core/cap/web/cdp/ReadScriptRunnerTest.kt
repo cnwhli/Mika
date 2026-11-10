@@ -33,7 +33,7 @@ class ReadScriptRunnerTest {
                     val e = params.getValue("expression").jsonPrimitive.content
                     when {
                         e == ReadScriptProtocol.PROBE -> reply("""{"result":{"type":"string","value":"$origin"}}""")
-                        e.startsWith("globalThis.__mikaReadRun(") -> onRun(c, m)
+                        e.startsWith("globalThis.__nuoyiReadRun(") -> onRun(c, m)
                         else -> reply("""{"result":{"type":"undefined"}}""")
                     }
                 }

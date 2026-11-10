@@ -11,7 +11,7 @@ import java.nio.file.Files
 
 class FileRunStateStoreTest {
     @Test fun savedReplyAndUnfinishedMarkerSurviveReopen() {
-        val dir = Files.createTempDirectory("mika-run-store").toFile()
+        val dir = Files.createTempDirectory("nuoyi-run-store").toFile()
         try {
             val file = dir.resolve("runs.json")
             val first = FileRunStateStore(file)
@@ -40,7 +40,7 @@ class FileRunStateStoreTest {
     }
 
     @Test fun oldFileWithContextSnapshotStillLoadsAndDropsIt() {
-        val dir = Files.createTempDirectory("mika-run-store").toFile()
+        val dir = Files.createTempDirectory("nuoyi-run-store").toFile()
         try {
             val file = dir.resolve("runs.json")
             file.writeText("""[{"id":"run-1","threadId":"t","goal":"g","phase":"running","roundInProgress":true,""" +

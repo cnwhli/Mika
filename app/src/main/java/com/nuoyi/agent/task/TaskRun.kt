@@ -479,7 +479,7 @@ class TaskRun(
     /** 本任务的沙箱:一个任务一份(导出额度按任务算),工作区是本对话的。 */
     private val sandbox by lazy { AndroidSandbox(service, SandboxState.get(service), onShared = ::addShared) }
 
-    /** 沙箱导出了一个文件(share_file 或 `mika share`)。 */
+    /** 沙箱导出了一个文件(share_file 或 `nuoyi share`)。 */
     fun addShared(f: SharedFile) = synchronized(service.taskState.shownLock) { _sharedFiles.value = _sharedFiles.value + f }
 
     fun clearTakeoverStage() { _takeoverStage.value = Takeover.Stage.None }

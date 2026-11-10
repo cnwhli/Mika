@@ -136,7 +136,7 @@ object CardCopy {
     val APPROVE_ONCE_ONLY: String get() = tr(R.string.card_approve_once)
     val DECLINE: String get() = tr(R.string.action_decline)
     val SEE_PROCESS: String get() = tr(R.string.card_see_process)
-    val BACK_TO_MIKA: String get() = tr(R.string.card_back_to_mika)
+    val BACK_TO_NUOYI: String get() = tr(R.string.card_back_to_nuoyi)
     val SEND: String get() = tr(R.string.chat_send)
     val NEW_CHAT: String get() = tr(R.string.chat_new)
     val CONTINUE_LAST: String get() = tr(R.string.card_continue_last)
@@ -770,7 +770,7 @@ private fun ChatCard(
         QueuedLine(queuedCount, onQueued)
         if (r == null) TeachShelf(actions::teach)
         input()
-        FooterLinks(actions, card.target?.let { id -> CardCopy.BACK_TO_MIKA to { actions.openNuoyi(id) } })
+        FooterLinks(actions, card.target?.let { id -> CardCopy.BACK_TO_NUOYI to { actions.openNuoyi(id) } })
     }
 }
 

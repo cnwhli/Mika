@@ -12,8 +12,8 @@ import java.security.MessageDigest
  *   ./gradlew :core:test --tests '*PromptSurface*' -PupdateSnapshots
  */
 object PromptSurface {
-    private val dir = File(System.getProperty("mika.promptSurfaceDir") ?: "src/test/resources/prompt-surface")
-    private val update = System.getProperty("mika.updateSnapshots") == "true"
+    private val dir = File(System.getProperty("nuoyi.promptSurfaceDir") ?: "src/test/resources/prompt-surface")
+    private val update = System.getProperty("nuoyi.updateSnapshots") == "true"
 
     fun check(name: String, actual: String) {
         val file = File(dir, "$name.txt")

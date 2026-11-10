@@ -20,7 +20,7 @@ import java.time.ZoneId
 /**
  * 离线重新打分一次拉回来的评测运行:用现在的题目、核对规则和核查兜底重算,不调模型、不连手机。没设目录时跳过。
  *
- *   MIKA_EVAL_RUN=/path/to/<运行名> ./gradlew :core:test --tests '*RescoreEvalRun*' --rerun
+ *   NUOYI_EVAL_RUN=/path/to/<运行名> ./gradlew :core:test --tests '*RescoreEvalRun*' --rerun
  *
  * 目录里要有 scores.jsonl 和 <题 id>/run/events.jsonl(评测器写出的样子)。每题:
  * - 结局(主数,按现在的结束方式,见 [natural]):第一条最终回答(不带调用、有字的回复;旧记录里是 finish)就结束任务;
@@ -33,15 +33,15 @@ import java.time.ZoneId
  * 回答的 answer_grounded 核对也用同一份账本([RunFacts.evidence])。
  * 交出回答后判的结局(outcome 事件,见 [com.nuoyi.agent.core.agent.OutcomeJudge])按记录里的算([Scoring.recorded]):
  * 回答如实说没办成、只办了一部分的算如实放弃;只认判的是同一条回答(按现在的结束方式取的回答换了一条就不用它)。旧记录没有这条事件。
- * 相对日期按那次核查的时刻换算(时区取 MIKA_RESCORE_ZONE,没设用本机的)。交给用户接管的单列,不算通过。结果写到 <目录>/rescore.md。
+ * 相对日期按那次核查的时刻换算(时区取 NUOYI_RESCORE_ZONE,没设用本机的)。交给用户接管的单列,不算通过。结果写到 <目录>/rescore.md。
  */
 class RescoreEvalRun {
     private val tasksDir = listOf("eval/tasks", "../eval/tasks").map(::File).first { it.isDirectory }
 
     @Test fun rescore() {
-        val dir = (System.getenv("MIKA_EVAL_RUN") ?: System.getProperty("mika.eval.run"))?.let(::File)
-        assumeTrue("MIKA_EVAL_RUN not set", dir != null && File(dir, "scores.jsonl").isFile)
-        val zone = System.getenv("MIKA_RESCORE_ZONE")?.let(ZoneId::of) ?: ZoneId.systemDefault()
+        val dir = (System.getenv("NUOYI_EVAL_RUN") ?: System.getProperty("nuoyi.eval.run"))?.let(::File)
+        assumeTrue("NUOYI_EVAL_RUN not set", dir != null && File(dir, "scores.jsonl").isFile)
+        val zone = System.getenv("NUOYI_RESCORE_ZONE")?.let(ZoneId::of) ?: ZoneId.systemDefault()
         val tasks = tasksDir.walkTopDown().filter { it.isFile && it.extension == "json" }.map { EvalTasks.parse(it.readText()) }.associateBy { it.id }
         val rows = mutableListOf("| id | 结局 当时→现在 | 判的结局 | 通过 当时→现在 | 交给用户 | 没过的核对项 | 未确认 | 旧规则(核查兜底)时 |", "|---|---|---|---|---|---|---|---|")
         var before = 0

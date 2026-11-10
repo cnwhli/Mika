@@ -153,12 +153,12 @@ class GuideCatalog private constructor(
     private fun read(info: GuideInfo, file: String): String? =
         resource("${KnowledgeIndex.dirOf(info.kind)}/${info.name}/$file")?.let { FrontMatter.parse(it.toString(Charsets.UTF_8)).second }
 
-    /** 在沙箱里的目录(`/opt/mika/skills` 之下),也是 run_bundled_script 的 source 参数,如 `skills/documents`、`skills/research`。 */
+    /** 在沙箱里的目录(`/opt/nuoyi/skills` 之下),也是 run_bundled_script 的 source 参数,如 `skills/documents`、`skills/research`。 */
     fun scriptSource(info: GuideInfo): String = "${KnowledgeIndex.dirOf(info.kind).substringAfterLast('/')}/${info.name}"
 
     /**
      * 要同步进沙箱的脚本:每个带 `scripts/manifest.json` 的条目,清单本身加上清单里列出的文件。
-     * 键是 `/opt/mika/skills` 之下的相对路径。
+     * 键是 `/opt/nuoyi/skills` 之下的相对路径。
      */
     fun scriptFiles(): Map<String, ByteArray> {
         val out = sortedMapOf<String, ByteArray>()

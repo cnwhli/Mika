@@ -20,7 +20,7 @@ import org.junit.Test
 
 class CommandSteerTest {
     @Test fun recognisesCommandsThatEmulateDedicatedTools() {
-        assertEquals(CommandSteer.Purpose.Gesture, CommandSteer.purpose("input -d \"\$MIKA_DISPLAY_ID\" tap 500 800"))
+        assertEquals(CommandSteer.Purpose.Gesture, CommandSteer.purpose("input -d \"\$NUOYI_DISPLAY_ID\" tap 500 800"))
         assertEquals(CommandSteer.Purpose.Gesture, CommandSteer.purpose("input touchscreen -d 7 swipe 1 2 3 4 300"))
         assertEquals(CommandSteer.Purpose.Type, CommandSteer.purpose("input -d 7 tap 500 900; input -d 7 text hello"))
         assertEquals(CommandSteer.Purpose.Key, CommandSteer.purpose("sleep 1 && input -d 7 keyevent KEYCODE_ENTER"))

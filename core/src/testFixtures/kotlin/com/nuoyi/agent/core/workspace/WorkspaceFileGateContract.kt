@@ -128,7 +128,7 @@ abstract class WorkspaceFileGateContract {
         hardLink(File(ws, "etc/hosts"), target)
         gate.replace(ws, "etc/hosts", "127.0.0.1 localhost\n".toByteArray())
         assertEquals("h", target.readText())
-        assertTrue(File(ws, "etc").list()!!.none { it.startsWith(".mika-new-") })
+        assertTrue(File(ws, "etc").list()!!.none { it.startsWith(".nuoyi-new-") })
     }
 
     @Test fun symlinkReplacesTheEntryAndMkdirsAnchored() {
@@ -141,9 +141,9 @@ abstract class WorkspaceFileGateContract {
     }
 
     @Test fun listAndBytes() {
-        gate.createNew(ws, ".mika/out-1.txt").use { it.write(byteArrayOf(1, 2)) }
-        assertEquals(listOf("out-1.txt"), gate.list(ws, ".mika"))
+        gate.createNew(ws, ".nuoyi/out-1.txt").use { it.write(byteArrayOf(1, 2)) }
+        assertEquals(listOf("out-1.txt"), gate.list(ws, ".nuoyi"))
         assertEquals(emptyList<String>(), gate.list(ws, "none"))
-        gate.openRead(ws, ".mika/out-1.txt").use { assertArrayEquals(byteArrayOf(1, 2), it.input().readBytes()) }
+        gate.openRead(ws, ".nuoyi/out-1.txt").use { assertArrayEquals(byteArrayOf(1, 2), it.input().readBytes()) }
     }
 }

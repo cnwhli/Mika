@@ -70,7 +70,7 @@ class ReadScriptProtocolTest {
 
     @Test fun runExpressionCarriesCodeArgsAndLimits() {
         val e = ReadScriptProtocol.run("return \"a\"", o("""{"q":1}"""), 99)
-        assertTrue(e, e.startsWith("globalThis.__mikaReadRun(\"return \\\"a\\\"\", {\"q\":1}, {resultChars: 99"))
+        assertTrue(e, e.startsWith("globalThis.__nuoyiReadRun(\"return \\\"a\\\"\", {\"q\":1}, {resultChars: 99"))
         assertTrue(e, e.contains("resultChars: 99"))
         assertTrue(ReadScriptProtocol.run("1", null, 5).contains("\"1\", null,"))
     }

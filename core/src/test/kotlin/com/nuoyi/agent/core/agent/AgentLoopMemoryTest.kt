@@ -141,7 +141,7 @@ class AgentLoopMemoryTest {
         val model = FakeModel(save, finishReply)
         runBlocking {
             AgentLoop(model, toolDispatcher(FakeScreen(), memory = s, utterances = said), "B", memory = s)
-                .run(QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, MIKA_ADDRESS), "这个地址对不对"))
+                .run(QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, NUOYI_ADDRESS), "这个地址对不对"))
         }
         val result = model.requests[1].last { it.role == Role.Tool }.parts.filterIsInstance<Part.ToolResult>().single().content
         assertTrue(result, "quote_not_from_user" in result)
@@ -178,7 +178,7 @@ class AgentLoopMemoryTest {
     @Test fun quotedSteerAddsOnlyTheTypedWords() = runBlocking {
         val s = store()
         val said = UserUtterances()
-        val inbox = RunInbox().apply { send(RunInput.Steer("m1", QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, MIKA_ADDRESS), "换成这个"))) }
+        val inbox = RunInbox().apply { send(RunInput.Steer("m1", QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, NUOYI_ADDRESS), "换成这个"))) }
         AgentLoop(FakeModel(finishReply), toolDispatcher(FakeScreen(), memory = s, utterances = said), "B", memory = s)
             .run(RunSpec(RunId("r1"), "帮我下单", "thread-1"), inbox)
         assertEquals(listOf("帮我下单", "换成这个"), said.all)
@@ -192,7 +192,7 @@ class AgentLoopMemoryTest {
         val loop = AgentLoop(FakeModel(ask, finishReply, finishReply), toolDispatcher(FakeScreen(), memory = s, utterances = said), "B", memory = s)
         val run = async { loop.run("帮我下单") }
         withTimeout(5_000) { loop.state.first { it is TaskState.WaitingInput } }
-        assertTrue(loop.answerInput(QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, MIKA_ADDRESS), "就这个")))
+        assertTrue(loop.answerInput(QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.Nuoyi, NUOYI_ADDRESS), "就这个")))
         run.await()
         assertEquals(listOf("帮我下单", "就这个"), said.all)
     }
@@ -280,7 +280,7 @@ class AgentLoopMemoryTest {
 
     private companion object {
         /** 用户引的 Nuoyi 之前的一句回答。 */
-        const val MIKA_ADDRESS = "你常用的收货地址是幸福路 8 号"
+        const val NUOYI_ADDRESS = "你常用的收货地址是幸福路 8 号"
     }
 }
 

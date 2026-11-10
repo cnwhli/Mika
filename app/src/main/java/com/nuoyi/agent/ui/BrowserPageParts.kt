@@ -269,8 +269,8 @@ fun BrowserToolbar(
 fun LoginBanner(desktop: Boolean, onDone: () -> Unit) {
     val c = NuoyiTheme.colors
     val text = buildAnnotatedString {
-        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(tr(R.string.browser_login_for_mika)) }
-        append(tr(R.string.browser_login_for_mika_sub, if (desktop) tr(R.string.browser_desktop) else tr(R.string.browser_mobile)))
+        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(tr(R.string.browser_login_for_nuoyi)) }
+        append(tr(R.string.browser_login_for_nuoyi_sub, if (desktop) tr(R.string.browser_desktop) else tr(R.string.browser_mobile)))
     }
     Row(
         Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 8.dp)

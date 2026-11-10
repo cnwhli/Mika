@@ -31,18 +31,18 @@ class UsbHelperHangupTest {
             }
         }
         executable("id", """[ "${'$'}1" = -u ] || exit 1; printf '2000\n'""")
-        executable("pidof", """[ -f "${'$'}MIKA_TEST_DIR/pid" ] || exit 1; cat "${'$'}MIKA_TEST_DIR/pid";""")
+        executable("pidof", """[ -f "${'$'}NUOYI_TEST_DIR/pid" ] || exit 1; cat "${'$'}NUOYI_TEST_DIR/pid";""")
         executable(
             "app_process",
             """
             IFS= read -r received || exit 1
-            printf '%s' "${'$'}received" > "${'$'}MIKA_TEST_DIR/nonce"
-            printf '%s' "${'$'}${'$'}" > "${'$'}MIKA_TEST_DIR/pid"
+            printf '%s' "${'$'}received" > "${'$'}NUOYI_TEST_DIR/nonce"
+            printf '%s' "${'$'}${'$'}" > "${'$'}NUOYI_TEST_DIR/pid"
             tick=0
             while :; do
                 tick=${'$'}((tick + 1))
-                printf '%s' "${'$'}tick" > "${'$'}MIKA_TEST_DIR/heartbeat.tmp"
-                mv "${'$'}MIKA_TEST_DIR/heartbeat.tmp" "${'$'}MIKA_TEST_DIR/heartbeat"
+                printf '%s' "${'$'}tick" > "${'$'}NUOYI_TEST_DIR/heartbeat.tmp"
+                mv "${'$'}NUOYI_TEST_DIR/heartbeat.tmp" "${'$'}NUOYI_TEST_DIR/heartbeat"
                 sleep 0.05
             done
             """.trimIndent(),
@@ -57,7 +57,7 @@ class UsbHelperHangupTest {
         fun heartbeat(): Long = runCatching { File(dir, "heartbeat").readText().toLong() }.getOrDefault(-1)
         val launcher = ProcessBuilder("sh", script.path).apply {
             environment()["PATH"] = bin.path + File.pathSeparator + environment()["PATH"]
-            environment()["MIKA_TEST_DIR"] = dir.path
+            environment()["NUOYI_TEST_DIR"] = dir.path
             redirectErrorStream(true)
         }.start()
         launcher.outputStream.close()
@@ -72,7 +72,7 @@ class UsbHelperHangupTest {
             assertFalse("nonce must not be in process arguments", arguments.any { nonce in it })
 
             val before = heartbeat()
-            val hangup = ProcessBuilder("sh", "-c", """kill -HUP "${'$'}1";""", "mika-hangup-test", pid.toString()).start()
+            val hangup = ProcessBuilder("sh", "-c", """kill -HUP "${'$'}1";""", "nuoyi-hangup-test", pid.toString()).start()
             assertTrue("send HUP", hangup.waitFor(3, TimeUnit.SECONDS))
             assertEquals("send HUP", 0, hangup.exitValue())
             assertTrue("helper keeps working after HUP", await { heartbeat() >= before + 3 })

@@ -857,7 +857,7 @@ class WebScreen(
         val session = tab.devtools.session(tab)
             ?: return ScriptRun.Failed(DEVTOOLS_UNAVAILABLE, "This page has no DevTools connection, so page scripts cannot run here.")
         return try {
-            // 每个 mika 动作之前再查一次:脚本跑着时页面可能交给了用户或崩了
+            // 每个 nuoyi 动作之前再查一次:脚本跑着时页面可能交给了用户或崩了
             PageScriptRunner(session, preflight = {
                 when {
                     tab.crashed -> ScriptRun.Failed("tab_crashed", "The page's tab crashed.")

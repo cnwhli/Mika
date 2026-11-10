@@ -134,7 +134,7 @@ class ScriptStepsTest {
         }
         val model = FakeModel(
             ModelReply(listOf(Part.ToolCall("a", "web_navigate", """{"url":"https://shop.example.com/"}""")), StopReason.ToolUse, null),
-            ModelReply(listOf(Part.ToolCall("b", WEB_SCRIPT_TOOL, """{"code":"await mika.tap('@e2')"}""")), StopReason.ToolUse, null),
+            ModelReply(listOf(Part.ToolCall("b", WEB_SCRIPT_TOOL, """{"code":"await nuoyi.tap('@e2')"}""")), StopReason.ToolUse, null),
             com.nuoyi.agent.core.testing.answerReply("ok"),
         )
         AgentLoop(model, toolDispatcher(FakeScreen(), web = port), "BASE", sink = sink).run("搜一下再发")

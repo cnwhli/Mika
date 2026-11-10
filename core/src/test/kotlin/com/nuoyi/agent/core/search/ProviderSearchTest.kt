@@ -55,14 +55,14 @@ class ProviderSearchTest {
     @Test fun jinaIsAPostWithBearerAndNoContent() = withServer(ok("""{"code":200,"status":20000,"data":[
         {"title":"J1","url":"https://j.example/1","description":"D1","usage":{"tokens":1}},
         {"title":"J2","url":"https://j.example/2","description":"","content":"only content"}]}""")) { server ->
-        val result = JinaSearch(" jina-key ", client, server.url("/")).search("mika", 3)
+        val result = JinaSearch(" jina-key ", client, server.url("/")).search("nuoyi", 3)
         val request = server.takeRequest()
         assertEquals("POST", request.method)
         assertEquals("Bearer jina-key", request.getHeader("Authorization"))
         assertEquals("no-content", request.getHeader("X-Respond-With"))
         assertEquals("application/json", request.getHeader("Accept"))
         val sent = Json.parseToJsonElement(request.body.readUtf8()).jsonObject
-        assertEquals("mika", sent["q"]!!.jsonPrimitive.content)
+        assertEquals("nuoyi", sent["q"]!!.jsonPrimitive.content)
         assertEquals(3, sent["num"]!!.jsonPrimitive.int)
         assertEquals(
             listOf(WebSearchHit("J1", "https://j.example/1", "D1"), WebSearchHit("J2", "https://j.example/2", "only content")),
@@ -98,13 +98,13 @@ class ProviderSearchTest {
     @Test fun exaIsAPostAskingForHighlights() = withServer(ok("""{"requestId":"r","results":[
         {"id":"1","title":"E1","url":"https://e.example/1","highlights":["first part","second part"]},
         {"id":"2","title":"E2","url":"https://e.example/2","summary":"a summary"}]}""")) { server ->
-        val result = ExaSearch("exa-key", client, server.url("/search")).search("mika", 2)
+        val result = ExaSearch("exa-key", client, server.url("/search")).search("nuoyi", 2)
         val request = server.takeRequest()
         assertEquals("POST", request.method)
         assertEquals("/search", request.path)
         assertEquals("Bearer exa-key", request.getHeader("Authorization"))
         val sent = Json.parseToJsonElement(request.body.readUtf8()).jsonObject
-        assertEquals("mika", sent["query"]!!.jsonPrimitive.content)
+        assertEquals("nuoyi", sent["query"]!!.jsonPrimitive.content)
         assertEquals(2, sent["numResults"]!!.jsonPrimitive.int)
         assertTrue(sent["contents"]!!.jsonObject["highlights"]!!.jsonPrimitive.boolean)
         assertEquals(

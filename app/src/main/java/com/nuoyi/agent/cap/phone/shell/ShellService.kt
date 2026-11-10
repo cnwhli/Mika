@@ -67,7 +67,7 @@ class ShellService(
     private var orientationWatch: DisplayOrientationWatch? = null
     private val requestedOrientations = ConcurrentHashMap<Int, Int>()
     /** 被静音的包 → 静音前的 PLAY_AUDIO 模式("default" 表示原先未设置),落在 [stateDir] 里,进程被杀后下次启动接着恢复。 */
-    private val muted = AudioMuteLedger(File(stateDir, "mika_audio_mute_$allowedUid"))
+    private val muted = AudioMuteLedger(File(stateDir, "nuoyi_audio_mute_$allowedUid"))
     /** Nuoyi 所在的用户:本来那份 App 装在这里;别的用户里的是另一份(分身、工作资料)。 */
     private val myUser = allowedUid / PER_USER_RANGE
 
@@ -113,7 +113,7 @@ class ShellService(
 
     private fun createVirtualDisplay(surface: Surface, width: Int, height: Int, dpi: Int, trusted: Boolean): Int {
         val flags = displayFlags(Build.VERSION.SDK_INT, trusted)
-        val vd = displayManager.createVirtualDisplay("mika-agent", width, height, dpi, surface, flags)
+        val vd = displayManager.createVirtualDisplay("nuoyi-agent", width, height, dpi, surface, flags)
         val id = vd.display.displayId
         synchronized(displays) { displays[id] = vd }
         setFullscreenWindowingMode(id)
@@ -125,7 +125,7 @@ class ShellService(
 
     /** 自成一组的虚拟屏一直不睡,见 [DisplayAwake]。 */
     private val awake by lazy {
-        val timer = Executors.newSingleThreadScheduledExecutor { Thread(it, "mika-display-awake").apply { isDaemon = true } }
+        val timer = Executors.newSingleThreadScheduledExecutor { Thread(it, "nuoyi-display-awake").apply { isDaemon = true } }
         DisplayAwake(::pokeDisplay) { r ->
             val f = timer.scheduleWithFixedDelay(r, 0, DisplayAwake.PERIOD_MS, TimeUnit.MILLISECONDS)
             return@DisplayAwake { f.cancel(false) }
@@ -226,7 +226,7 @@ class ShellService(
             val ok = runCatching {
                 val wm = Class.forName("android.view.WindowManagerGlobal").getMethod("getWindowManagerService").invoke(null)!!
                 val method = wm.javaClass.methods.first { it.name == "freezeDisplayRotation" }
-                if (method.parameterTypes.size == 3) method.invoke(wm, id, rotation, "mika") else method.invoke(wm, id, rotation)
+                if (method.parameterTypes.size == 3) method.invoke(wm, id, rotation, "nuoyi") else method.invoke(wm, id, rotation)
             }.isSuccess
             if (!ok) exec("wm", "user-rotation", "-d", "$id", "lock", "$rotation")
         }.onFailure { Log.w(TAG, "orientation sync failed on display $id", it) }
@@ -1468,13 +1468,13 @@ class ShellService(
 
     private fun commandResult(code: Int, output: String) = Bundle().apply { putInt("exitCode", code); putString("output", output) }
 
-    /** 以 shell 身份跑 `sh -c`,合并输出,限时限长;[displayId] 不为空时放进 MIKA_DISPLAY_ID。 */
+    /** 以 shell 身份跑 `sh -c`,合并输出,限时限长;[displayId] 不为空时放进 NUOYI_DISPLAY_ID。 */
     private fun exec(command: String, displayId: Int?): Bundle {
         fun result(code: Int, output: String) = commandResult(code, output)
         if (command.isBlank() || command.length > 4_000) return result(-1, "Invalid command length.")
         val process = try {
             ProcessBuilder("/system/bin/sh", "-c", command).redirectErrorStream(true)
-                .apply { if (displayId != null) environment()["MIKA_DISPLAY_ID"] = displayId.toString() }.start()
+                .apply { if (displayId != null) environment()["NUOYI_DISPLAY_ID"] = displayId.toString() }.start()
         } catch (t: Throwable) {
             return result(-1, t.message ?: "Command could not start.")
         }

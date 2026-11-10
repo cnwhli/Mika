@@ -187,7 +187,7 @@ The Apache Software Foundation (https://www.apache.org/).
   `app/src/main/assets/runtime/packages.json`,App 的「开源许可」页也逐个列出
 - Usage: **随 APK 发布**,文件 `app/src/main/assets/runtime/rootfs.tar.xz`,由 `tools/sandbox/build-runtime.py`
   按 `tools/sandbox/runtime/sources.lock` 从 Alpine 官方源取得并核对签名后生成;诺伊 只以子进程方式运行其中的程序,不链接它们。
-  GPL/LGPL/MPL 软件包的对应源码(Alpine 的构建配方与上游源码)随每个版本放进 `mika-<版本>-gpl-sources.tar.gz`,
+  GPL/LGPL/MPL 软件包的对应源码(Alpine 的构建配方与上游源码)随每个版本放进 `nuoyi-<版本>-gpl-sources.tar.gz`,
   做法见 `tools/sandbox/README.md`。
 
 ## Guava ListenableFuture(由 AndroidX 库引入)

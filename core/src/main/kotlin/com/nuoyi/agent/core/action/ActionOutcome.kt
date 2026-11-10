@@ -74,7 +74,7 @@ internal object Refusals {
                 "confirmation_required" -> "this step spends money (${hit?.matched})"
                 "confirmation_mismatch" -> "this payment step (${hit?.matched}) does not match what the user approved ($reason)"
                 "approval_unavailable" -> "this step spends money and this run cannot get the user's approval; the action was not run"
-                "target_unresolved" -> "that ref is not on the latest snapshot; call mika.snapshot() again"
+                "target_unresolved" -> "that ref is not on the latest snapshot; call nuoyi.snapshot() again"
                 OWN_APP -> Feedback["own_app"]
                 else -> error("unknown refusal $code")
             }

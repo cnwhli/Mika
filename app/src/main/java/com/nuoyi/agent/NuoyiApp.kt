@@ -101,7 +101,7 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
     val wechat by lazy {
         com.nuoyi.agent.wechat.WechatRuntime(this,
             com.nuoyi.agent.wechat.WechatStore(java.io.File(filesDir, "wechat"),
-                com.nuoyi.agent.settings.KeystoreKeyCipher("mika-wechat-account")))
+                com.nuoyi.agent.settings.KeystoreKeyCipher("nuoyi-wechat-account")))
     }
 
     /** 本机授权的主屏唤醒/解锁；电脑连接和无人值守定时任务共用同一条确定性流程。 */
@@ -113,7 +113,7 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
      */
     val mcp by lazy {
         val settingsDir = java.io.File(filesDir, "settings")
-        val settings = com.nuoyi.agent.settings.McpSettings(settingsDir, com.nuoyi.agent.settings.KeystoreKeyCipher("mika-mcp-token"))
+        val settings = com.nuoyi.agent.settings.McpSettings(settingsDir, com.nuoyi.agent.settings.KeystoreKeyCipher("nuoyi-mcp-token"))
         val history = com.nuoyi.agent.task.PhoneHistory(conversations, com.nuoyi.agent.record.RunStore(this), detailedTraces.store,
             allowed = { settings.historyEnabled.value }, live = { remoteTasks.list(100) })
         com.nuoyi.agent.mcp.McpRuntime(this, settings,
@@ -122,7 +122,7 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
                 infoFile = { getExternalFilesDir(null)?.let { java.io.File(it, com.nuoyi.agent.core.mcp.McpUsb.INFO_FILE) } },
                 migrateTaskOwner = remoteTasks::migrateUsbOwner),
             remoteTasks, deviceAccess,
-            com.nuoyi.agent.settings.RelaySettings(settingsDir, com.nuoyi.agent.settings.KeystoreKeyCipher("mika-remote-relay")),
+            com.nuoyi.agent.settings.RelaySettings(settingsDir, com.nuoyi.agent.settings.KeystoreKeyCipher("nuoyi-remote-relay")),
             history)
     }
     val childRuns by lazy { FileChildRunStore(java.io.File(filesDir, "children-v3.json")) }
@@ -131,7 +131,7 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
     val mcpServers by lazy {
         com.nuoyi.agent.settings.McpServerStore(
             java.io.File(filesDir, "settings"),
-            com.nuoyi.agent.settings.KeystoreKeyCipher("mika-mcp-servers"),
+            com.nuoyi.agent.settings.KeystoreKeyCipher("nuoyi-mcp-servers"),
             stdio = com.nuoyi.agent.core.cap.mcp.McpStdioLauncher { workspace, argv ->
                 val process = AndroidSandbox(this, SandboxState.get(this)).openProcess(workspace, argv, null)
                 object : com.nuoyi.agent.core.cap.mcp.McpStdioProcess {

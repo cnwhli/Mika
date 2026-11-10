@@ -16,7 +16,7 @@ import java.nio.file.LinkOption
 import java.security.MessageDigest
 
 /**
- * 把随 App 打包的技能脚本(清单 + 清单列出的文件)同步到 `files/sandbox/skills/`,沙箱里是 `/opt/mika/skills`。
+ * 把随 App 打包的技能脚本(清单 + 清单列出的文件)同步到 `files/sandbox/skills/`,沙箱里是 `/opt/nuoyi/skills`。
  * 这个目录在沙箱里写得动(PRoot 的绑定是可写的),所以每次都按磁盘上实际的内容核对:和打包的一模一样才不动;
  * 多出、缺少、改过的文件,或出现链接等非普通文件,都先在旁边写一份新的再整体换上。
  *

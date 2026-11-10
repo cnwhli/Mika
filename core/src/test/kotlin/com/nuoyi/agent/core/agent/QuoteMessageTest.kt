@@ -8,12 +8,12 @@ import org.junit.Test
 
 /** 引用前面的消息:写进话里给模型的样子、截断、拆回来,旧的话照原样;存下的轮次带着引用。 */
 class QuoteMessageTest {
-    private val mika = QuoteMessage.Quote(QuoteMessage.From.Nuoyi, "明天上午有小雨\n下午转晴")
+    private val nuoyi = QuoteMessage.Quote(QuoteMessage.From.Nuoyi, "明天上午有小雨\n下午转晴")
 
     @Test fun theModelSeesWhoIsQuotedAndWhat() {
         assertEquals(
             "> [Quoting your earlier reply]\n> 明天上午有小雨\n> 下午转晴\n\n那要带伞吗",
-            QuoteMessage.compose(mika, "那要带伞吗"),
+            QuoteMessage.compose(nuoyi, "那要带伞吗"),
         )
         assertEquals(
             "> [Quoting my earlier message]\n> 帮我查明天的天气\n\n换成后天",
@@ -42,8 +42,8 @@ class QuoteMessageTest {
     }
 
     @Test fun parsesBackWhatWasComposed() {
-        val p = QuoteMessage.parse(QuoteMessage.compose(mika, "那要带伞吗"))
-        assertEquals(mika, p.quote)
+        val p = QuoteMessage.parse(QuoteMessage.compose(nuoyi, "那要带伞吗"))
+        assertEquals(nuoyi, p.quote)
         assertEquals("那要带伞吗", p.words)
         val blank = QuoteMessage.parse(QuoteMessage.compose(QuoteMessage.Quote(QuoteMessage.From.You, "a\n\nb"), "c"))
         assertEquals("a\n\nb", blank.quote?.text)
@@ -60,7 +60,7 @@ class QuoteMessageTest {
 
     // 存下的轮次原样带着引用;给模型的上文里也看得出引的是什么
     @Test fun storedTurnsKeepTheQuote() {
-        val goal = QuoteMessage.compose(mika, "那要带伞吗")
+        val goal = QuoteMessage.compose(nuoyi, "那要带伞吗")
         val context = (Conversation.context(listOf(Turn(goal, "要带", "succeeded")))!!.parts.single() as Part.Text).text
         assertTrue(context.contains("[Quoting your earlier reply]"))
         assertTrue(context.contains("明天上午有小雨"))

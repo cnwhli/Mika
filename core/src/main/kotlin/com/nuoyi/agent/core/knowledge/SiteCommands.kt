@@ -32,7 +32,7 @@ data class SiteCommand(val site: String, val decl: SiteCommandDecl, val body: St
  * name 与文件名相同;arg 可以有多行,写作「名字 类型 [required] [- 说明]」;头部之后是 async 函数体,参数在 `args` 里。
  */
 object SiteCommandFile {
-    const val MARK = "/* mika-command"
+    const val MARK = "/* nuoyi-command"
     const val DESCRIPTION_LIMIT = 120
     const val BODY_LIMIT = 8_000
     val NAME = Regex("[a-z][a-z0-9_]{0,39}")

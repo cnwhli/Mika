@@ -23,28 +23,28 @@ Below, `<tag>` is that value (e.g. `v0.1.31`) and `<ver>` is the version without
 
 ## 3. Install the Skill
 
-`<skills-directory>` is your agent's skills directory, as given in that agent's own documentation; the Skill goes into a `mika` folder inside it.
+`<skills-directory>` is your agent's skills directory, as given in that agent's own documentation; the Skill goes into a `nuoyi` folder inside it.
 
 POSIX:
 
 ```sh
-curl -L -o mika.zip https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip
-unzip -q mika.zip -d mika-src
-mkdir -p <skills-directory> && cp -R mika-src/Nuoyi-<ver>/tools/mika <skills-directory>/mika
-python3 <skills-directory>/mika/scripts/mika_cli.py --version
+curl -L -o nuoyi.zip https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip
+unzip -q nuoyi.zip -d nuoyi-src
+mkdir -p <skills-directory> && cp -R nuoyi-src/Nuoyi-<ver>/tools/mika <skills-directory>/nuoyi
+python3 <skills-directory>/nuoyi/scripts/mika_cli.py --version
 ```
 
 Windows PowerShell:
 
 ```powershell
-Invoke-WebRequest https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip -OutFile mika.zip
-Expand-Archive mika.zip -DestinationPath mika-src
+Invoke-WebRequest https://github.com/wangzan101/Mika/archive/refs/tags/<tag>.zip -OutFile nuoyi.zip
+Expand-Archive nuoyi.zip -DestinationPath nuoyi-src
 New-Item -ItemType Directory -Force "<skills-directory>" | Out-Null
-Copy-Item -Recurse mika-src\Nuoyi-<ver>\tools\mika "<skills-directory>\mika"
-py -3 "<skills-directory>\mika\scripts\mika_cli.py" --version
+Copy-Item -Recurse nuoyi-src\Nuoyi-<ver>\tools\nuoyi "<skills-directory>\nuoyi"
+py -3 "<skills-directory>\nuoyi\scripts\mika_cli.py" --version
 ```
 
-Interpreter: `py -3` on Windows, `python3` elsewhere. With only the Skill, `mika` below means `python3 <skills-directory>/mika/scripts/mika_cli.py` (`py -3 ...` on Windows).
+Interpreter: `py -3` on Windows, `python3` elsewhere. With only the Skill, `nuoyi` below means `python3 <skills-directory>/nuoyi/scripts/mika_cli.py` (`py -3 ...` on Windows).
 
 ## 4. Connect
 
@@ -52,13 +52,13 @@ Use the connection method the user picked on the phone (Settings › Connect a c
 
 1. USB: use authorized ADB.
    ```sh
-   mika devices --json
-   mika connect --device SERIAL --json
+   nuoyi devices --json
+   nuoyi connect --device SERIAL --json
    ```
    With more than one phone online, ask the user which one and keep using it.
 2. Wi-Fi / private VPN: use the HTTP address and token file path the user gives you (read the token from the file only; never show it):
    ```sh
-   mika --url http://PHONE:8765 --token-file /path/to/token doctor --json
+   nuoyi --url http://PHONE:8765 --token-file /path/to/token doctor --json
    ```
 
 State `unauthorized`: ask the user to allow USB debugging on the phone. `offline`: ask them to replug the cable. Connection information unreadable (`connection_info`): ask them to unlock the phone and open Nuoyi once, then run `connect` again.
@@ -68,7 +68,7 @@ State `unauthorized`: ask the user to allow USB debugging on the phone. `offline
 If a task is stuck or the result looks wrong, pull the redacted record (the same events as the phone's process view, without screenshot files) and line it up with `task status`:
 
 ```sh
-mika task export TASK_OR_RUN_ID --json
+nuoyi task export TASK_OR_RUN_ID --json
 ```
 
 The header states `task_id`, `conversation_id` and run_id. `partial: true` means it is still in progress. An unknown id is an explicit error, not an empty record.

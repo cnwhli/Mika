@@ -20,7 +20,7 @@ PRs welcome. Start with [`docs/dev/architecture.md`](../docs/dev/architecture.md
 
 ### Build and test
 
-Requires JDK 17 and the Android SDK (`sdk.dir` in `local.properties`, or the `ANDROID_HOME` environment variable). CLI tests also require Python 3.10+; select an interpreter with `-PmikaPython=/path/to/python3`.
+Requires JDK 17 and the Android SDK (`sdk.dir` in `local.properties`, or the `ANDROID_HOME` environment variable). CLI tests also require Python 3.10+; select an interpreter with `-PnuoyiPython=/path/to/python3`.
 
 ```bash
 ./gradlew :app:assembleDebug                  # debug build

@@ -11,7 +11,7 @@
     <string name="install_no_space">Не хватает места: нужно %1$d МБ (свободно %2$d МБ)</string>
     <string name="install_cannot_start">Среда не запускается: %1$s</string>
     <string name="install_exit_code">код завершения %1$d</string>
-    <string name="install_no_client">Отсутствует команда mika (пакет неполный)</string>
+    <string name="install_no_client">Отсутствует команда nuoyi (пакет неполный)</string>
     <string name="sandbox_resetting">Сброс</string>
     <string name="sandbox_incomplete">Файлы среды неполные; её можно сбросить в разделе «Настройки» → «Дополнительно»</string>
     <string name="sandbox_not_finished">Настройка не завершена; можно повторить</string>

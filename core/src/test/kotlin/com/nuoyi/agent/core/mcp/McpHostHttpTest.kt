@@ -45,11 +45,11 @@ class McpHostHttpTest {
         assertEquals("2025-11-25", Json.parseToJsonElement(init).jsonObject["result"]!!.jsonObject["protocolVersion"]!!.jsonPrimitive.content)
         assertEquals(202, post("""{"jsonrpc":"2.0","method":"notifications/initialized"}""").first)
 
-        val (s1, run) = post("""{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"mika_run_task","arguments":{"goal":"tell me the Android version"}}}""")
+        val (s1, run) = post("""{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"nuoyi_run_task","arguments":{"goal":"tell me the Android version"}}}""")
         assertEquals(200, s1)
         assertTrue(run.contains("\"task_id\":\"t1\""))
         fake.set("t1", TaskState.Succeeded("Android 15"))
-        val (_, wait) = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mika_wait_task","arguments":{"task_id":"t1","timeout_s":5}}}""")
+        val (_, wait) = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nuoyi_wait_task","arguments":{"task_id":"t1","timeout_s":5}}}""")
         assertTrue(wait, wait.contains("Android 15"))
 
         assertEquals(1, host.activity.value.recentClients)

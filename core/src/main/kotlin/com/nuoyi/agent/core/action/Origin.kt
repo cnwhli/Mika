@@ -49,7 +49,7 @@ sealed interface Origin {
         override val policy get() = BATCH
     }
 
-    /** web_script 里的一个 `mika.*` 动作。 */
+    /** web_script 里的一个 `nuoyi.*` 动作。 */
     data class Script(override val step: Int) : Origin {
         override val policy get() = SCRIPT
     }

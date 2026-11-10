@@ -58,7 +58,7 @@ class WebTabPoolTest {
             val main = WebViewAssetLoader.Builder().addPathHandler("/assets/", assets).addPathHandler("/status/", status).build()
             val other = WebViewAssetLoader.Builder().setDomain("fixtures2.androidplatform.net").addPathHandler("/assets/", assets).build()
             // 另一个可注册域名:androidplatform.net 下的子域与 appassets 同站
-            val foreign = WebViewAssetLoader.Builder().setDomain("fixtures.mika-other.test").addPathHandler("/assets/", assets).build()
+            val foreign = WebViewAssetLoader.Builder().setDomain("fixtures.nuoyi-other.test").addPathHandler("/assets/", assets).build()
             pool = WebTabPool(ctx, host, assetLoaders = listOf(main, other, foreign))
         }
         scope.launch(start = CoroutineStart.UNDISPATCHED) { pool.events.collect { events += it } }
@@ -195,7 +195,7 @@ class WebTabPoolTest {
         withContext(Dispatchers.Main) { pool.closeAll("A") }
         assertTrue(s.tabs().isEmpty())
         s.navigate(fixture("host.html"), newTab = false)
-        assertTrue(js(current("A")!!, "document.cookie").contains("mika_test=1"))
+        assertTrue(js(current("A")!!, "document.cookie").contains("nuoyi_test=1"))
     }
 
     @Test
@@ -221,7 +221,7 @@ class WebTabPoolTest {
         DeviceSupport.pollUntil(5_000) { current("A")?.view?.let { v -> runBlocking(Dispatchers.Main) { v.url } }?.takeIf { it.endsWith("host.html") } }
         val tab = current("A")!!
         // 另一个可注册域名(androidplatform.net 下的子域彼此同站)
-        js(tab, "location.href = 'https://fixtures.mika-other.test/assets/web-fixtures/host.html'")
+        js(tab, "location.href = 'https://fixtures.nuoyi-other.test/assets/web-fixtures/host.html'")
         delay(1_500)
         assertTrue(runBlocking(Dispatchers.Main) { tab.view.url }!!.startsWith("https://appassets.androidplatform.net/"))
         assertTrue(s.tabs().any { it.tabId == popup.tabId })
@@ -245,7 +245,7 @@ class WebTabPoolTest {
             assertTrue("cleared=$cleared", cleared >= 1)
             assertTrue(registry.list().isEmpty())
             val left = js(p.current("A")!!, "document.cookie")
-            assertFalse(left, left.contains("mika_test"))
+            assertFalse(left, left.contains("nuoyi_test"))
         } finally {
             instr.runOnMainSync { p.close() }
         }

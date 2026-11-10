@@ -43,9 +43,9 @@ class RemoteTaskApiTest {
         val (code, first) = request("/api/v1/tasks", "POST", """{"goal":"from CLI"}""")
         assertEquals(201, code)
         val id = first["task_id"]!!.jsonPrimitive.content
-        val viaMcp = mcp("mika_task_status", buildJsonObject { put("task_id", id) })["structuredContent"]!!.jsonObject
+        val viaMcp = mcp("nuoyi_task_status", buildJsonObject { put("task_id", id) })["structuredContent"]!!.jsonObject
         assertEquals(first, viaMcp)
-        val second = mcp("mika_run_task", buildJsonObject {
+        val second = mcp("nuoyi_run_task", buildJsonObject {
             put("goal", "from MCP"); put("conversation", first["conversation"]!!)
         })["structuredContent"]!!.jsonObject
         assertEquals(first["conversation"], second["conversation"])
@@ -59,7 +59,7 @@ class RemoteTaskApiTest {
         request("/api/v1/tasks", "POST", """{"goal":"a task"}""")
         tasks.set("t1", TaskState.WaitingTakeover("payment", "Use the phone"))
         assertEquals(409, request("/api/v1/tasks/t1/answer", "POST", """{"text":"yes"}""").first)
-        assertTrue(mcp("mika_answer", buildJsonObject { put("task_id", "t1"); put("text", "yes") })["isError"]!!.jsonPrimitive.boolean)
+        assertTrue(mcp("nuoyi_answer", buildJsonObject { put("task_id", "t1"); put("text", "yes") })["isError"]!!.jsonPrimitive.boolean)
         assertTrue(tasks.answers.isEmpty())
         tasks.set("t1", TaskState.WaitingInput("Which account?"))
         assertEquals(200, request("/api/v1/tasks/t1/answer", "POST", """{"text":"personal"}""").first)
@@ -70,7 +70,7 @@ class RemoteTaskApiTest {
         assertNull(cancelled["status"])
         assertEquals("waiting_for_answer", request("/api/v1/tasks/t1").second["status"]!!.jsonPrimitive.content)
         tasks.set("t1", TaskState.Cancelled)
-        assertEquals("cancelled", mcp("mika_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject["status"]!!.jsonPrimitive.content)
+        assertEquals("cancelled", mcp("nuoyi_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject["status"]!!.jsonPrimitive.content)
     }
 
     @Test fun resultsPreserveVerificationUnknownFalseAndTrue() {
@@ -80,7 +80,7 @@ class RemoteTaskApiTest {
         for (verified in listOf(false, true)) {
             tasks.set("t1", TaskState.Succeeded("answer", verified = verified, reviewed = true))
             val viaApi = request("/api/v1/tasks/t1").second
-            val viaMcp = mcp("mika_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject
+            val viaMcp = mcp("nuoyi_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject
             assertEquals(viaMcp, viaApi)
             assertEquals(verified, viaApi["verified"]!!.jsonPrimitive.boolean)
         }
@@ -97,13 +97,13 @@ class RemoteTaskApiTest {
         assertTrue(ack["accepted"]!!.jsonPrimitive.boolean)
         assertEquals("s1", ack["message_id"]!!.jsonPrimitive.content)
         assertNull(ack["status"])
-        val viaMcp = mcp("mika_steer_task", buildJsonObject { put("task_id", "t1"); put("text", "only read") })["structuredContent"]!!.jsonObject
+        val viaMcp = mcp("nuoyi_steer_task", buildJsonObject { put("task_id", "t1"); put("text", "only read") })["structuredContent"]!!.jsonObject
         assertEquals("s2", viaMcp["message_id"]!!.jsonPrimitive.content)
         val task = tasks.get("t1")!!
         assertEquals(listOf("t1" to "only today", "t1" to "only read"), tasks.steered)
         tasks.tasks["t1"] = task.copy(steers = listOf(RemoteSteer("s1", "joined"), RemoteSteer("s2", "received")))
         val status = request("/api/v1/tasks/t1").second
-        assertEquals(status, mcp("mika_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject)
+        assertEquals(status, mcp("nuoyi_task_status", buildJsonObject { put("task_id", "t1") })["structuredContent"]!!.jsonObject)
         assertEquals(listOf("joined", "received"), status["steers"]!!.jsonArray.map { it.jsonObject["state"]!!.jsonPrimitive.content })
         assertEquals(1, tasks.tasks.size)
     }

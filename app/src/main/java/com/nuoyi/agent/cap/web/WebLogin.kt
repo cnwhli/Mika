@@ -10,7 +10,7 @@ import com.nuoyi.agent.core.cap.web.WebUrlPolicy
  * 退出网站:尽力而为。系统接口只能按网址读到 Cookie 的名字,读不到路径、域与 HttpOnly 细节,
  * 所以对这个主机名及各级上级域(到可注册域名为止)读到的每个 Cookie,分别按「只属于主机」和「属于整个域」写一条过期记录,
  * 再清掉这些来源的网页存储。个别网站的登录可能仍在,彻底清除用 [logoutAll]。
- * [cookies]、[storage] 用 mika 网页配置的(见 [WebTab.cookieManager]);主线程调用。
+ * [cookies]、[storage] 用 nuoyi 网页配置的(见 [WebTab.cookieManager]);主线程调用。
  */
 class WebLogin(private val cookies: CookieManager, private val storage: WebStorage, private val registry: SiteRegistry?) {
 

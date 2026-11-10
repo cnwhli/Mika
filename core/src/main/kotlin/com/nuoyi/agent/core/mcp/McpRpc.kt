@@ -171,7 +171,7 @@ class McpRpc(
     }
 
     private fun capabilities() = buildJsonObject { putJsonObject("tools") { put("listChanged", false) } }
-    private fun serverInfo() = buildJsonObject { put("name", "mika"); put("title", "Nuoyi"); put("version", serverVersion) }
+    private fun serverInfo() = buildJsonObject { put("name", "nuoyi"); put("title", "Nuoyi"); put("version", serverVersion) }
 
     private fun clientName(info: JsonElement?): String? =
         ((info as? JsonObject)?.get("name") as? JsonPrimitive)?.contentOrNull?.take(64)
@@ -218,8 +218,8 @@ class McpRpc(
         const val META_CAPABILITIES = "io.modelcontextprotocol/clientCapabilities"
         const val META_SERVER = "io.modelcontextprotocol/serverInfo"
 
-        const val INSTRUCTIONS = "Nuoyi is an AI agent running on the user's Android phone. Hand it whole tasks with mika_run_task " +
-            "(it operates the phone's apps and browser itself), then follow them with mika_wait_task. Answer its questions with mika_answer. " +
+        const val INSTRUCTIONS = "Nuoyi is an AI agent running on the user's Android phone. Hand it whole tasks with nuoyi_run_task " +
+            "(it operates the phone's apps and browser itself), then follow them with nuoyi_wait_task. Answer its questions with nuoyi_answer. " +
             "Payments, confirmations and steps handed to the user can only be done by the user on the phone."
 
         private val json = Json { ignoreUnknownKeys = true }

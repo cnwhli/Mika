@@ -843,7 +843,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
             importAttachments = { _, uris ->
                 imported += uris
                 com.nuoyi.agent.cap.sandbox.ImportResult(listOf("/workspace/inbox/shared.jpg" to 3L), emptyList())
@@ -852,13 +852,13 @@ class ChatViewModelTest {
         runCurrent()
         val image = com.nuoyi.agent.chat.SharedDraftImage("shared.jpg", "photo.jpg", 3)
         assertTrue(vm.openSharedDraft(SharedDraft("", "说明这张图", image)))
-        assertEquals(listOf("content://mika.shared/shared.jpg"), vm.ui.value.attachments.map { it.uri })
+        assertEquals(listOf("content://nuoyi.shared/shared.jpg"), vm.ui.value.attachments.map { it.uri })
         assertTrue(imported.isEmpty())
         assertTrue(calls.isEmpty())
 
         assertTrue(vm.send("说明这张图", ok))
         runCurrent()
-        assertEquals(listOf(listOf("content://mika.shared/shared.jpg")), imported)
+        assertEquals(listOf(listOf("content://nuoyi.shared/shared.jpg")), imported)
         assertEquals(listOf("start:说明这张图\n附件:/workspace/inbox/shared.jpg(3 B)"), calls)
         assertNull(drafts.read())
         assertFalse(drafts.imageFile("shared.jpg")!!.exists())
@@ -873,7 +873,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
             importAttachments = { _, _ ->
                 releaseImport.await()
                 com.nuoyi.agent.cap.sandbox.ImportResult(listOf("/workspace/inbox/first.jpg" to 1L), emptyList())
@@ -893,11 +893,11 @@ class ChatViewModelTest {
         runCurrent()
         assertEquals(secondId, vm.ui.value.conversationId)
         assertEquals(second, vm.ui.value.sharedDraft?.image)
-        assertEquals(listOf("content://mika.shared/second.jpg"), vm.ui.value.attachments.map { it.uri })
+        assertEquals(listOf("content://nuoyi.shared/second.jpg"), vm.ui.value.attachments.map { it.uri })
         assertTrue(calls.isEmpty())
 
         // 纯图片草稿移除图片后彻底消失,不留下空白分享元数据。
-        vm.removeAttachment("content://mika.shared/second.jpg")
+        vm.removeAttachment("content://nuoyi.shared/second.jpg")
         assertNull(vm.ui.value.sharedDraft)
         assertTrue(vm.ui.value.attachments.isEmpty())
         assertEquals(listOf(firstId), drafts.readAll().map { it.conversationId })
@@ -987,7 +987,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
         )
         runCurrent()
 
@@ -1019,7 +1019,7 @@ class ChatViewModelTest {
         val restored = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
         )
         runCurrent()
         assertEquals("确认替换的分享", restored.ui.value.pendingSharedDraft?.text)
@@ -1028,7 +1028,7 @@ class ChatViewModelTest {
         assertEquals(currentId, restored.ui.value.conversationId)
         assertEquals("确认替换的分享", restored.ui.value.input)
         assertNull(restored.ui.value.quote)
-        assertEquals(listOf("content://mika.shared/replaced.jpg"), restored.ui.value.attachments.map { it.uri })
+        assertEquals(listOf("content://nuoyi.shared/replaced.jpg"), restored.ui.value.attachments.map { it.uri })
         assertFalse(drafts.imageFile("old.jpg")!!.exists())
         assertTrue(drafts.imageFile("replaced.jpg")!!.exists())
     }
@@ -1041,7 +1041,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
             importAttachments = { _, _ -> ImportResult(listOf("/workspace/inbox/answer.jpg" to 2L), emptyList()) },
         )
         runCurrent()
@@ -1056,7 +1056,7 @@ class ChatViewModelTest {
         val image = com.nuoyi.agent.chat.SharedDraftImage("busy.jpg", "busy.jpg", 2)
         assertTrue(vm.openSharedDraft(SharedDraft("", "排队看这张图", image), inCurrentConversation = true))
         assertEquals(FollowUpMode.Queue, vm.ui.value.followUpMode)
-        assertEquals(listOf("content://mika.shared/busy.jpg"), vm.ui.value.attachments.map { it.uri })
+        assertEquals(listOf("content://nuoyi.shared/busy.jpg"), vm.ui.value.attachments.map { it.uri })
 
         // 用户改了文字后手动切回插话模式:图片副本被清理,改过的文字仍保留在草稿存储中。
         vm.input("改成纯文字插话")
@@ -1093,7 +1093,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
             importAttachments = { _, _ ->
                 releaseImport.await()
                 firstFileExistedDuringImport = drafts.imageFile("first.jpg")!!.exists()
@@ -1119,7 +1119,7 @@ class ChatViewModelTest {
         assertFalse(drafts.imageFile("first.jpg")!!.exists())
         assertTrue(drafts.imageFile("second.jpg")!!.exists())
         assertEquals("看图", vm.ui.value.input)
-        assertEquals(listOf("content://mika.shared/second.jpg"), vm.ui.value.attachments.map { it.uri })
+        assertEquals(listOf("content://nuoyi.shared/second.jpg"), vm.ui.value.attachments.map { it.uri })
         assertEquals(FollowUpMode.Queue, vm.ui.value.followUpMode)
     }
 
@@ -1131,7 +1131,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             backgroundScope, state, stage, actions, conversations,
             sharedDrafts = drafts,
-            sharedDraftUri = { "content://mika.shared/$it" },
+            sharedDraftUri = { "content://nuoyi.shared/$it" },
             importAttachments = { _, _ ->
                 releaseImport.await()
                 ImportResult(listOf("/workspace/inbox/shot.jpg" to 1L), emptyList())

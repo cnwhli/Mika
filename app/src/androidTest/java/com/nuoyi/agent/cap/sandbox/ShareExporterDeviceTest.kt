@@ -37,7 +37,7 @@ class ShareExporterDeviceTest {
 
     @Test fun exportsToDownloadsNuoyi() = runBlocking {
         val f = File(ws, "out.txt").apply { writeText("你好".repeat(1000)) }
-        val name = "mika-test-${System.currentTimeMillis()}.txt"
+        val name = "nuoyi-test-${System.currentTimeMillis()}.txt"
         val card = export(f.name, name)
         exported += card.uri
         val saved = card.savedAs

@@ -75,8 +75,8 @@ class MainScreenSpillTest {
         // 桌面和通知栏入口不发控件点击时，先有回桌面的主屏导航也足以证明是用户入口
         assertTrue(decide(desktop, opened).isEmpty())
         // Nuoyi 自己的主屏页面不是桌面，不能把 Agent 的真实外溢当成用户操作
-        val mika = arrival(task = 2, pkg = "com.nuoyi.agent", at = since + 200, from = MainScreenSpill.MAIN)
-        assertEquals(listOf(PullBack(opened)), decide(mika, opened))
+        val nuoyi = arrival(task = 2, pkg = "com.nuoyi.agent", at = since + 200, from = MainScreenSpill.MAIN)
+        assertEquals(listOf(PullBack(opened)), decide(nuoyi, opened))
     }
 
     @Test fun userTappingThePopupItselfLeavesItThere() {

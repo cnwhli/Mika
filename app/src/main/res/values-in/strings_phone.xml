@@ -75,7 +75,7 @@
     <string name="fail_revoked">Pemasangan kedaluwarsa</string>
     <string name="fail_revoked_body">Sistem mungkin mencabutnya setelah lama tidak dipakai, atau pemasangannya dihapus. Cukup pasangkan lagi. Aktifkan “Nonaktifkan waktu tunggu otorisasi adb” di Opsi developer agar tidak kedaluwarsa lagi.</string>
     <string name="fail_key_unreadable">Kunci pemasangan tidak bisa dibaca</string>
-    <string name="fail_key_unreadable_body">Nuoyi tidak bisa lagi membaca kunci yang dipakai untuk memasangkan. Pasangkan sekali lagi; Nuoyi akan membuat kunci baru dan entri lama “mika@…” di Perangkat terpasang bisa dihapus.</string>
+    <string name="fail_key_unreadable_body">Nuoyi tidak bisa lagi membaca kunci yang dipakai untuk memasangkan. Pasangkan sekali lagi; Nuoyi akan membuat kunci baru dan entri lama “nuoyi@…” di Perangkat terpasang bisa dihapus.</string>
     <string name="fail_helper">Tersambung, tetapi belum bisa bersiap</string>
     <string name="fail_helper_body">Mencoba ulang biasanya menyelesaikannya.</string>
     <string name="fail_unknown">Terjadi kesalahan</string>

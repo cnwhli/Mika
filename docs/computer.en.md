@@ -15,7 +15,7 @@ Both entry points reach the same task service on the phone. **Normally one is en
 | Your situation | Pick | Read |
 | --- | --- | --- |
 | Your computer agent can run commands and supports Skills | **Skill**: includes its own CLI script, so no separate CLI install and no MCP configuration | [Install the Skill](computer-install.en.md#skill-install) |
-| You want to submit tasks from a terminal or script | **CLI**: the `mika` command | [Install the CLI](computer-install.en.md#cli-install), [connection and task commands](cli.en.md) |
+| You want to submit tasks from a terminal or script | **CLI**: the `nuoyi` command | [Install the CLI](computer-install.en.md#cli-install), [connection and task commands](cli.en.md) |
 | You use a client that speaks MCP | **MCP**: Nuoyi acts as an MCP server | [Computer access (MCP)](mcp.en.md) |
 
 Not sure? If your agent supports Skills, use the Skill; otherwise use MCP.
@@ -39,11 +39,11 @@ Each connection has its own switch and token, and both can be on at once. The co
 - **MCP**: follow [Computer access (MCP)](mcp.en.md), which covers both USB and Wi-Fi / VPN step by step.
 - **Let an AI agent on your computer set it up**: with the phone connected over USB, give it [Install with an AI agent on your computer](install-with-agent.en.md). It installs Nuoyi on the phone first; if you also want computer access, it then sets up the entry point you chose.
 
-## Task desk (`mika ui`)
+## Task desk (`nuoyi ui`)
 
 The optional [Feishu connector](feishu.en.md) can also create/link a bot and exchange tasks and results in private chats; its computer process must stay online.
 
-If you would rather not type commands, connect the phone and run `mika ui`. Your browser opens a task desk where you can start tasks, follow their steps, answer questions, add instructions and cancel tasks; recent tasks started from other entry points show up too. Reads pause while the tab is hidden and resume when you come back; steps that need you still have to be handled on the phone. The desk follows the browser's language: Simplified Chinese or English.
+If you would rather not type commands, connect the phone and run `nuoyi ui`. Your browser opens a task desk where you can start tasks, follow their steps, answer questions, add instructions and cancel tasks; recent tasks started from other entry points show up too. Reads pause while the tab is hidden and resume when you come back; steps that need you still have to be handled on the phone. The desk follows the browser's language: Simplified Chinese or English.
 
 The sidebar groups the latest 50 remote tasks by conversation. Read each turn in the center and use the composer to continue after a turn ends. Select **View process** to expand the phone’s report and the updates observed in this tab above that turn’s reply. Select **Hide process** to collapse it. The composer keeps your current draft. Select **New chat** to start a separate conversation.
 
@@ -53,8 +53,8 @@ Each turn’s **View process** can show saved run events and detailed Trace entr
 
 On a phone with task recovery, the desk matches a missing submission receipt by ID when the connection returns. Choose **Find task** if the task is outside the recent list. If the phone has no record yet, choose **Retry with the same ID**. The tab keeps the pending request across a reload until you recover it, retry successfully or dismiss it.
 
-- With several ADB devices, choose one in the page or start with `mika ui --device SERIAL`; Wi-Fi / private VPN connections use the usual `--url` and `--token-file`.
-- With only the Skill installed, run `python3 <skills-directory>/mika/scripts/mika_cli.py ui`.
+- With several ADB devices, choose one in the page or start with `nuoyi ui --device SERIAL`; Wi-Fi / private VPN connections use the usual `--url` and `--token-file`.
+- With only the Skill installed, run `python3 <skills-directory>/nuoyi/scripts/mika_cli.py ui`.
 - Attach files to a new task or a follow-up with **Attach files**, or paste a clipboard image into the composer. Select up to 9 files totalling 200 MiB. You can remove them before sending or send files without a message. The phone imports them into that conversation’s workspace and numbers duplicate names.
 - When a task exports a result file on the phone, its turn shows a download button with the file name and size. Select it to save a copy. A missing or changed result reports an error. Attachments and downloads require a compatible phone and desk.
 - If no browser opens, add `--no-open` and open the printed link in a browser on this computer.
@@ -65,9 +65,9 @@ On a phone with task recovery, the desk matches a missing submission receipt by 
 When a task is stuck, the result looks wrong, or another tool on the computer needs to debug it, pull that turn's redacted record over the same connection. It is the same event stream as the phone's process view, redacted again, and it does not include screenshot files.
 
 ```bash
-mika task export TASK_OR_RUN_ID --json
+nuoyi task export TASK_OR_RUN_ID --json
 ```
 
-The JSON has `exportFormat` 1 and states `task_id`, `conversation_id` and run_id (`conversation_id` is the same value as `conversation` on `task status`). `partial: true` means the turn is still in progress and the events are what has been written so far. An unknown id fails with an explicit error. For one event per line: `mika task export ID --events`.
+The JSON has `exportFormat` 1 and states `task_id`, `conversation_id` and run_id (`conversation_id` is the same value as `conversation` on `task status`). `partial: true` means the turn is still in progress and the events are what has been written so far. An unknown id fails with an explicit error. For one event per line: `nuoyi task export ID --events`.
 
 **View process** on the desk is still the progress observed in that page, not this full event stream. Downloading the same JSON from the desk, or attaching an OTLP Trace or screenshots, is left for later.

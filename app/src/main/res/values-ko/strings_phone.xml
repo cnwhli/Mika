@@ -75,7 +75,7 @@
     <string name="fail_revoked">페어링이 만료됐어요</string>
     <string name="fail_revoked_body">오래 사용하지 않아 시스템이 취소했거나 삭제됐을 수 있어요. 다시 페어링하기만 하면 돼요. 개발자 옵션에서 “adb 인증 시간 제한 사용 안 함”을 켜면 다시 만료되지 않아요.</string>
     <string name="fail_key_unreadable">페어링 키를 읽을 수 없어요</string>
-    <string name="fail_key_unreadable_body">Nuoyi가 페어링에 쓴 키를 더 이상 읽을 수 없어요. 한 번 다시 페어링하면 Nuoyi가 새 키를 만들고, 페어링된 기기 목록의 이전 “mika@…” 항목은 삭제해도 돼요.</string>
+    <string name="fail_key_unreadable_body">Nuoyi가 페어링에 쓴 키를 더 이상 읽을 수 없어요. 한 번 다시 페어링하면 Nuoyi가 새 키를 만들고, 페어링된 기기 목록의 이전 “nuoyi@…” 항목은 삭제해도 돼요.</string>
     <string name="fail_helper">연결은 됐지만 준비하지 못했어요</string>
     <string name="fail_helper_body">다시 시도하면 보통 해결돼요.</string>
     <string name="fail_unknown">문제가 생겼어요</string>

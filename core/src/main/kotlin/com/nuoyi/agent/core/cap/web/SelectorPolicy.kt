@@ -7,7 +7,7 @@ package com.nuoyi.agent.core.cap.web
  * 还原时宁可多认:转义出来的方括号(类名 `.\5b value`)也算作按 value 选。
  * 带 `url(` 的一律算作按 value 选:url( 后面不带引号时到 `)` 为止是一个记号,里面的注释记号、引号既不开始注释也不开始字符串,
  * 上面的还原对不上;`:is()` 只丢掉写错的那一项,后面的 `[value` 照样生效。选择器里本来也用不到它。
- * web_script 的 mika.query 在 Kotlin 里查([selectsByValue]);只读脚本的查找方法在页面里调,用同一套规矩的 JS 版([JS])。
+ * web_script 的 nuoyi.query 在 Kotlin 里查([selectsByValue]);只读脚本的查找方法在页面里调,用同一套规矩的 JS 版([JS])。
  */
 object SelectorPolicy {
     fun selectsByValue(selector: String): Boolean = plain(selector).let { URL_FUNCTION.containsMatchIn(it) || BY_VALUE.containsMatchIn(it) }

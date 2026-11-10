@@ -64,11 +64,11 @@ interface SandboxPort {
     fun workspaceBytes(workspace: String): Long
 
     /**
-     * 存完整输出到 /workspace/.mika/out-<n>.txt,返回沙箱路径。经 [files] 新建(.mika 被换成链接等时抛异常,不写任何东西)。
+     * 存完整输出到 /workspace/.nuoyi/out-<n>.txt,返回沙箱路径。经 [files] 新建(.nuoyi 被换成链接等时抛异常,不写任何东西)。
      */
     fun saveOutput(workspace: String, text: String): String
 
-    /** [skillPath]:`/opt/mika/skills` 下的技能目录(相对路径);读随 App 打包的那份清单,没有为空。 */
+    /** [skillPath]:`/opt/nuoyi/skills` 下的技能目录(相对路径);读随 App 打包的那份清单,没有为空。 */
     fun scriptManifest(skillPath: String): List<ScriptEntry>
 
     /**
@@ -77,7 +77,7 @@ interface SandboxPort {
      */
     suspend fun awaitReady(timeoutMs: Long): SandboxStatus = status()
 
-    /** 把 `/opt/mika/skills` 核对成随 App 打包的那份:多出、缺少、改过的都重新同步。失败只记下,不抛。 */
+    /** 把 `/opt/nuoyi/skills` 核对成随 App 打包的那份:多出、缺少、改过的都重新同步。失败只记下,不抛。 */
     suspend fun prepare() {}
 
     /** [skillPath] 下的 [file] 与打包的那份逐字节相同;不同就重新同步一次再核,仍不同为 false。 */

@@ -11,7 +11,7 @@
     <string name="install_no_space">可用空間不足 %1$d MB(剩 %2$d MB)</string>
     <string name="install_cannot_start">執行環境無法啟動:%1$s</string>
     <string name="install_exit_code">退出碼 %1$d</string>
-    <string name="install_no_client">缺少 mika 指令(安裝包不完整)</string>
+    <string name="install_no_client">缺少 nuoyi 指令(安裝包不完整)</string>
     <string name="sandbox_resetting">重置</string>
     <string name="sandbox_incomplete">執行環境檔案不完整,可在設定 → 進階裡重置</string>
     <string name="sandbox_not_finished">安裝沒有完成,可以重試</string>

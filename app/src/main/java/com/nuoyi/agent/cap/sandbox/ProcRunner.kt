@@ -38,7 +38,7 @@ object ProcRunner {
             "-w", if (cwd.isEmpty()) SandboxPaths.WORKSPACE else "${SandboxPaths.WORKSPACE}/$cwd",
         ) + command
 
-    /** 环境先清空,只给这些;桥没开时不给 MIKA_BRIDGE / MIKA_TOKEN。 */
+    /** 环境先清空,只给这些;桥没开时不给 NUOYI_BRIDGE / NUOYI_TOKEN。 */
     fun env(
         dirs: SandboxDirs, bridgeName: String?, token: String?, conversationId: String,
         /** 容器的网络代理;空串表示不用(见 NetProxyStore)。不允许联网时调用方给空串。 */
@@ -52,9 +52,9 @@ object ProcRunner {
         put("TMPDIR", "/tmp")
         // 每次启动都读取手机当前时区;Alpine 的 libc 不会读取 Android 的系统时区。
         put("TZ", timezone())
-        bridgeName?.let { put("MIKA_BRIDGE", it) }
-        token?.let { put("MIKA_TOKEN", it) }
-        put("MIKA_CONVERSATION", conversationId)
+        bridgeName?.let { put("NUOYI_BRIDGE", it) }
+        token?.let { put("NUOYI_TOKEN", it) }
+        put("NUOYI_CONVERSATION", conversationId)
         // 代理只给容器里的命令用:常见工具认这几个变量(有的只认大写);本机地址不走代理
         if (proxy.isNotBlank()) {
             for (name in listOf("http_proxy", "https_proxy", "all_proxy")) {

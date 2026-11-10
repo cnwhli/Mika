@@ -37,7 +37,7 @@ class AppMuterTest {
     private val muter = AppMuter(
         record,
         enabled = { enabled },
-        mutable = { it != "mika.self" && it != "system.ui" },
+        mutable = { it != "nuoyi.self" && it != "system.ui" },
         onMainScreen = { pkg, user -> AppAudioKey.of(pkg, user) in onMain },
         failed = { failed += it },
     )
@@ -107,7 +107,7 @@ class AppMuterTest {
     }
 
     @Test fun neverTouchesOwnOrSystemOrMainScreenApps() {
-        muter.opened("mika.self", null)
+        muter.opened("nuoyi.self", null)
         muter.opened("system.ui", null)
         onMain += "maps.app"
         muter.beforeOpen("maps.app", null)

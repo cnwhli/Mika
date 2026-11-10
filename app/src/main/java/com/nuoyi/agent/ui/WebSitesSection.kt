@@ -79,7 +79,7 @@ fun WebSitesSection(state: WebSitesState, labeled: Boolean = true) {
             onDismissRequest = { picked = null },
             title = { Text(s.host) },
             text = {
-                val base = if (s.loggedInByUser) tr(R.string.web_you_signed_in) else tr(R.string.web_mika_visited)
+                val base = if (s.loggedInByUser) tr(R.string.web_you_signed_in) else tr(R.string.web_nuoyi_visited)
                 Text(if (s.challenged(System.currentTimeMillis())) "$base\n\n$WEB_CHALLENGED_NOTE" else base)
             },
             confirmButton = {

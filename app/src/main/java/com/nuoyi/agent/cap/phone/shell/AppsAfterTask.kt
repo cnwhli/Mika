@@ -19,7 +19,7 @@ object AppsAfterTask {
         /** 默认:留下。 */
         Default("default"),
         /** Nuoyi 自己的页面。 */
-        Own("mika"),
+        Own("nuoyi"),
         /** 不是普通 App 的页面。 */
         NotApp("not_app"),
         /** 这台系统挪不了任务,照旧随屏关掉。 */

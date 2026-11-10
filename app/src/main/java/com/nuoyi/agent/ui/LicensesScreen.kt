@@ -33,12 +33,12 @@ object Licenses {
 
     const val GPL_SOURCE_OFFER =
         "PRoot(GPL-2.0-or-later)与 talloc(LGPL-3.0-or-later)以独立程序的形式随 Nuoyi 安装包发布,Nuoyi 不链接它们。" +
-            "它们的完整源码、Nuoyi 打的补丁和编译脚本随每个版本放在 Nuoyi 的发布页,文件名 mika-<版本>-gpl-sources.tar.gz;" +
+            "它们的完整源码、Nuoyi 打的补丁和编译脚本随每个版本放在 Nuoyi 的发布页,文件名 nuoyi-<版本>-gpl-sources.tar.gz;" +
             "源码仓库的 tools/sandbox/ 里也有源码地址、校验值、补丁与编译脚本,可以自己重新编译。"
 
     const val RUNTIME_NOTE =
         "运行 Python、Node 等程序用的系统随 Nuoyi 安装包发布,来自 Alpine Linux 3.22,下面逐个列出其中的软件包与许可证。" +
-            "其中 GPL、LGPL、MPL 软件包的源码(Alpine 的构建配方与上游源码)同样放在 mika-<版本>-gpl-sources.tar.gz 里。"
+            "其中 GPL、LGPL、MPL 软件包的源码(Alpine 的构建配方与上游源码)同样放在 nuoyi-<版本>-gpl-sources.tar.gz 里。"
 
     /** 自带运行环境里的软件包(assets/runtime/packages.json,由 tools/sandbox/build-runtime.py 生成)。 */
     fun runtimePackages(json: String): List<Entry> =
@@ -49,7 +49,7 @@ object Licenses {
         }
 
     val ENTRIES = listOf(
-        Entry("Nuoyi", "Apache-2.0", "Nuoyi 本身,包括运行环境的启动器、其中的 mika 命令与技能脚本。许可证全文见本页顶上。"),
+        Entry("Nuoyi", "Apache-2.0", "Nuoyi 本身,包括运行环境的启动器、其中的 nuoyi 命令与技能脚本。许可证全文见本页顶上。"),
         Entry("PRoot", "GPL-2.0-or-later", "运行 Python、Node 等程序用的环境,版本 5.4.0,打了一个补丁(PRoot 退出时结束所有子进程)。$GPL_SOURCE_OFFER"),
         Entry("talloc", "LGPL-3.0-or-later", "版本 2.4.3,未修改,静态链接进 PRoot 程序。可用 tools/sandbox/ 的源码与脚本重新链接。"),
         Entry("Apache Commons Compress", "Apache-2.0", "首次启动时解包自带的运行环境。Copyright 2002-2025 The Apache Software Foundation."),

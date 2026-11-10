@@ -212,7 +212,7 @@ class LiveRunTest {
                 Thread.sleep(3000)
                 val shell = DeviceSupport.shell()
                 note("paused; still paused after 3s: ${DeviceTaskState.state.value}; main top task=${shell.topTaskId(0)} pkg=${shell.packageOfTask(shell.topTaskId(0))}")
-                note("notifications: " + mikaNotifications())
+                note("notifications: " + nuoyiNotifications())
                 mainShot(dir, "paused-main")
                 TaskService.resume(context)
                 note("resume requested")
@@ -312,7 +312,7 @@ class LiveRunTest {
         kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeoutOrNull(5_000) { keeper.frames().filterNotNull().first() } }?.let { bmp ->
             File(dir, "kept-frame.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
         }
-        val notified = mikaNotifications().contains(appString(R.string.kept_notif_title))
+        val notified = nuoyiNotifications().contains(appString(R.string.kept_notif_title))
         // WebView 只能在主线程上问
         var keptUrl: String? = null
         InstrumentationRegistry.getInstrumentation().runOnMainSync { keptUrl = if (tab.destroyed) null else tab.view.url }
@@ -552,7 +552,7 @@ class LiveRunTest {
     }
 
     /** Nuoyi 当前通知的标题、正文和按钮(从 dumpsys notification 里摘)。 */
-    private fun mikaNotifications(): String = sh("dumpsys notification --noredact")
+    private fun nuoyiNotifications(): String = sh("dumpsys notification --noredact")
         .split("NotificationRecord(").drop(1).filter { "pkg=com.nuoyi.agent " in it }
         .joinToString(" || ") { rec ->
             rec.lines().map { it.trim() }

@@ -27,7 +27,7 @@ internal class MainScreenWatch(
     private val tasks: () -> List<MainScreenLog.Task>,
 ) {
     private val log = MainScreenLog()
-    private val thread = HandlerThread("mika-main-watch").apply { start() }
+    private val thread = HandlerThread("nuoyi-main-watch").apply { start() }
     private val handler = Handler(thread.looper)
     /** 盯到什么时候(uptimeMillis)。 */
     @Volatile private var until = 0L

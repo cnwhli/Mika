@@ -7,7 +7,7 @@ import android.webkit.WebViewDatabase
 object WebSites {
     fun registry(context: Context): SiteRegistry = WebOwner.of(context).webSites
 
-    /** 设置页用的退出操作:mika 网页配置的 Cookie 与网页存储。主线程调用。 */
+    /** 设置页用的退出操作:nuoyi 网页配置的 Cookie 与网页存储。主线程调用。 */
     fun login(context: Context): WebLogin = WebLogin(WebTab.cookieManager(), WebTab.webStorage(), registry(context))
 
     /**

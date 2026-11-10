@@ -80,7 +80,7 @@ internal object RunBundledScript : SandboxTool {
     override val def = ToolDef("run_bundled_script",
         Prompts.tool("run_bundled_script"),
         mapOf(
-            "source" to str("Directory the script ships in, under /opt/mika/skills: the scriptSource from knowledge_read or skill_read, e.g. skills/documents."),
+            "source" to str("Directory the script ships in, under /opt/nuoyi/skills: the scriptSource from knowledge_read or skill_read, e.g. skills/documents."),
             "script" to str("Path of the script inside that directory, e.g. scripts/extract_pdf.py."),
             "args" to strArray("Arguments, at most 50, each passed unchanged.", 50),
             "timeoutSec" to int(TIMEOUT, 1, 600),

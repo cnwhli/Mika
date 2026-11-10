@@ -136,7 +136,7 @@ interface WebPort : ScreenPort {
     suspend fun siteMode(): String? = null
 
     /**
-     * 在当前标签真实页面的隔离世界里跑 [code](async 函数体),`mika.*` 的调用经 [bridge] 回到 Nuoyi;上限 [timeoutMs]。
+     * 在当前标签真实页面的隔离世界里跑 [code](async 函数体),`nuoyi.*` 的调用经 [bridge] 回到 Nuoyi;上限 [timeoutMs]。
      * DevTools 用不了时报 devtools_unavailable,不退回别的做法。
      */
     suspend fun runScript(code: String, timeoutMs: Long, bridge: ScriptBridge): ScriptRun =

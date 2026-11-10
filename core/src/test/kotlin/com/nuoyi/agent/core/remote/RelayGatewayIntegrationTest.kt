@@ -35,7 +35,7 @@ class RelayGatewayIntegrationTest {
         val key = "integration-test-owner-key-not-a-real-secret"
         val owner = tmp.newFile("owner-key").apply { writeText(key) }
         val log = tmp.newFile("gateway.log")
-        val process = ProcessBuilder(System.getProperty("mika.relayBinary"), "-listen", "127.0.0.1:$port", "-public-url", base,
+        val process = ProcessBuilder(System.getProperty("nuoyi.relayBinary"), "-listen", "127.0.0.1:$port", "-public-url", base,
             "-local-http", "-trust-proxy", "-owner-key-file", owner.absolutePath, "-data", tmp.root.resolve("relay.json").absolutePath)
             .redirectErrorStream(true).redirectOutput(log).start()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -73,11 +73,11 @@ class RelayGatewayIntegrationTest {
             val init = post("""{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"remote-check","version":"1"}}}""")
             assertEquals(200, init.first); assertTrue(init.second.contains("2025-11-25"))
             val tools = post("""{"jsonrpc":"2.0","id":2,"method":"tools/list"}""")
-            assertEquals(200, tools.first); assertTrue(tools.second.contains("mika_run_task"))
-            val run = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mika_run_task","arguments":{"goal":"test remote dispatch"}}}""")
+            assertEquals(200, tools.first); assertTrue(tools.second.contains("nuoyi_run_task"))
+            val run = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nuoyi_run_task","arguments":{"goal":"test remote dispatch"}}}""")
             assertEquals(200, run.first); assertTrue(run.second, run.second.contains("\"task_id\":\"t1\""))
             tasks.set("t1", TaskState.Succeeded("remote result"))
-            val result = post("""{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mika_wait_task","arguments":{"task_id":"t1","timeout_s":1}}}""")
+            val result = post("""{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"nuoyi_wait_task","arguments":{"task_id":"t1","timeout_s":1}}}""")
             assertTrue(result.second, result.second.contains("remote result"))
             assertTrue(endpoints.activity.value.recentClients > 0)
             // Run the shipped Python CLI through the real Go gateway and Kotlin phone API.
@@ -85,7 +85,7 @@ class RelayGatewayIntegrationTest {
             val script = File("../tools/mika/scripts/mika_cli.py").canonicalPath
             fun cli(vararg args: String): JsonObject {
                 lateinit var err: File
-                val cli = ProcessBuilder(listOf(System.getProperty("mika.python", "python3"), script,
+                val cli = ProcessBuilder(listOf(System.getProperty("nuoyi.python", "python3"), script,
                     "--url", base, "--token-file", tokenFile.absolutePath, "--json") + args)
                     .directory(tmp.root).redirectError(File.createTempFile("cli", ".err", tmp.root).also { err = it }).start()
                 if (!cli.waitFor(10, TimeUnit.SECONDS)) { cli.destroyForcibly(); fail("Remote CLI timed out") }

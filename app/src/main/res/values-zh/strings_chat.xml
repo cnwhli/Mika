@@ -152,7 +152,7 @@
     <string name="chat_branch_attachments_readd">附件需要重新添加</string>
     <string name="chat_select_hint">长按文字就能选择</string>
     <string name="chat_quote_remove">去掉引用</string>
-    <string name="chat_quoting_mika">引用 诺伊:%1$s</string>
+    <string name="chat_quoting_nuoyi">引用 诺伊:%1$s</string>
     <string name="chat_quoting_you">引用你的话:%1$s</string>
     <string name="chat_edit_message">编辑消息</string>
     <string name="chat_withdraw_message">撤回消息</string>

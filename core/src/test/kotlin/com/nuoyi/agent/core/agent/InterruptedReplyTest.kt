@@ -63,14 +63,14 @@ class InterruptedReplyTest {
         return inner.requests[0].messages
     }
 
-    private fun List<Message>.mikaTexts() =
+    private fun List<Message>.nuoyiTexts() =
         filter { it.role == Role.Assistant && it.author == Author.Mika }.map { m -> m.parts.filterIsInstance<Part.Text>().joinToString("") { it.text } }
 
     @Test fun keepsTheTextTheUserSawRightBeforeTheSteer() = runTest {
         val events = Events()
         val messages = steerDuring(listOf("好的,我先", "好的,我先查今天的天气 "), events)
         val kept = messages.indexOfLast { it.role == Role.Assistant }
-        assertEquals(listOf("好的,我先查今天的天气"), messages.mikaTexts())
+        assertEquals(listOf("好的,我先查今天的天气"), messages.nuoyiTexts())
         assertEquals(listOf(Part.Text("好的,我先查今天的天气")), messages[kept].parts)
         val next = messages[kept + 1]
         assertEquals(Author.User, next.author)
@@ -81,21 +81,21 @@ class InterruptedReplyTest {
     @Test fun nothingIsKeptWhenNoTextWasShown() = runTest {
         val events = Events()
         val messages = steerDuring(emptyList(), events)
-        assertTrue(messages.mikaTexts().isEmpty())
+        assertTrue(messages.nuoyiTexts().isEmpty())
         assertTrue(events.interrupted.isEmpty())
     }
 
     @Test fun textClearedByARetryIsNotKept() = runTest {
         val events = Events()
         val messages = steerDuring(listOf("先看一下", ""), events)
-        assertTrue(messages.mikaTexts().isEmpty())
+        assertTrue(messages.nuoyiTexts().isEmpty())
         assertTrue(events.interrupted.isEmpty())
     }
 
     @Test fun nothingIsKeptWhenRepliesAreNotStreamedToTheScreen() = runTest {
         val events = Events()
         val messages = steerDuring(listOf("好的,我先查今天的天气"), events, streamReplies = false)
-        assertTrue(messages.mikaTexts().isEmpty())
+        assertTrue(messages.nuoyiTexts().isEmpty())
         assertTrue(events.interrupted.isEmpty())
     }
 
@@ -115,7 +115,7 @@ class InterruptedReplyTest {
         entered.await()
         inbox.send(RunInput.Steer("m1", steerText))
         running.await()
-        assertTrue(requests[1].mikaTexts().isEmpty())
+        assertTrue(requests[1].nuoyiTexts().isEmpty())
     }
 
     private class AllStates : RunSink {
@@ -138,7 +138,7 @@ class InterruptedReplyTest {
         val model = FakeModel(answerReply(full), answerReply("明天多云。"))
         val end = AgentLoop(model, toolDispatcher(FakeScreen()), "BASE", streamReplies = true, sink = sink).run(spec(), inbox)
         assertEquals("明天多云。", (end as TaskState.Succeeded).answer)
-        assertEquals(listOf(full), model.requests[1].mikaTexts())
+        assertEquals(listOf(full), model.requests[1].nuoyiTexts())
         assertEquals(listOf(full), all.detail("reply_finished_before_steer"))
         assertTrue(all.detail("reply_interrupted").isEmpty())
         assertEquals(listOf("reply_finished_before_steer", "steer_received"),

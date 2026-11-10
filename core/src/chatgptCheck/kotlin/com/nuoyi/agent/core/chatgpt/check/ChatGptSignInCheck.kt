@@ -38,7 +38,7 @@ import kotlin.system.exitProcess
  * 桌面上把「用 ChatGPT 登录」整条路走一遍:用 App 同一套登录、列模型和 Responses 代码,对着 OpenAI 的真实服务,
  * 好在上手机之前先确认服务端这一侧没问题。用法见 docs/dev/chatgpt-signin-check.md。
  *
- * 本机标识和注册到的 client_id 存在 ~/.mika-dev/chatgpt-check/(目录 0700),多次运行沿用,和 App 一样。
+ * 本机标识和注册到的 client_id 存在 ~/.nuoyi-dev/chatgpt-check/(目录 0700),多次运行沿用,和 App 一样。
  * 令牌、授权码、ID 令牌一律不打印;默认只在内存里,`--keep` 才写到同一目录的 session.json(0600)。
  *
  * 参数:`--timeout=<秒>` 等回调多久(默认 300);`--model=<slug>` 指定模型;`--keep` 保存登录。
@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
 }
 
 private class Check(private val timeoutSec: Long, private val modelArg: String?, private val keep: Boolean) {
-    private val dir = File(System.getProperty("user.home"), ".mika-dev/chatgpt-check")
+    private val dir = File(System.getProperty("user.home"), ".nuoyi-dev/chatgpt-check")
     private val hostFile = File(dir, "host.json")
     private val sessionFile = File(dir, "session.json")
     private val json = Json { ignoreUnknownKeys = true }
@@ -306,7 +306,7 @@ private fun explain(e: Throwable): String = when (e) {
         SignInFailure.Denied -> "授权页返回了错误(${e.message?.substringAfter(": ", "")}):" +
             "access_denied 是在授权页点了取消;授权页若写着「所需权限不可用」,说明账号不是 Plus 或 Pro,不能把套餐额度给其他 App"
         SignInFailure.StateMismatch -> "回调里的 state 和这次发起的不一致(不是这次登录的回调)"
-        SignInFailure.ClientMismatch -> "回调给出的 client_id 和保存的不一致:删掉 ~/.mika-dev/chatgpt-check/host.json 里的 clientId 后重来"
+        SignInFailure.ClientMismatch -> "回调给出的 client_id 和保存的不一致:删掉 ~/.nuoyi-dev/chatgpt-check/host.json 里的 clientId 后重来"
         SignInFailure.NoClientId -> "第一次注册,回调里却没有给出 client_id"
         SignInFailure.TimedOut -> "等回调超时:浏览器里没有完成登录,或回调没回到 127.0.0.1"
         SignInFailure.Exchange -> "换令牌被拒(${e.message?.substringAfter(": ", "")}):redirect_uri 或 PKCE 不符,或别的原因"

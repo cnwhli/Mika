@@ -58,8 +58,8 @@ class AppAccessScreenPortTest {
     }
 
     @Test fun sensitiveOwnUiIsProtectedEvenWithEmptyList() = runTest {
-        val screen = AppAccessScreenPort(FakeScreen(), AppAccessPolicy.ALLOW, packages = { listOf("mika") },
-            protectedUi = { true }, ownPackage = "mika")
+        val screen = AppAccessScreenPort(FakeScreen(), AppAccessPolicy.ALLOW, packages = { listOf("nuoyi") },
+            protectedUi = { true }, ownPackage = "nuoyi")
         denied("app_access_protected") { screen.snapshot() }
     }
 

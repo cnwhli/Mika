@@ -89,13 +89,13 @@ class SandboxTaskDeviceTest {
     @Test fun scriptArgsWithSpacesReachScript() {
         // 测试技能经「打包的那份」加进去:清单和脚本核对都以打包的为准,直接写进沙箱目录的会被换回去
         SkillsSync.extraForTests = mapOf(
-            "skills/mika-device-test/scripts/manifest.json" to """[{"file":"scripts/echo.py","runnable":true}]""".toByteArray(),
-            "skills/mika-device-test/scripts/echo.py" to "import sys\nfor a in sys.argv[1:]:\n    print(a)\n".toByteArray(),
+            "skills/nuoyi-device-test/scripts/manifest.json" to """[{"file":"scripts/echo.py","runnable":true}]""".toByteArray(),
+            "skills/nuoyi-device-test/scripts/echo.py" to "import sys\nfor a in sys.argv[1:]:\n    print(a)\n".toByteArray(),
         )
         try {
             TaskService.start(context, "回显参数", "sandbox-args-${UUID.randomUUID()}")
             model.awaitCall()
-            model.feed("run_bundled_script", """{"source":"skills/mika-device-test","script":"scripts/echo.py","args":["报表 (1).csv","a;rm -rf /","\"q\""]}""")
+            model.feed("run_bundled_script", """{"source":"skills/nuoyi-device-test","script":"scripts/echo.py","args":["报表 (1).csv","a;rm -rf /","\"q\""]}""")
             val result = lastToolResult(model.awaitCall())
             assertTrue(result, result.contains("\"exitCode\":0"))
             assertTrue(result, result.contains("报表 (1).csv\\na;rm -rf /\\n\\\"q\\\"\\n"))

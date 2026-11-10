@@ -11,7 +11,7 @@
     <string name="install_no_space">空き容量が足りません: %1$d MB が必要です(空き %2$d MB)</string>
     <string name="install_cannot_start">環境を起動できません: %1$s</string>
     <string name="install_exit_code">終了コード %1$d</string>
-    <string name="install_no_client">mika コマンドがありません(パッケージが不完全です)</string>
+    <string name="install_no_client">nuoyi コマンドがありません(パッケージが不完全です)</string>
     <string name="sandbox_resetting">リセット中</string>
     <string name="sandbox_incomplete">環境のファイルが不完全です。「設定 → 詳細設定」でリセットできます</string>
     <string name="sandbox_not_finished">セットアップが完了しませんでした。もう一度お試しください</string>

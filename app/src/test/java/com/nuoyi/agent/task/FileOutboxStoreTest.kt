@@ -10,7 +10,7 @@ import java.nio.file.Files
 
 class FileOutboxStoreTest {
     @Test fun attemptingDeliverySurvivesRestartWithoutLosingItsIdentity() {
-        val dir = Files.createTempDirectory("mika-outbox").toFile()
+        val dir = Files.createTempDirectory("nuoyi-outbox").toFile()
         try {
             val file = dir.resolve("outbox.json")
             val peer = ChannelPeer("local", "owner", "thread")

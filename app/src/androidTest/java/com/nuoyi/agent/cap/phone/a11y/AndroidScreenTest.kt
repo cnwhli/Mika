@@ -62,7 +62,7 @@ class AndroidScreenTest {
         val blank = screen.snapshot()
         assertNull(blank.packageName)
         assertFalse(blank.hasWindow)
-        val command = screen.systemCommand("printf '%s' \"\$MIKA_DISPLAY_ID\"")
+        val command = screen.systemCommand("printf '%s' \"\$NUOYI_DISPLAY_ID\"")
         assertNotNull(command)
         assertEquals(0, command!!.exitCode)
         assertEquals(agent.display.displayId.toString(), command.output)

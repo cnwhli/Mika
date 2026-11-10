@@ -12,20 +12,20 @@ From a repository checkout:
 
 ```bash
 pipx install ./tools/mika-feishu
-mika-feishu setup
+nuoyi-feishu setup
 ```
 
 On the phone, enable Settings › Connect a computer › Network access and copy the network access token. Enter the phone's private address, e.g. `http://100.64.1.2:8765`, using the port shown on the phone. The USB token, model API key and Tailscale auth key are different credentials and cannot replace this token. This version connects directly over the private network; it does not bootstrap USB/ADB.
 
 ## Choose how to add a bot
 
-`mika-feishu setup` offers three paths:
+`nuoyi-feishu setup` offers three paths:
 
 1. **Scan to create.** A local page and terminal QR code open Feishu's official authorization flow. Scan using Feishu, review the new app and requested permissions, and confirm. Returned application credentials are saved locally without being printed.
 2. **Link an existing app.** Enter its App ID or leave it blank to select the app on Feishu's authorization page. Review the changes before confirming. Only choose an app you are entitled to administer.
 3. **Manual.** Enter an existing App ID and App Secret. Secret inputs are hidden; configure the permissions and event below in the developer console.
 
-The explicit equivalents are `mika-feishu setup --mode create`, `--mode existing`, and `--mode manual`. Add `--no-browser` to show the QR/link without opening a browser. Authorization denial, expiry or an incomplete response leaves the previous configuration intact. A registration URL is temporary authorization material; do not share it.
+The explicit equivalents are `nuoyi-feishu setup --mode create`, `--mode existing`, and `--mode manual`. Add `--no-browser` to show the QR/link without opening a browser. Authorization denial, expiry or an incomplete response leaves the previous configuration intact. A registration URL is temporary authorization material; do not share it.
 
 QR setup uses the official SDK's `register_app` and minimal template (`preset: false`) with these two application scopes and one event:
 
@@ -44,8 +44,8 @@ Official references: [registration SDK](https://github.com/larksuite/oapi-sdk-py
 ## Check, pair and run
 
 ```bash
-mika-feishu doctor
-mika-feishu run
+nuoyi-feishu doctor
+nuoyi-feishu run
 ```
 
 `doctor` checks the phone API version/capabilities and Feishu application authentication, and reports local pairing. It sends no message or phone task. It cannot verify event delivery or task success; its report explicitly marks that as unverified.
@@ -73,7 +73,7 @@ Only allowed users' private text messages are accepted. Group messages, attachme
 
 ## Data and upgrades
 
-Configuration defaults to `$XDG_CONFIG_HOME/mika-feishu/config.json` or `~/.config/mika-feishu/config.json` on macOS/Linux, and `%LOCALAPPDATA%\mika-feishu\config.json` on Windows. To override it, put `--config PATH` before the command. Credentials are local plaintext with mode 600 in a mode 700 directory on POSIX; on Windows protect the user directory with its normal private NTFS permissions. Do not commit this directory or share its contents. Feishu receives task text and results as part of the messaging workflow.
+Configuration defaults to `$XDG_CONFIG_HOME/nuoyi-feishu/config.json` or `~/.config/nuoyi-feishu/config.json` on macOS/Linux, and `%LOCALAPPDATA%\nuoyi-feishu\config.json` on Windows. To override it, put `--config PATH` before the command. Credentials are local plaintext with mode 600 in a mode 700 directory on POSIX; on Windows protect the user directory with its normal private NTFS permissions. Do not commit this directory or share its contents. Feishu receives task text and results as part of the messaging workflow.
 
 SQLite state, grouped by app and phone address, stores the paired user, message deduplication and task/conversation association, including task text. Changing the app or phone address requires fresh pairing. Rotating only a secret/token preserves pairing. Stop `run` before rerunning `setup` or `unpair`; a process lock prevents simultaneous consumers of the same configuration.
 
@@ -92,4 +92,4 @@ Incoming message IDs are durably deduplicated. A write whose response is lost is
 | App lacks registration support | Update the SDK/package, or choose manual setup. |
 | Old task missing after phone restart | Check the phone, then `/reset checked`; do not automatically resubmit. |
 
-To remove the local owner, stop the process and run `mika-feishu unpair`. Explicit `allowed_open_ids` configured manually are unaffected. Unpairing does not revoke the application itself or cancel phone tasks.
+To remove the local owner, stop the process and run `nuoyi-feishu unpair`. Explicit `allowed_open_ids` configured manually are unaffected. Unpairing does not revoke the application itself or cancel phone tasks.

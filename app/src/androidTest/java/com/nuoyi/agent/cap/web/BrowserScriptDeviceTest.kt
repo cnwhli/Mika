@@ -139,11 +139,11 @@ class BrowserScriptDeviceTest {
     @Test
     fun readsListWithQuery() = runBlocking<Unit> {
         val r = script("""
-            const list = await mika.queryAll('li.item', { fields: ['text', 'box'] });
-            const count = await mika.query('li.item', { fields: ['count'] });
-            const first = await mika.query('li.item');
-            const status = await mika.text('#status');
-            const none = await mika.query('#nothing-here');
+            const list = await nuoyi.queryAll('li.item', { fields: ['text', 'box'] });
+            const count = await nuoyi.query('li.item', { fields: ['count'] });
+            const first = await nuoyi.query('li.item');
+            const status = await nuoyi.text('#status');
+            const none = await nuoyi.query('#nothing-here');
             return { texts: list.items.map((i) => i.text), total: list.total, count, first: first.text, status, none, visible: list.items[0].box.visible };
         """.trimIndent())
         assertEquals(r.toString(), "true", r.s("ok"))
@@ -152,22 +152,22 @@ class BrowserScriptDeviceTest {
         assertEquals("苹果 3 元", v["texts"]!!.jsonArray[0].jsonPrimitive.content)
         assertEquals("5", v.s("total")); assertEquals("5", v.s("count")); assertEquals("苹果 3 元", v.s("first"))
         assertEquals("clicks=0", v.s("status")); assertEquals("null", v["none"].toString()); assertEquals("true", v.s("visible"))
-        // 页面看不到 mika、绑定和脚本的东西
-        assertEquals("\"undefined undefined undefined\"", page("typeof window.mika + ' ' + typeof window.__mika + ' ' + typeof window.__mikaRun"))
+        // 页面看不到 nuoyi、绑定和脚本的东西
+        assertEquals("\"undefined undefined undefined\"", page("typeof window.nuoyi + ' ' + typeof window.__nuoyi + ' ' + typeof window.__nuoyiRun"))
     }
 
     @Test
     fun secretFieldValuesReadAsMask() = runBlocking<Unit> {
         val r = script("""
-            const q = (s) => mika.query(s, { fields: ['value', 'attrs'] });
-            return { pw: await q('#pw'), otp: await q('#otp'), tok: await q('#tok'), name: await q('#name'), form: await mika.text('#f') };
+            const q = (s) => nuoyi.query(s, { fields: ['value', 'attrs'] });
+            return { pw: await q('#pw'), otp: await q('#otp'), tok: await q('#tok'), name: await q('#name'), form: await nuoyi.text('#f') };
         """.trimIndent())
         val v = Json.parseToJsonElement(r.result()).jsonObject
         for (k in listOf("pw", "otp", "tok")) assertEquals(k, "***", v[k]!!.jsonObject.s("value"))
         assertEquals("***", v["tok"]!!.jsonObject["attrs"]!!.jsonObject.s("value"))
         assertTrue(r.s("result"), "hunter2" !in r.s("result") && "654321" !in r.s("result") && "csrf-123" !in r.s("result"))
         // 按 value 属性选元素(一位一位猜)不行
-        val guess = script("return await mika.query('input[value^=\"c\"]', { fields: ['count'] })")
+        val guess = script("return await nuoyi.query('input[value^=\"c\"]', { fields: ['count'] })")
         assertEquals(guess.toString(), "script_error", guess.s("error"))
         assertTrue(guess.s("message"), guess.s("message").startsWith("Error: invalid_selector"))
     }
@@ -189,7 +189,7 @@ class BrowserScriptDeviceTest {
             tryIt('fnCtor', () => (function () {}).constructor('return this')());
             tryIt('asyncCtor', () => (async function () {}).constructor('return this'));
             tryIt('genCtor', () => (function* () {}).constructor('return this'));
-            tryIt('mikaCtor', () => mika.tap.constructor('return this')());
+            tryIt('nuoyiCtor', () => nuoyi.tap.constructor('return this')());
             tryIt('indirectEval', () => (0, eval)('this'));
             tryIt('stackApi', () => { Error.prepareStackTrace = (e, s) => s; return new Error().stack; });
             tryIt('locationAssign', () => { location.href = '/assets/web-fixtures/host.html'; });
@@ -222,14 +222,14 @@ class BrowserScriptDeviceTest {
     fun tapsTwiceAndTypesThroughNuoyiActions() = runBlocking<Unit> {
         val r = script("""
             const find = (s, name) => s.elements.find(e => e.name === name);
-            let s = await mika.snapshot();
-            await mika.tap(find(s, '加一'));
-            s = await mika.snapshot();
-            await mika.tap(find(s, '加一').ref);
-            s = await mika.snapshot();
-            const typed = await mika.type(find(s, '名字'), '诺伊');
-            mika.log('typed', typed.verification);
-            return await mika.text('#status');
+            let s = await nuoyi.snapshot();
+            await nuoyi.tap(find(s, '加一'));
+            s = await nuoyi.snapshot();
+            await nuoyi.tap(find(s, '加一').ref);
+            s = await nuoyi.snapshot();
+            const typed = await nuoyi.type(find(s, '名字'), '诺伊');
+            nuoyi.log('typed', typed.verification);
+            return await nuoyi.text('#status');
         """.trimIndent())
         assertEquals(r.toString(), "true", r.s("ok"))
         assertEquals("\"clicks=2\"", r.result())
@@ -246,8 +246,8 @@ class BrowserScriptDeviceTest {
     fun actionLimitStopsAtTwenty() = runBlocking<Unit> {
         val r = script("""
             for (let i = 0; i < 25; i++) {
-              const s = await mika.snapshot();
-              await mika.tap(s.elements.find(e => e.name === '加一'));
+              const s = await nuoyi.snapshot();
+              await nuoyi.tap(s.elements.find(e => e.name === '加一'));
             }
         """.trimIndent(), timeoutMs = 60_000)
         assertEquals(r.toString(), "limit_exceeded", r.s("error"))
@@ -258,8 +258,8 @@ class BrowserScriptDeviceTest {
     @Test
     fun irreversibleTapIsNotRun() = runBlocking<Unit> {
         val r = script("""
-            const s = await mika.snapshot();
-            await mika.tap(s.elements.find(e => e.name === '提交订单'));
+            const s = await nuoyi.snapshot();
+            await nuoyi.tap(s.elements.find(e => e.name === '提交订单'));
             return 'after';
         """.trimIndent())
         assertEquals(r.toString(), "confirmation_required", r.s("error"))

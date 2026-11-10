@@ -316,7 +316,7 @@ class CapsuleCardContentTest {
         compose.onNodeWithText("牙膏下单了").assertIsDisplayed()
         compose.onAllNodesWithTag("capsule-screen").assertCountEquals(0)
         compose.onNodeWithText(CapsuleCards.HINT_CONTINUE).assertIsDisplayed()
-        compose.onNodeWithText(CardCopy.BACK_TO_MIKA).performClick()
+        compose.onNodeWithText(CardCopy.BACK_TO_NUOYI).performClick()
         assertEquals(listOf("open c-a"), calls)
     }
 

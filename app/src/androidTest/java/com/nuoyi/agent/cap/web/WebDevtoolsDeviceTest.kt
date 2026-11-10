@@ -118,7 +118,7 @@ class WebDevtoolsDeviceTest {
         assertTrue(s === devtools.session(tab))
         assertNotNull(devtools.targetId(tab))
         // 标记用完已删
-        assertEquals("\"undefined\"", js(tab, "typeof window.__mikaDevtoolsMark"))
+        assertEquals("\"undefined\"", js(tab, "typeof window.__nuoyiDevtoolsMark"))
     }
 
     @Test

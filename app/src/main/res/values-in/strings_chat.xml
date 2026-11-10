@@ -152,7 +152,7 @@
     <string name="chat_branch_attachments_readd">Tambahkan ulang lampiran yang ingin disertakan</string>
     <string name="chat_select_hint">Tekan lama teks untuk memilihnya</string>
     <string name="chat_quote_remove">Hapus kutipan</string>
-    <string name="chat_quoting_mika">Mengutip Nuoyi: %1$s</string>
+    <string name="chat_quoting_nuoyi">Mengutip Nuoyi: %1$s</string>
     <string name="chat_quoting_you">Mengutip Anda: %1$s</string>
     <string name="chat_edit_message">Ubah pesan</string>
     <string name="chat_withdraw_message">Tarik pesan</string>

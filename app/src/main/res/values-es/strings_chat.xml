@@ -162,7 +162,7 @@
     <string name="chat_branch_attachments_readd">Vuelve a adjuntar los archivos que quieras incluir</string>
     <string name="chat_select_hint">Mantén pulsado el texto para seleccionarlo</string>
     <string name="chat_quote_remove">Quitar cita</string>
-    <string name="chat_quoting_mika">Citando a Nuoyi: %1$s</string>
+    <string name="chat_quoting_nuoyi">Citando a Nuoyi: %1$s</string>
     <string name="chat_quoting_you">Citándote a ti: %1$s</string>
     <string name="chat_edit_message">Editar mensaje</string>
     <string name="chat_withdraw_message">Retirar mensaje</string>

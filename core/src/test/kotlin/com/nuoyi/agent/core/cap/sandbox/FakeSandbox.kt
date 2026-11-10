@@ -72,11 +72,11 @@ class FakeSandbox(var status: SandboxStatus = SandboxStatus.Ready(network = fals
     override fun workspaceBytes(workspace: String) = used
 
     override fun saveOutput(workspace: String, text: String): String {
-        val rel = ".mika/out-${++outputs}.txt"
+        val rel = ".nuoyi/out-${++outputs}.txt"
         val f = SandboxPaths.resolveHost(workspaceDir(workspace), rel) ?: throw java.io.IOException("$rel escapes the workspace")
         f.parentFile.mkdirs()
         f.writeText(text)
-        return "${SandboxPaths.WORKSPACE}/.mika/out-$outputs.txt"
+        return "${SandboxPaths.WORKSPACE}/.nuoyi/out-$outputs.txt"
     }
 
     override fun scriptManifest(skillPath: String): List<ScriptEntry> = manifests[skillPath].orEmpty()

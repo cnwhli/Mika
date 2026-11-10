@@ -9,7 +9,7 @@
 ```sh
 cd tools/relay
 cp .env.example .env
-# 编辑 .env，设置 MIKA_DOMAIN，仅填写自己的域名，不带协议或路径
+# 编辑 .env，设置 NUOYI_DOMAIN，仅填写自己的域名，不带协议或路径
 docker compose build
 docker build --target caddy-check .
 docker compose run --rm relay -init-owner-key -owner-key-file /data/owner-key
@@ -27,16 +27,16 @@ chmod 600 owner-key
 80/443 已被现有 Nginx 使用时，改用独立的 [compose.nginx.yaml](../../tools/relay/compose.nginx.yaml)，不要与默认 Compose 文件合并。配置同一份 .env，以固定项目名执行：
 
 ```sh
-docker compose -p mika-relay -f compose.nginx.yaml build
-docker compose -p mika-relay -f compose.nginx.yaml run --rm relay -init-owner-key -owner-key-file /data/owner-key
-docker compose -p mika-relay -f compose.nginx.yaml up -d
-docker compose -p mika-relay -f compose.nginx.yaml cp relay:/data/owner-key ./owner-key
+docker compose -p nuoyi-relay -f compose.nginx.yaml build
+docker compose -p nuoyi-relay -f compose.nginx.yaml run --rm relay -init-owner-key -owner-key-file /data/owner-key
+docker compose -p nuoyi-relay -f compose.nginx.yaml up -d
+docker compose -p nuoyi-relay -f compose.nginx.yaml cp relay:/data/owner-key ./owner-key
 chmod 600 owner-key
 ```
 
 网关仅发布到服务器 127.0.0.1:18787；Nginx 须在同一台主机。将 [nginx.conf.example](../../tools/relay/nginx.conf.example) 中的域名和证书路径改为实际值，作为独立虚拟主机配置加入现有 http 配置。证书须覆盖该域名，并已有续期及续期后平滑加载安排。先检查域名、map 名称和 18787 端口没有冲突，再 nginx -t，通过后平滑 reload；失败时只撤回新配置。示例保留 WebSocket 升级，关闭缓冲、代理重试和转发请求的访问日志。
 
-后续所有 Compose 命令沿用相同项目名和 -f 参数。回滚时禁用新虚拟主机，校验并平滑加载 Nginx，再 docker compose -p mika-relay -f compose.nginx.yaml down；保留数据卷。不要改为公网绑定后端端口，也不要在此部署中启动默认 Compose 文件的 Caddy。
+后续所有 Compose 命令沿用相同项目名和 -f 参数。回滚时禁用新虚拟主机，校验并平滑加载 Nginx，再 docker compose -p nuoyi-relay -f compose.nginx.yaml down；保留数据卷。不要改为公网绑定后端端口，也不要在此部署中启动默认 Compose 文件的 Caddy。
 
 ## 客户端与统一令牌
 
@@ -47,16 +47,16 @@ chmod 600 owner-key
 
 ```sh
 chmod 600 /path/to/token
-mika connect --url https://mika.example.com --token-file /path/to/token
-mika --url https://mika.example.com --token-file /path/to/token doctor
-mika --url https://mika.example.com --token-file /path/to/token task list --limit 5
+nuoyi connect --url https://nuoyi.example.com --token-file /path/to/token
+nuoyi --url https://nuoyi.example.com --token-file /path/to/token doctor
+nuoyi --url https://nuoyi.example.com --token-file /path/to/token task list --limit 5
 ```
 
-每次远程调用都须传入 `--url` 和 `--token-file`；`mika connect` 只验证连接，不保存远程配置。两种协议都访问手机同一份任务服务，任务创建、查询、等待、回答、插话和取消行为与局域网一致。
+每次远程调用都须传入 `--url` 和 `--token-file`；`nuoyi connect` 只验证连接，不保存远程配置。两种协议都访问手机同一份任务服务，任务创建、查询、等待、回答、插话和取消行为与局域网一致。
 
 ### 经网关唤醒和解锁：默认关
 
-远程唤醒和解锁让持有令牌的人在手机上输入锁屏 PIN/密码。局域网里能连上手机的只有同一网络的设备；经网关则是整个互联网，且网关本身能看到令牌。所以经网关来的请求默认**看不到**屏幕能力（`mika_device_state`、`mika_wake_device`、`mika_unlock_device` 与 `/api/v1/device`，`/api/v1` 的 capabilities 也不列 `device_state`），工具和端点根本不出现，而不是出现了再拒绝。要经网关唤醒、解锁，三项都得在手机上打开：「允许远程访问」、远程页的「允许经网关唤醒和解锁」（默认关，存在加密的网关配置里，配对或重新配对都回到关）、以及原有的「允许远程亮屏与解锁」。局域网和 USB 的行为不变。
+远程唤醒和解锁让持有令牌的人在手机上输入锁屏 PIN/密码。局域网里能连上手机的只有同一网络的设备；经网关则是整个互联网，且网关本身能看到令牌。所以经网关来的请求默认**看不到**屏幕能力（`nuoyi_device_state`、`nuoyi_wake_device`、`nuoyi_unlock_device` 与 `/api/v1/device`，`/api/v1` 的 capabilities 也不列 `device_state`），工具和端点根本不出现，而不是出现了再拒绝。要经网关唤醒、解锁，三项都得在手机上打开：「允许远程访问」、远程页的「允许经网关唤醒和解锁」（默认关，存在加密的网关配置里，配对或重新配对都回到关）、以及原有的「允许远程亮屏与解锁」。局域网和 USB 的行为不变。
 
 在手机更换访问令牌后，局域网和远程的旧令牌立即失效，无须同步网关；客户端须更新配置。解除配对仅撤销设备通道，不更换访问令牌；重新配对后持有该令牌的客户端仍能访问。若需使这些客户端失效，应在手机更换令牌。
 

@@ -11,7 +11,7 @@
     <string name="web_manage">إدارة</string>
     <string name="web_logout_all_title">تسجيل الخروج من الكل ومسح بيانات الويب</string>
     <string name="web_you_signed_in">سجّلت الدخول إلى هذا الموقع داخل Nuoyi.</string>
-    <string name="web_mika_visited">زار Nuoyi هذا الموقع.</string>
+    <string name="web_nuoyi_visited">زار Nuoyi هذا الموقع.</string>
     <string name="web_open_login">فتح صفحة تسجيل الدخول</string>
     <string name="web_cleared">مُسحت ملفات تعريف الارتباط ومساحة تخزين الويب لـ%1$s؛ ستحتاج إلى تسجيل الدخول مجددًا. قد تبقى بعض البيانات؛ استخدم «تسجيل الخروج من الكل» لمسح كل شيء.</string>
     <string name="web_signed_out">تم تسجيل الخروج من %1$s. %2$s</string>

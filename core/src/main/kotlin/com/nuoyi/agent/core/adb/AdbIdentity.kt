@@ -79,7 +79,7 @@ class AdbIdentity(val keyPair: KeyPair, val name: String) {
 
         private fun signsWith(key: RSAPrivateKey, e: BigInteger): Boolean = runCatching {
             val pub = KeyFactory.getInstance("RSA").generatePublic(RSAPublicKeySpec(key.modulus, e))
-            val data = "mika-adb-key-check".toByteArray()
+            val data = "nuoyi-adb-key-check".toByteArray()
             val sig = Signature.getInstance("SHA256withRSA").run { initSign(key); update(data); sign() }
             Signature.getInstance("SHA256withRSA").run { initVerify(pub); update(data); verify(sig) }
         }.getOrDefault(false)

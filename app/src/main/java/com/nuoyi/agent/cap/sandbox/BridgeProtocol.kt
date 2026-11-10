@@ -16,7 +16,7 @@ import java.security.MessageDigest
 class BridgeReply(val json: String, val close: Boolean = false)
 
 /**
- * 沙箱里 `mika` 命令与 Nuoyi 之间的协议:一行一个 JSON 请求 `{"token","method","params"}`,一行一个 JSON 回复。
+ * 沙箱里 `nuoyi` 命令与 Nuoyi 之间的协议:一行一个 JSON 请求 `{"token","method","params"}`,一行一个 JSON 回复。
  * 手机方法只转给当前任务的动作入口;命令进程不能直接接触虚拟屏。
  */
 object BridgeProtocol {

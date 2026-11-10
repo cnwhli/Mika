@@ -59,7 +59,7 @@ internal fun RelaySection(runtime: McpRuntime, mcp: Boolean, onCopy: (String) ->
         onCopyConfig = { change {
             runtime.relaySettings.pairing()?.let { p ->
                 val text = if (mcp) McpRuntime.clientConfig(RelayGateway.parse(p.gateway).newBuilder().encodedPath("/mcp").build().toString(), runtime.settings.token())
-                else "mika connect --url ${p.gateway.removeSuffix("/")} --token-file /path/to/token"
+                else "nuoyi connect --url ${p.gateway.removeSuffix("/")} --token-file /path/to/token"
                 withContext(Dispatchers.Main) { onCopy(text) }
             }
         } }, mcp = mcp,
@@ -79,7 +79,7 @@ internal fun RelayControls(config: RelayConfig, state: RelayState, busy: Boolean
         GroupCard {
             ListRow(NuoyiIcons.Link, stringResource(R.string.relay_pair_title), stringResource(R.string.relay_pair_sub), first = true)
             InputRow(stringResource(R.string.relay_gateway), gateway, { if (!busy) gateway = it.take(2048) },
-                "https://mika.example.com", keyboard = KeyboardType.Uri, modifier = Modifier.testTag("relay-gateway"))
+                "https://nuoyi.example.com", keyboard = KeyboardType.Uri, modifier = Modifier.testTag("relay-gateway"))
             InputRow(stringResource(R.string.relay_code), code, { if (!busy) code = it.take(64) },
                 stringResource(R.string.relay_code_hint), secret = true, keyboard = KeyboardType.Password, modifier = Modifier.testTag("relay-code"))
             RowActions {
@@ -117,7 +117,7 @@ internal fun RelayControls(config: RelayConfig, state: RelayState, busy: Boolean
                 NuoyiButton(stringResource(R.string.relay_unpair), { confirm = true }, kind = ButtonKind.Text, size = ButtonSize.Small, enabled = !busy)
             }
         }
-        if (!mcp) CommandText("mika connect --url ${config.gateway!!.removeSuffix("/")} --token-file /path/to/token")
+        if (!mcp) CommandText("nuoyi connect --url ${config.gateway!!.removeSuffix("/")} --token-file /path/to/token")
         FooterNote(stringResource(if (mcp) R.string.relay_client_help else R.string.relay_cli_help))
     }
     FooterNote(stringResource(R.string.relay_intro))

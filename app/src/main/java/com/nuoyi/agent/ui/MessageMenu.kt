@@ -171,7 +171,7 @@ internal fun copyMessage(context: Context, text: String) {
 /** 引用怎么念给读屏:「引用 Nuoyi:……」「引用你的话:……」。 */
 @Composable
 private fun quoteDescription(q: QuoteMessage.Quote): String =
-    stringResource(if (q.from == QuoteMessage.From.Nuoyi) R.string.chat_quoting_mika else R.string.chat_quoting_you, q.text)
+    stringResource(if (q.from == QuoteMessage.From.Nuoyi) R.string.chat_quoting_nuoyi else R.string.chat_quoting_you, q.text)
 
 /** 输入框上方待发的引用:左边一道竖线,引的内容最多两行,右边 × 去掉。 */
 @Composable

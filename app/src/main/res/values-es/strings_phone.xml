@@ -75,7 +75,7 @@
     <string name="fail_revoked">La vinculación caducó</string>
     <string name="fail_revoked_body">Puede que el sistema la revocara tras mucho tiempo sin uso, o que se eliminara. Basta con vincular de nuevo. Activa “Desactivar tiempo de espera de autorización de adb” en las Opciones de desarrollador para que no vuelva a caducar.</string>
     <string name="fail_key_unreadable">No se puede leer la clave de vinculación</string>
-    <string name="fail_key_unreadable_body">Nuoyi ya no puede leer la clave que usó para vincular. Vincula de nuevo una vez; Nuoyi creará una clave nueva y podrás quitar la antigua entrada “mika@…” de Dispositivos vinculados.</string>
+    <string name="fail_key_unreadable_body">Nuoyi ya no puede leer la clave que usó para vincular. Vincula de nuevo una vez; Nuoyi creará una clave nueva y podrás quitar la antigua entrada “nuoyi@…” de Dispositivos vinculados.</string>
     <string name="fail_helper">Conectado, pero no se pudo preparar</string>
     <string name="fail_helper_body">Reintentarlo suele solucionarlo.</string>
     <string name="fail_unknown">Algo salió mal</string>

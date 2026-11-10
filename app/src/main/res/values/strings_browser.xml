@@ -56,8 +56,8 @@
     <string name="browser_home">Start page</string>
     <string name="share">Share</string>
     <string name="more">More</string>
-    <string name="browser_login_for_mika">Sign in for Nuoyi</string>
-    <string name="browser_login_for_mika_sub">" · opens the %1$s version Nuoyi uses for tasks; once you sign in Nuoyi can use it too"</string>
+    <string name="browser_login_for_nuoyi">Sign in for Nuoyi</string>
+    <string name="browser_login_for_nuoyi_sub">" · opens the %1$s version Nuoyi uses for tasks; once you sign in Nuoyi can use it too"</string>
     <string name="browser_mobile">Mobile</string>
     <string name="browser_copy_link">Copy link</string>
     <string name="browser_open_outside">Open in another browser</string>

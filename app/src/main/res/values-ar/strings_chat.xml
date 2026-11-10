@@ -179,7 +179,7 @@
     <string name="chat_conversation_tokens_partial">هذه المحادثة: %1$s على الأقل</string>
     <string name="chat_select_hint">اضغط مطولًا على النص لتحديده</string>
     <string name="chat_quote_remove">إزالة الاقتباس</string>
-    <string name="chat_quoting_mika">اقتباس من Nuoyi: %1$s</string>
+    <string name="chat_quoting_nuoyi">اقتباس من Nuoyi: %1$s</string>
     <string name="chat_quoting_you">اقتباس منك: %1$s</string>
     <string name="chat_edit_message">تعديل الرسالة</string>
     <string name="chat_withdraw_message">سحب الرسالة</string>

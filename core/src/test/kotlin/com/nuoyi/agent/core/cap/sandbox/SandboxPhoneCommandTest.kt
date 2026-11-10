@@ -24,7 +24,7 @@ class SandboxPhoneCommandTest {
             calls += call
             ToolExecution(buildJsonObject { put("ok", true); put("value", "from-screen") })
         }
-        runner.runCommand(Args(RunCommand.def, buildJsonObject { put("command", "mika phone query '{}'" ) }), "task", "parent", sub, index)
+        runner.runCommand(Args(RunCommand.def, buildJsonObject { put("command", "nuoyi phone query '{}'" ) }), "task", "parent", sub, index)
         val phone = sandbox.phoneHandler
         assertNotNull(phone)
         val result = phone!!.call("query", buildJsonObject { put("text", "设置") })
@@ -44,7 +44,7 @@ class SandboxPhoneCommandTest {
         val runner = SandboxTools(sandbox, { "task" }, false)
         val calls = mutableListOf<String>()
         val sub = SubActions { call -> calls += call.name; ToolExecution(buildJsonObject { put("ok", true) }) }
-        runner.runCommand(Args(RunCommand.def, buildJsonObject { put("command", "mika phone find '{}'") }), "task", "parent", sub, knownTools())
+        runner.runCommand(Args(RunCommand.def, buildJsonObject { put("command", "nuoyi phone find '{}'") }), "task", "parent", sub, knownTools())
         val phone = sandbox.phoneHandler!!
         val opened = listOf("find", "extract", "dialog", "wait", "event", "gesture", "system_command", "query", "tap", "type", "key", "launch", "dump")
         for (op in opened) assertEquals(op, "true", phone.call(op, JsonObject(emptyMap()))["ok"]!!.jsonPrimitive.content)

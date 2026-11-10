@@ -12,7 +12,7 @@ import org.junit.Test
 class RecoveryPermissionsTest {
     // 包名由调用方给,不是写死的
     private val pkg = "org.example.app"
-    private val mika = PermissionCommands.accessibilityService(pkg)
+    private val nuoyi = PermissionCommands.accessibilityService(pkg)
     private val other = "com.example.reader/.ReaderService"
 
     private class Store(initial: RecoveryConsent = RecoveryConsent()) : RecoveryConsentStore {
@@ -53,8 +53,8 @@ class RecoveryPermissionsTest {
         assertEquals("cmd deviceidle whitelist +$pkg", PermissionCommands.whitelistAdd(pkg))
         assertEquals("cmd deviceidle whitelist -$pkg", PermissionCommands.whitelistRemove(pkg))
         assertEquals(
-            listOf("settings put secure enabled_accessibility_services '$other:$mika'", "settings put secure accessibility_enabled 1"),
-            PermissionCommands.writeAccessibility("$other:$mika"),
+            listOf("settings put secure enabled_accessibility_services '$other:$nuoyi'", "settings put secure accessibility_enabled 1"),
+            PermissionCommands.writeAccessibility("$other:$nuoyi"),
         )
         // 列表空了:删掉这一项并关掉总开关,不留空字符串
         assertEquals(
@@ -90,7 +90,7 @@ class RecoveryPermissionsTest {
         val p = RecoveryPermissions({ shell }, store, pkg)
 
         assertEquals(PermissionResult.Done, p.set(a11y, true))
-        assertEquals(PermissionCommands.writeAccessibility("$other:$mika"), shell.ran)
+        assertEquals(PermissionCommands.writeAccessibility("$other:$nuoyi"), shell.ran)
         assertEquals(PermissionResult.Done, p.set(battery, true))
         assertEquals(PermissionResult.Done, p.set(restore, true))
         assertEquals(RecoveryConsent(applied = setOf(a11y, battery, restore), declined = setOf(autoOn)), store.consent.value)
@@ -100,7 +100,7 @@ class RecoveryPermissionsTest {
 
     @Test
     fun switchOffRevertsOnlyThatOneThingAndRemembersTheChoice() = runTest {
-        val shell = FakeShell(a11y = "$other:$mika")
+        val shell = FakeShell(a11y = "$other:$nuoyi")
         val store = Store(RecoveryConsent(applied = setOf(a11y, battery, restore), declined = setOf(autoOn)))
         val p = RecoveryPermissions({ shell }, store, pkg)
 
@@ -163,7 +163,7 @@ class RecoveryPermissionsTest {
         val p = RecoveryPermissions({ shell }, store, pkg)
 
         assertEquals(PermissionResult.Done, p.applyPending())
-        assertEquals(PermissionCommands.writeAccessibility("$other:$mika"), shell.ran)
+        assertEquals(PermissionCommands.writeAccessibility("$other:$nuoyi"), shell.ran)
         assertEquals(RecoveryConsent(applied = setOf(a11y, restore, autoOn), declined = setOf(battery)), store.consent.value)
         assertTrue(p.autoFailed.value.isEmpty())
 
@@ -245,7 +245,7 @@ class RecoveryPermissionsTest {
 
     @Test
     fun unpairRevokesEverythingThatWasApplied() = runTest {
-        val shell = FakeShell(a11y = "$mika:$other")
+        val shell = FakeShell(a11y = "$nuoyi:$other")
         val store = Store(RecoveryConsent(applied = all))
         val p = RecoveryPermissions({ shell }, store, pkg)
 
@@ -287,7 +287,7 @@ class RecoveryPermissionsTest {
     @Test
     fun unpairLeavesAloneWhatNuoyiNeverTurnedOn() = runTest {
         // 用户自己在系统里开的无障碍、自己加的电池白名单,不是这里给的,解除配对不去动
-        val shell = FakeShell(a11y = "$mika:$other")
+        val shell = FakeShell(a11y = "$nuoyi:$other")
         val p = RecoveryPermissions({ shell }, Store(), pkg)
         p.revokeAll()
         assertEquals(listOf(PermissionCommands.revokeWriteSecureSettings(pkg)), shell.ran)
@@ -340,14 +340,14 @@ class RecoveryPermissionsTest {
 
     @Test
     fun restartAccessibilityRemovesThenAddsBackKeepingOthers() = runTest {
-        val shell = FakeShell(a11y = "$other:$mika:com.example.b/.B")
+        val shell = FakeShell(a11y = "$other:$nuoyi:com.example.b/.B")
         val store = Store(RecoveryConsent(applied = setOf(a11y)))
         val p = RecoveryPermissions({ shell }, store, pkg)
 
         assertEquals(PermissionResult.Done, p.restartAccessibility(gapMs = 1_000))
         assertEquals(
             PermissionCommands.writeAccessibility("$other:com.example.b/.B") +
-                PermissionCommands.writeAccessibility("$other:com.example.b/.B:$mika"),
+                PermissionCommands.writeAccessibility("$other:com.example.b/.B:$nuoyi"),
             shell.ran,
         )
         // 不是打开或收回能力:记录不变
@@ -356,22 +356,22 @@ class RecoveryPermissionsTest {
 
     @Test
     fun restartAccessibilityWhenNuoyiIsTheOnlyService() = runTest {
-        val shell = FakeShell(a11y = mika)
+        val shell = FakeShell(a11y = nuoyi)
         assertEquals(PermissionResult.Done, RecoveryPermissions({ shell }, Store(), pkg).restartAccessibility(0))
-        assertEquals(PermissionCommands.writeAccessibility("") + PermissionCommands.writeAccessibility(mika), shell.ran)
+        assertEquals(PermissionCommands.writeAccessibility("") + PermissionCommands.writeAccessibility(nuoyi), shell.ran)
     }
 
     @Test
     fun restartAccessibilityAddsItBackWhenMissing() = runTest {
         val shell = FakeShell(a11y = other)
         assertEquals(PermissionResult.Done, RecoveryPermissions({ shell }, Store(), pkg).restartAccessibility(0))
-        assertEquals(PermissionCommands.writeAccessibility("$other:$mika"), shell.ran)
+        assertEquals(PermissionCommands.writeAccessibility("$other:$nuoyi"), shell.ran)
         assertEquals(PermissionResult.NoRunner, RecoveryPermissions({ null }, Store(), pkg).restartAccessibility(0))
     }
 
     @Test
     fun restartAccessibilityStopsWhenRemovalFails() = runTest {
-        val shell = FakeShell(a11y = "$other:$mika", failOn = "enabled_accessibility_services")
+        val shell = FakeShell(a11y = "$other:$nuoyi", failOn = "enabled_accessibility_services")
         assertTrue(RecoveryPermissions({ shell }, Store(), pkg).restartAccessibility(0) is PermissionResult.Failed)
         assertEquals(1, shell.ran.size)
     }
@@ -379,13 +379,13 @@ class RecoveryPermissionsTest {
     @Test
     fun restartAccessibilityRestoresTheListWhenAddingBackFails() = runTest {
         // 去掉成功(第 1、2 条),加回时第 3 条失败:把原来的列表连同总开关写回,结果仍报失败
-        val shell = FakeShell(a11y = "$other:$mika", failAt = 3)
+        val shell = FakeShell(a11y = "$other:$nuoyi", failAt = 3)
         assertTrue(RecoveryPermissions({ shell }, Store(), pkg).restartAccessibility(0) is PermissionResult.Failed)
         assertEquals(
-            PermissionCommands.writeAccessibility(other) + PermissionCommands.writeAccessibility("$other:$mika").first() +
-                PermissionCommands.writeAccessibility("$other:$mika"),
+            PermissionCommands.writeAccessibility(other) + PermissionCommands.writeAccessibility("$other:$nuoyi").first() +
+                PermissionCommands.writeAccessibility("$other:$nuoyi"),
             shell.ran,
         )
-        assertEquals("$other:$mika", shell.a11y)
+        assertEquals("$other:$nuoyi", shell.a11y)
     }
 }

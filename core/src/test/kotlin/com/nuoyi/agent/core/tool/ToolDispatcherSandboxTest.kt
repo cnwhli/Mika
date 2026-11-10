@@ -116,7 +116,7 @@ class ToolDispatcherSandboxTest {
             put("source", "skills/report"); put("script", "scripts/tabulate.py"); put("args", JsonArray(args.map(::JsonPrimitive)))
         })).content
         assertEquals(r.toString(), "true", r.s("ok"))
-        assertEquals(listOf("/usr/bin/python3", "/opt/mika/skills/skills/report/scripts/tabulate.py") + args, sb.runs.single().argv)
+        assertEquals(listOf("/usr/bin/python3", "/opt/nuoyi/skills/skills/report/scripts/tabulate.py") + args, sb.runs.single().argv)
         assertEquals(1, sb.prepares)
     }
 
@@ -178,13 +178,13 @@ class ToolDispatcherSandboxTest {
         assertTrue(sb.runs.isEmpty())
         sb.status = SandboxStatus.Ready(network = true)
         assertEquals("true", d.execute(script("scripts/fetch.mjs")).content.s("ok"))
-        assertEquals(listOf("/usr/bin/node", "/opt/mika/skills/skills/report/scripts/fetch.mjs"), sb.runs.single().argv)
+        assertEquals(listOf("/usr/bin/node", "/opt/nuoyi/skills/skills/report/scripts/fetch.mjs"), sb.runs.single().argv)
     }
 
     @Test fun writeOutsideWorkspaceRejected() = runTest {
         val d = dispatcher()
         fun write(p: String) = call("write_file", buildJsonObject { put("path", p); put("content", "x") })
-        for (p in listOf("/etc/passwd", "../x", "/opt/mika/skills/app/a/SKILL.md")) {
+        for (p in listOf("/etc/passwd", "../x", "/opt/nuoyi/skills/app/a/SKILL.md")) {
             assertEquals(p, "path_outside_workspace", d.execute(write(p)).content.s("error"))
         }
         val outside = File(sb.root, "outside").apply { mkdirs() }
@@ -213,7 +213,7 @@ class ToolDispatcherSandboxTest {
         val r = dispatcher().execute(call("run_command", buildJsonObject { put("command", "cat big") })).content
         assertEquals("true", r.s("outputTruncated"))
         val path = r.s("fullOutputPath")
-        assertTrue(path, path.startsWith("/workspace/.mika/out-"))
+        assertTrue(path, path.startsWith("/workspace/.nuoyi/out-"))
         assertEquals(long, File(ws, path.removePrefix("/workspace/")).readText())
         assertTrue(r.s("output").contains("10000 characters omitted"))
         assertTrue(r.s("output").length < 16_100)
@@ -271,8 +271,8 @@ class ToolDispatcherSandboxTest {
     }
 
     @Test fun outputNotSavedThroughSymlinkedNuoyiDir() = runTest {
-        val outside = File(sb.root, "outside-mika").apply { mkdirs() }
-        java.nio.file.Files.createSymbolicLink(File(ws, ".mika").toPath(), outside.toPath())
+        val outside = File(sb.root, "outside-nuoyi").apply { mkdirs() }
+        java.nio.file.Files.createSymbolicLink(File(ws, ".nuoyi").toPath(), outside.toPath())
         sb.next = { CommandResult(0, false, false, 50, "x".repeat(20_000), 0, false) }
         val r = dispatcher().execute(call("run_command", buildJsonObject { put("command", "cat big") })).content
         assertEquals("true", r.s("ok"))

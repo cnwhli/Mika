@@ -234,7 +234,7 @@ class McpRuntime(
         fun clientConfig(url: String, token: String): String = """
             {
               "mcpServers": {
-                "mika": {
+                "nuoyi": {
                   "type": "http",
                   "url": "$url",
                   "headers": { "Authorization": "Bearer $token" }

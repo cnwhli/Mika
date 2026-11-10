@@ -68,7 +68,7 @@ class RootfsInstaller(
     /** 宿主上这个 /proc 文件能不能读;读不到的生成替身。 */
     private val procReadable: (String) -> Boolean = ::hostCanRead,
     private val prepareDev: (File) -> Unit = { ProotDevices.prepareRootfsDev(it, dirs.gate) },
-    /** 桥客户端脚本(装到 /usr/local/bin/mika);null = 安装包里没有,安装失败。 */
+    /** 桥客户端脚本(装到 /usr/local/bin/nuoyi);null = 安装包里没有,安装失败。 */
     private val clientScript: () -> ByteArray? = { null },
     private val dnsServers: () -> List<String> = { emptyList() },
     private val syncSkills: suspend () -> Unit = {},
@@ -179,7 +179,7 @@ class RootfsInstaller(
         writeInRootfs("etc/hosts", "127.0.0.1 localhost\n::1 localhost\n")
         writeInRootfs("etc/resolv.conf", dnsServers().ifEmpty { FALLBACK_DNS }.joinToString("") { "nameserver $it\n" })
         val client = clientScript() ?: throw IOException(tr(R.string.install_no_client))
-        writeInRootfs("usr/local/bin/mika", client, executable = true)
+        writeInRootfs("usr/local/bin/nuoyi", client, executable = true)
         prepareDev(dirs.rootfs)
         writeProcStandIns()
     }
@@ -222,7 +222,7 @@ class RootfsInstaller(
             val dirs = SandboxDirs(app)
             return RootfsInstaller(
                 dirs, SandboxState.get(app), RuntimeBundle.bundled(app),
-                clientScript = { runCatching { app.assets.open("sandbox/mika").use { it.readBytes() } }.getOrNull() },
+                clientScript = { runCatching { app.assets.open("sandbox/nuoyi").use { it.readBytes() } }.getOrNull() },
                 dnsServers = { AndroidSandbox.dns(app) },
                 syncSkills = { SkillsSync.sync(dirs) },
             )
@@ -246,7 +246,7 @@ class RootfsInstaller(
                 },
                 "loadavg" to "0.00 0.00 0.00 1/1 1\n",
                 "uptime" to "1.00 1.00\n",
-                "version" to "Linux version ${System.getProperty("os.version") ?: "0"} (mika@sandbox) #1 SMP PREEMPT\n",
+                "version" to "Linux version ${System.getProperty("os.version") ?: "0"} (nuoyi@sandbox) #1 SMP PREEMPT\n",
                 "vmstat" to "nr_free_pages 0\nnr_inactive_anon 0\nnr_active_anon 0\nnr_inactive_file 0\nnr_active_file 0\npgpgin 0\npgpgout 0\npswpin 0\npswpout 0\n",
             )
         }

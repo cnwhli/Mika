@@ -301,7 +301,7 @@ class CapsuleController(
     }
 
     private data class Snapshot(
-        val runs: List<CapsuleRun>, val mode: CapsuleMode, val mikaInForeground: Boolean, val locked: Boolean,
+        val runs: List<CapsuleRun>, val mode: CapsuleMode, val nuoyiInForeground: Boolean, val locked: Boolean,
         val service: ScreenAccessibility?,
         /** 任务结束后留在后台运行的那一页。 */
         val kept: KeptPage? = null,
@@ -357,7 +357,7 @@ class CapsuleController(
             windowOn = null
         }
         val inputs = CapsuleInputs(
-            s.runs, s.mode, s.mikaInForeground, screenInteractive = !s.locked,
+            s.runs, s.mode, s.nuoyiInForeground, screenInteractive = !s.locked,
             serviceAvailable = service != null && service !== failedOn, cardOpen = expanded, kept = s.kept,
         )
         val shown = model.update(inputs, System.currentTimeMillis()) as? CapsuleView.Shown

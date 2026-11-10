@@ -114,7 +114,7 @@ class EvalProbes(private val sh: (String) -> String, private val loggedIn: File)
 
     /**
      * 在一个新的后台网页标签里打开 [url],读整页文字(至多 [WEB_PAGES] 段),找 [text](忽略空白)。
-     * 用 mika 网页配置,登录状态和 Agent 用的一样。
+     * 用 nuoyi 网页配置,登录状态和 Agent 用的一样。
      */
     suspend fun webHas(url: String, text: String): Boolean {
         require(WebUrlPolicy.checkNavigable(url) == null) { "bad url: $url" }

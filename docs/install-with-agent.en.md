@@ -255,7 +255,7 @@ adb shell sh /sdcard/Android/data/com.nuoyi.agent/files/usb-start.sh
 You can use the process list as a supplementary check:
 
 ```
-adb shell ps -A -o USER,PID,NAME | grep -i mika
+adb shell ps -A -o USER,PID,NAME | grep -i nuoyi
 ```
 
 You will normally see `shell ... com.nuoyi.agent:helper` and `u0_aXXX ... com.nuoyi.agent`. A running process alone does not prove that handoff has completed. Finally, ask the user to open Nuoyi's Settings and look at the status card at the top: "Phone control" shows ready (with a model set up too, it says "Model set up · Phone control ready"). If it says "Phone control isn't ready", redo the steps above or see "Troubleshooting" below.
@@ -329,7 +329,7 @@ Keep the phone selected in step 1 for all ADB operations: pass the same `--devic
    ```json
    {
      "mcpServers": {
-       "mika": {
+       "nuoyi": {
          "type": "http",
          "url": "http://127.0.0.1:8765/mcp",
          "headers": { "Authorization": "Bearer <token>" }

@@ -6,7 +6,7 @@ import java.nio.file.LinkOption
 import com.nuoyi.agent.core.workspace.SandboxError
 import com.nuoyi.agent.core.workspace.SandboxPaths
 
-/** 存到「下载/Nuoyi」的规则;share_file 工具和沙箱里的 `mika share` 共用,两条路一样严。 */
+/** 存到「下载/Nuoyi」的规则;share_file 工具和沙箱里的 `nuoyi share` 共用,两条路一样严。 */
 object ShareRules {
     const val MAX_BYTES = 100L shl 20
 

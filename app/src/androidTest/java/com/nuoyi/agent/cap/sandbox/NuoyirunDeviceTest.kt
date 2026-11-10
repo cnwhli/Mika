@@ -102,7 +102,7 @@ class NuoyirunDeviceTest {
         // busybox 的 nc 不支持 AF_UNIX;改用 syslogd(在 /dev/log 上 bind)与 logger(connect)互通。
         // /dev/log 绑到缓存目录里的一个文件,syslogd 会把它换成套接字。
         val devLog = File(SandboxSmokeTest.prootTmp.parentFile, "mikarun-test-devlog").apply { delete(); writeText("") }
-        val script = "syslogd -n -O /tmp/mikarun-unix.log & sleep 1; logger -t mikaprobe hello-unix; sleep 1; " +
+        val script = "syslogd -n -O /tmp/mikarun-unix.log & sleep 1; logger -t nuoyiprobe hello-unix; sleep 1; " +
             "kill \$!; cat /tmp/mikarun-unix.log; rm -f /tmp/mikarun-unix.log"
         val r = run(
             launcher("--timeout", "20", "--net", "off") +

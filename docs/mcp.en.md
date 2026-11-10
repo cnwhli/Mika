@@ -98,7 +98,7 @@ In your MCP client, add a server of type "HTTP" (also called Streamable HTTP), e
 ```json
 {
   "mcpServers": {
-    "mika": {
+    "nuoyi": {
       "type": "http",
       "url": "http://192.168.1.23:8765/mcp",
       "headers": { "Authorization": "Bearer <token>" }
@@ -125,13 +125,13 @@ For public remote access, deploy the optional self-hosted gateway. Pair and expl
 
 | Tool | Arguments | What it does |
 | --- | --- | --- |
-| `mika_run_task` | `goal` (required), `conversation` and `"request_id"` (optional) | Hands Nuoyi a job and returns a `task_id` right away. The task is recorded in a conversation you can see in the app. To follow up on an earlier job, pass the `conversation` that task returned. |
-| `mika_task_status` | `task_id` | The task's state now: status, latest progress, what it is waiting for, and the answer when done. |
-| `mika_wait_task` | `task_id`, `timeout_s` (optional, default 30, at most 50) | Waits until the status changes (for example Nuoyi starts waiting for an answer, or finishes) or time runs out, then returns the state. Progress notes alone don't count, so it doesn't return on every step. |
-| `mika_answer` | `task_id`, `text` | Answers the question Nuoyi asked in this task. |
-| `mika_steer_task` | `task_id`, `text` | Adds instructions to a running task (up to 4000 characters), keeping its ID and context. Returns accepted and message_id, not proof of execution. |
-| `mika_cancel_task` | `task_id` | Stops the task. |
-| `mika_list_tasks` | `limit` (optional, default 10) | The most recent tasks handed over from computers, newest first. |
+| `nuoyi_run_task` | `goal` (required), `conversation` and `"request_id"` (optional) | Hands Nuoyi a job and returns a `task_id` right away. The task is recorded in a conversation you can see in the app. To follow up on an earlier job, pass the `conversation` that task returned. |
+| `nuoyi_task_status` | `task_id` | The task's state now: status, latest progress, what it is waiting for, and the answer when done. |
+| `nuoyi_wait_task` | `task_id`, `timeout_s` (optional, default 30, at most 50) | Waits until the status changes (for example Nuoyi starts waiting for an answer, or finishes) or time runs out, then returns the state. Progress notes alone don't count, so it doesn't return on every step. |
+| `nuoyi_answer` | `task_id`, `text` | Answers the question Nuoyi asked in this task. |
+| `nuoyi_steer_task` | `task_id`, `text` | Adds instructions to a running task (up to 4000 characters), keeping its ID and context. Returns accepted and message_id, not proof of execution. |
+| `nuoyi_cancel_task` | `task_id` | Stops the task. |
+| `nuoyi_list_tasks` | `limit` (optional, default 10) | The most recent tasks handed over from computers, newest first. |
 
 Statuses:
 
@@ -139,17 +139,17 @@ Statuses:
 - `running`: in progress, with the latest progress note.
 - `queued`: not started yet, waiting behind other tasks (the limit on tasks running at once is reached, or this conversation already has a task running); it starts by itself when its turn comes. Wait or cancel.
 - `paused`: waiting for a condition, such as the phone being unlocked (it carries on by itself afterwards).
-- `waiting_for_answer`: Nuoyi asked a question; answer with `mika_answer` (answering on the phone works too). If nobody answers for a long time, Nuoyi carries on as if there were no answer.
+- `waiting_for_answer`: Nuoyi asked a question; answer with `nuoyi_answer` (answering on the phone works too). If nobody answers for a long time, Nuoyi carries on as if there were no answer.
 - `waiting_on_phone`: this step can only be handled by a person on the phone, such as a step handed over for you to do yourself. The computer can't answer it; wait or cancel. The phone shows its usual notification.
 - `done`: finished, with the answer; `verified` says whether the answer was checked.
 - `failed`: not done, with the reason.
 - `cancelled`: stopped.
 
-When the schema of `mika_run_task` includes `"request_id"`, save a lowercase UUID before submitting and use it with `mika_task_status` if you lose the reply. Replaying the same ID, goal and conversation starts only one task. Use a fresh ID for a different request. After a phone process restart, finished tasks retain their results and unfinished tasks report `failed` with `failure_kind=interrupted`. Finished records are kept for 30 days, up to the latest 1000.
+When the schema of `nuoyi_run_task` includes `"request_id"`, save a lowercase UUID before submitting and use it with `nuoyi_task_status` if you lose the reply. Replaying the same ID, goal and conversation starts only one task. Use a fresh ID for a different request. After a phone process restart, finished tasks retain their results and unfinished tasks report `failed` with `failure_kind=interrupted`. Finished records are kept for 30 days, up to the latest 1000.
 
-Suggested flow: `mika_run_task` → `mika_wait_task` repeatedly → on `waiting_for_answer`, reply with `mika_answer` → until `done` / `failed` / `cancelled`.
+Suggested flow: `nuoyi_run_task` → `nuoyi_wait_task` repeatedly → on `waiting_for_answer`, reply with `nuoyi_answer` → until `done` / `failed` / `cancelled`.
 
-After steering, use `mika_task_status` to find the `message_id` in `steers`: `received` means queued, `joined` means added to the context, and `not_applied` means unused when the task ended or was cancelled. An action already executing finishes first; past actions are not undone. Queued/paused, question/approval/handoff-waiting and terminal tasks reject steering. Unconsumed remote instructions never start a new task. Do not automatically resend after a lost response. Older APKs do not list `mika_steer_task`; update the phone app first.
+After steering, use `nuoyi_task_status` to find the `message_id` in `steers`: `received` means queued, `joined` means added to the context, and `not_applied` means unused when the task ended or was cancelled. An action already executing finishes first; past actions are not undone. Queued/paused, question/approval/handoff-waiting and terminal tasks reject steering. Unconsumed remote instructions never start a new task. Do not automatically resend after a lost response. Older APKs do not list `nuoyi_steer_task`; update the phone app first.
 
 ## Remote wake and unlock
 
@@ -157,11 +157,11 @@ On the phone, open Settings › Connect a computer › Advanced settings and tur
 
 | Tool | Arguments | Purpose |
 | --- | --- | --- |
-| `mika_device_state` | None | Read screen, keyguard, helper and local permission state. |
-| `mika_wake_device` | None | Wake the main screen without authenticating. |
-| `mika_unlock_device` | None | Wake and dismiss a swipe lock, or authenticate with the credential saved on the phone. |
+| `nuoyi_device_state` | None | Read screen, keyguard, helper and local permission state. |
+| `nuoyi_wake_device` | None | Wake the main screen without authenticating. |
+| `nuoyi_unlock_device` | None | Wake and dismiss a swipe lock, or authenticate with the credential saved on the phone. |
 
-Call `mika_unlock_device` before starting a task. Proceed when `status` is `unlocked` and `device.ready` is true. Existing tasks waiting for unlock resume automatically after Android confirms it. An `awake` result only means the screen is on.
+Call `nuoyi_unlock_device` before starting a task. Proceed when `status` is `unlocked` and `device.ready` is true. Existing tasks waiting for unlock resume automatically after Android confirms it. An `awake` result only means the screen is on.
 
 PINs must have 4–16 digits. Passwords support 4–64 printable ASCII characters. Pattern locks, SIM PINs and unrecognized vendor credential screens are not entered (`unsupported_keyguard`). Entering a PIN or password requires Android 13 or later: keys are delivered only to the system lock screen, and Android rejects them if another window (an app shown over the lock screen, an incoming call) has focus, so the credential cannot reach another app. On Android 12 only swipe/no-credential locks can be dismissed. Phone control and accessibility must be available; some phones also need a separate developer option that allows input injection over USB debugging.
 
@@ -177,7 +177,7 @@ Other statuses include `disabled`, `helper_unavailable`, `credential_required`, 
 - **Every request needs the token.** The token is 32 random bytes and is compared in constant time; 5 wrong tries from one address within a minute lock that address out for a minute.
 - **No browser requests**: anything carrying an `Origin` header is refused, so web pages can't reach the port through your browser.
 - **Private networks only**: both ends must be on a LAN, a private VPN network, or the phone itself; connections from public addresses are dropped immediately.
-- **Spending and confirmations stay on the phone**: in tasks handed over from a computer, payments and actions that need your approval are never carried out, whether or not "Autonomous mode" is on; a step handed over for you to do yourself can only be done on the phone. `mika_answer` answers questions only and cannot approve any of these.
+- **Spending and confirmations stay on the phone**: in tasks handed over from a computer, payments and actions that need your approval are never carried out, whether or not "Autonomous mode" is on; a step handed over for you to do yourself can only be done on the phone. `nuoyi_answer` answers questions only and cannot approve any of these.
 - **Only the computer's own tasks**: a computer can't see or stop tasks you started on the phone, and the conversations it opens use a fixed prefix, so it can't join your conversations on the phone.
 - Every run record notes that the run was started by a computer (MCP).
 - The transport is plain HTTP, so use it only on networks you trust. Don't share the token; if you think it leaked, use "New token".

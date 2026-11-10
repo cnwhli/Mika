@@ -69,8 +69,8 @@ class NetProxyStore(
     companion object {
         private const val FILE = "net-proxy.bin"
         private const val LEGACY_FILE = "container-proxy.bin"
-        private const val KEY_ALIAS = "mika-net-proxy"
-        private const val LEGACY_KEY_ALIAS = "mika-container-proxy"
+        private const val KEY_ALIAS = "nuoyi-net-proxy"
+        private const val LEGACY_KEY_ALIAS = "nuoyi-container-proxy"
 
         /** 空串(不用),或带协议、主机、端口的代理地址(http、https、socks5、socks5h),后面不带路径。 */
         fun valid(proxy: String): Boolean = ProxyAddress.valid(proxy)

@@ -21,7 +21,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import kotlin.coroutines.resume
 
-/** 真机测试:退出一个网站只过期它的 Cookie;全部退出清空 Cookie 与网页存储。用 mika 网页配置。 */
+/** 真机测试:退出一个网站只过期它的 Cookie;全部退出清空 Cookie 与网页存储。用 nuoyi 网页配置。 */
 @RunWith(AndroidJUnit4::class)
 class WebLoginTest {
     @get:Rule val tmp = TemporaryFolder()

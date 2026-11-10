@@ -12,7 +12,7 @@ import java.util.UUID
 value class ModelSession(val id: String) {
     companion object {
         fun of(conversationId: String): ModelSession =
-            ModelSession(UUID.nameUUIDFromBytes("mika-conversation:$conversationId".toByteArray()).toString())
+            ModelSession(UUID.nameUUIDFromBytes("nuoyi-conversation:$conversationId".toByteArray()).toString())
 
         fun fresh(): ModelSession = ModelSession(UUID.randomUUID().toString())
     }

@@ -10,7 +10,7 @@ import org.junit.Test
 /** 用户一句话里他自己的话:这次打的字([UserWords.typed])和记忆、技能的引文认的那份([UserWords.said]),按对话页和浏览器页的拼法。 */
 class UserWordsTest {
     private val tools = toolDispatcher(FakeScreen(), web = FakeWebPort())
-    private val mika = QuoteMessage.Quote(QuoteMessage.From.Nuoyi, "你常用的收货地址是幸福路 8 号")
+    private val nuoyi = QuoteMessage.Quote(QuoteMessage.From.Nuoyi, "你常用的收货地址是幸福路 8 号")
     private val own = QuoteMessage.Quote(QuoteMessage.From.You, "我家猫叫团子")
     private val pdf = listOf("/workspace/inbox/a.pdf" to "2 KB")
 
@@ -18,8 +18,8 @@ class UserWordsTest {
 
     // 引了 Nuoyi 的回答:引的那段两样都不算;附件行也不算,只带了附件、没打字时都为空
     @Test fun aQuotedReplyIsNotTheUserWords() {
-        assertEquals("照这个改" to "照这个改", words(AttachmentLines.compose(QuoteMessage.compose(mika, "照这个改"), pdf)))
-        assertEquals("" to "", words(AttachmentLines.compose(QuoteMessage.compose(mika, ""), pdf)))
+        assertEquals("照这个改" to "照这个改", words(AttachmentLines.compose(QuoteMessage.compose(nuoyi, "照这个改"), pdf)))
+        assertEquals("" to "", words(AttachmentLines.compose(QuoteMessage.compose(nuoyi, ""), pdf)))
     }
 
     // 引了自己说过的话:打的字只有这次的,记忆的引文连引的那段一起认,放在前面
@@ -38,6 +38,6 @@ class UserWordsTest {
     @Test fun plainWordsStayAsTheyAre() {
         assertEquals("查天气" to "查天气", words("查天气"))
         assertEquals("> 这句是我自己写的\n后面" to "> 这句是我自己写的\n后面", words("> 这句是我自己写的\n后面"))
-        assertEquals("> 这句什么意思\n解释一下" to "> 这句什么意思\n解释一下", words(QuoteMessage.compose(mika, "> 这句什么意思\n解释一下")))
+        assertEquals("> 这句什么意思\n解释一下" to "> 这句什么意思\n解释一下", words(QuoteMessage.compose(nuoyi, "> 这句什么意思\n解释一下")))
     }
 }

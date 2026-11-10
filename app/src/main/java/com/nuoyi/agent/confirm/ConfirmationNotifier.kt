@@ -84,7 +84,7 @@ object ConfirmationNotifier {
     fun requestKey(state: TaskState.WaitingConfirmation): Int = System.identityHashCode(state)
 
     /** 按钮 Intent 的 data:每次申报、每个按钮各不相同,系统不会把旧通知上的按钮换成新申报的。 */
-    fun intentData(key: Int, approve: Boolean) = "mika-confirm://request/$key/" + if (approve) "approve" else "decline"
+    fun intentData(key: Int, approve: Boolean) = "nuoyi-confirm://request/$key/" + if (approve) "approve" else "decline"
 
     fun build(
         context: Context, channel: String, state: TaskState.WaitingConfirmation, service: Class<*>, approveAction: String, declineAction: String,

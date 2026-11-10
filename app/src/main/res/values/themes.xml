@@ -2,7 +2,7 @@
 <resources>
     <!-- 主界面的窗口底色和界面令牌的页面底色一致,启动时不闪白;深色见 values-night -->
     <style name="Theme.Nuoyi" parent="@android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@color/mika_bg</item>
+        <item name="android:windowBackground">@color/nuoyi_bg</item>
     </style>
-    <color name="mika_bg">#F7F7F8</color>
+    <color name="nuoyi_bg">#F7F7F8</color>
 </resources>

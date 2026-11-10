@@ -58,8 +58,8 @@
     <string name="browser_home">Стартовая страница</string>
     <string name="share">Поделиться</string>
     <string name="more">Ещё</string>
-    <string name="browser_login_for_mika">Войти для Nuoyi</string>
-    <string name="browser_login_for_mika_sub">" · открывает версию «%1$s», которую Nuoyi использует в задачах; после вашего входа Nuoyi тоже сможет ею пользоваться"</string>
+    <string name="browser_login_for_nuoyi">Войти для Nuoyi</string>
+    <string name="browser_login_for_nuoyi_sub">" · открывает версию «%1$s», которую Nuoyi использует в задачах; после вашего входа Nuoyi тоже сможет ею пользоваться"</string>
     <string name="browser_mobile">Мобильная</string>
     <string name="browser_copy_link">Копировать ссылку</string>
     <string name="browser_open_outside">Открыть в другом браузере</string>

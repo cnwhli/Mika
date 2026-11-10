@@ -106,7 +106,7 @@ class DocsConsistencyTest {
         name in sourceNames || Regex("""\b(class|object|interface|typealias)\s+$name\b""").containsMatchIn(sourceText)
 
     private fun importedFromOutside(name: String): Boolean =
-        Regex("""(?m)^import\s+(?!com\.wangzan101\.mika\.)[\w.]+\.$name\b""").containsMatchIn(sourceText)
+        Regex("""(?m)^import\s+(?!com\.wangzan101\.nuoyi\.)[\w.]+\.$name\b""").containsMatchIn(sourceText)
 
     private fun problems(doc: File): List<String> {
         val rel = doc.relativeTo(root).invariantSeparatorsPath

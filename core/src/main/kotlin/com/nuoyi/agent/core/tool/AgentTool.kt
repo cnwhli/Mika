@@ -49,7 +49,7 @@ interface ToolInfo {
     val routable: Boolean
     /** 界面上的说法;没有时显示工具名。 */
     val label: String?
-    /** 沙箱里的 `mika phone <操作>` 能调它(手机能力、结果是文字);其余一律拒绝。 */
+    /** 沙箱里的 `nuoyi phone <操作>` 能调它(手机能力、结果是文字);其余一律拒绝。 */
     val sandboxCallable: Boolean get() = false
 }
 

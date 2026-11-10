@@ -21,7 +21,7 @@ internal class DisplayOrientationWatch(
     private val onTaskRemoved: (taskId: Int) -> Unit = {},
     private val sync: () -> Unit,
 ) {
-    private val thread = HandlerThread("mika-display-orientation").apply { start() }
+    private val thread = HandlerThread("nuoyi-display-orientation").apply { start() }
     private val handler = Handler(thread.looper)
     @Volatile private var closed = false
     private val scan = CoalescedScan(

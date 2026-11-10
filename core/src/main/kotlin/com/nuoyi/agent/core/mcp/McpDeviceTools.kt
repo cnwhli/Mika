@@ -17,7 +17,7 @@ internal class McpDeviceTools(private val device: DeviceAccess) {
         McpTaskTools.Tool(STATE, "Read phone screen/lock state and whether local remote-unlock permission is enabled. No credentials are returned.", schema, true),
         McpTaskTools.Tool(WAKE, "Wake the main phone screen. Requires the phone's remote wake/unlock setting. Does not unlock it.", schema, false),
         McpTaskTools.Tool(UNLOCK, "Wake and unlock the phone using only permission and credentials configured locally on the phone. " +
-            "Call before mika_run_task, or when a task is paused because the phone is locked. A failed credential attempt blocks further attempts until reconfigured on the phone. " +
+            "Call before nuoyi_run_task, or when a task is paused because the phone is locked. A failed credential attempt blocks further attempts until reconfigured on the phone. " +
             "Cannot approve payments or bypass authentication.", schema, false),
     )
 
@@ -33,8 +33,8 @@ internal class McpDeviceTools(private val device: DeviceAccess) {
     }
 
     companion object {
-        const val STATE = "mika_device_state"
-        const val WAKE = "mika_wake_device"
-        const val UNLOCK = "mika_unlock_device"
+        const val STATE = "nuoyi_device_state"
+        const val WAKE = "nuoyi_wake_device"
+        const val UNLOCK = "nuoyi_unlock_device"
     }
 }

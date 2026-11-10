@@ -106,13 +106,13 @@ tasks.test {
     // updateReadme 先改写 README,同一次构建里测试要读改写后的
     mustRunAfter(updateReadme)
     // 循环场景的消息序列金样;-PupdateSnapshots 时重新生成(见 LoopSnapshot)
-    systemProperty("mika.snapshotDir", file("src/test/resources/loop-snapshots").absolutePath)
+    systemProperty("nuoyi.snapshotDir", file("src/test/resources/loop-snapshots").absolutePath)
     // 提示词表面(系统提示词、工具定义、反馈文字)的金样;同样用 -PupdateSnapshots 重新生成(见 PromptSurface)
-    systemProperty("mika.promptSurfaceDir", file("src/test/resources/prompt-surface").absolutePath)
+    systemProperty("nuoyi.promptSurfaceDir", file("src/test/resources/prompt-surface").absolutePath)
     val updateSnapshots = project.hasProperty("updateSnapshots")
     inputs.property("updateSnapshots", updateSnapshots)
     if (updateSnapshots) {
-        systemProperty("mika.updateSnapshots", "true")
+        systemProperty("nuoyi.updateSnapshots", "true")
         outputs.upToDateWhen { false }
     }
 }
@@ -120,7 +120,7 @@ tasks.test {
 val relayGatewayBinary = tasks.register<Exec>("relayGatewayBinary") {
     group = "verification"
     description = "构建自托管远程 MCP 网关,供跨语言集成测试使用"
-    val output = layout.buildDirectory.file("relay-check/mika-relay")
+    val output = layout.buildDirectory.file("relay-check/nuoyi-relay")
     workingDir(rootProject.file("tools/relay"))
     inputs.files(fileTree(rootProject.file("tools/relay")) { include("*.go", "go.mod", "go.sum", "web/**") })
     outputs.file(output)
@@ -133,11 +133,11 @@ tasks.register<Test>("relayTest") {
     group = "verification"
     description = "真实 Go 网关连接 Kotlin 手机隧道,验证远程 CLI / MCP 全链路"
     dependsOn(relayGatewayBinary)
-    inputs.file(layout.buildDirectory.file("relay-check/mika-relay")).withPropertyName("relayGatewayBinary")
+    inputs.file(layout.buildDirectory.file("relay-check/nuoyi-relay")).withPropertyName("relayGatewayBinary")
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().runtimeClasspath
     include("**/RelayGatewayIntegrationTest*")
-    systemProperty("mika.relayBinary", layout.buildDirectory.file("relay-check/mika-relay").get().asFile.absolutePath)
+    systemProperty("nuoyi.relayBinary", layout.buildDirectory.file("relay-check/nuoyi-relay").get().asFile.absolutePath)
 }
 
 val cliContractTest by tasks.registering(Test::class) {
@@ -147,7 +147,7 @@ val cliContractTest by tasks.registering(Test::class) {
     classpath = sourceSets.main.get().output + sourceSets.test.get().runtimeClasspath
     include("**/RemoteCliContractTest*")
     inputs.dir(rootProject.file("tools/mika/scripts"))
-    systemProperty("mika.python", providers.gradleProperty("mikaPython").getOrElse("python3"))
+    systemProperty("nuoyi.python", providers.gradleProperty("nuoyiPython").getOrElse("python3"))
 }
 
 // 要 Python 3.10+,不挂在 check 上;需要时显式运行 ./gradlew :core:cliTest
@@ -156,5 +156,5 @@ val cliTest by tasks.registering(Exec::class) {
     description = "CLI 进程、假 ADB、独立 Skill 与真实 HTTP 契约测试 (Python 3.10+)"
     dependsOn(cliContractTest)
     workingDir(rootProject.projectDir)
-    commandLine(providers.gradleProperty("mikaPython").getOrElse("python3"), "-m", "unittest", "discover", "-s", "tools/mika/tests", "-v")
+    commandLine(providers.gradleProperty("nuoyiPython").getOrElse("python3"), "-m", "unittest", "discover", "-s", "tools/mika/tests", "-v")
 }

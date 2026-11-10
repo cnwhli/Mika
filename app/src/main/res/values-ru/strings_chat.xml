@@ -167,7 +167,7 @@
     <string name="chat_branch_attachments_readd">Добавьте нужные вложения заново</string>
     <string name="chat_select_hint">Нажмите на текст и удерживайте, чтобы выделить его</string>
     <string name="chat_quote_remove">Убрать цитату</string>
-    <string name="chat_quoting_mika">Цитата Nuoyi: %1$s</string>
+    <string name="chat_quoting_nuoyi">Цитата Nuoyi: %1$s</string>
     <string name="chat_quoting_you">Ваша цитата: %1$s</string>
     <string name="chat_edit_message">Изменить сообщение</string>
     <string name="chat_withdraw_message">Отозвать сообщение</string>

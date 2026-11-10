@@ -233,7 +233,7 @@ class TaskRecovery(context: Context, private val sharedShell: SharedShell) {
         private const val SHELL_WAIT_MS = 60_000L
         private const val CLIP_HELD = "clip_held"
         private const val CLIP_BACKUP = "clip_backup"
-        private const val CLIP_KEY_ALIAS = "mika-clip-backup"
+        private const val CLIP_KEY_ALIAS = "nuoyi-clip-backup"
         /** 每个任务的静音记录名是 muted_<任务 key>;旧版只有一份,名为 muted,照样恢复。 */
         private const val MUTED = "muted"
 

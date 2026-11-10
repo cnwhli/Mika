@@ -75,7 +75,7 @@
     <string name="fail_revoked">ペア設定の期限が切れました</string>
     <string name="fail_revoked_body">長期間使わなかったためシステムが取り消したか、削除された可能性があります。もう一度ペア設定してください。「開発者向けオプション」で「adb 認証のタイムアウトを無効にする」をオンにすると、次からは期限切れになりません。</string>
     <string name="fail_key_unreadable">ペア設定のキーを読み取れません</string>
-    <string name="fail_key_unreadable_body">Nuoyi がペア設定に使ったキーを読み取れなくなりました。もう一度ペア設定してください。Nuoyi が新しいキーを作ります。「ペア設定したデバイス」にある古い「mika@…」は削除してかまいません。</string>
+    <string name="fail_key_unreadable_body">Nuoyi がペア設定に使ったキーを読み取れなくなりました。もう一度ペア設定してください。Nuoyi が新しいキーを作ります。「ペア設定したデバイス」にある古い「nuoyi@…」は削除してかまいません。</string>
     <string name="fail_helper">接続しましたが、準備できませんでした</string>
     <string name="fail_helper_body">たいてい、やり直すと直ります。</string>
     <string name="fail_unknown">問題が発生しました</string>

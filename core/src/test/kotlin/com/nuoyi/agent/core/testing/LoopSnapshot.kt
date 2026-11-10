@@ -17,8 +17,8 @@ import java.security.MessageDigest
  *   ./gradlew :core:test --tests '*LoopScenarioTest' -PupdateSnapshots
  */
 object LoopSnapshot {
-    private val dir = File(System.getProperty("mika.snapshotDir") ?: "src/test/resources/loop-snapshots")
-    private val update = System.getProperty("mika.updateSnapshots") == "true"
+    private val dir = File(System.getProperty("nuoyi.snapshotDir") ?: "src/test/resources/loop-snapshots")
+    private val update = System.getProperty("nuoyi.updateSnapshots") == "true"
 
     /** 和金样比对;开了重新生成就直接写入。 */
     fun check(name: String, actual: String) {

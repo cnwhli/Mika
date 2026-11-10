@@ -100,14 +100,14 @@ class RelayClientTest {
         val client = start { req ->
             assertFalse(req.remote.isLoopbackAddress)
             assertEquals("limit=2", req.query)
-            assertEquals("cli", req.header("x-mika-client"))
+            assertEquals("cli", req.header("x-nuoyi-client"))
             access.handle(req) { HttpResponse.empty(200) }
         }
         withTimeout(3_000) {
             val ws = opened.await(); client.state.first { it == RelayState.Online }
             for ((index, token) in listOf("usb-token", "phone-token").withIndex()) {
                 ws.send(Json.encodeToString(RelayFrame("request", "cli_request_12345$index", "GET", "/api/v1/tasks",
-                    mapOf("authorization" to "Bearer $token", "x-mika-client" to "cli"), query = "limit=2")))
+                    mapOf("authorization" to "Bearer $token", "x-nuoyi-client" to "cli"), query = "limit=2")))
                 assertEquals(if (index == 0) 401 else 200, replies.receive().status)
             }
         }

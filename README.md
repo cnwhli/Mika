@@ -78,7 +78,7 @@ English · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/re
 
 ## Get started in three steps
 
-1. **Install**: download the signed 诺伊 APK from the [official site](https://noy.127068.xyz/download/) (or its [GitHub Releases](https://github.com/cnwhli/nuoyi/releases)) and check the SHA-256 on that page first. Do not install APKs from the upstream Mika repository — that is a different app with a different signature.
+1. **Install**: download the signed 诺伊 APK from the [official site](https://noy.127068.xyz/download/) (or its [GitHub Releases](https://github.com/cnwhli/nuoyi/releases)) and check the SHA-256 on that page first. Do not install APKs from the upstream Nuoyi repository — that is a different app with a different signature.
 2. **Connect a model**: in Settings › Model, pick a provider and enter an API key, or just sign in with an account ([models and sign-in](docs/models.en.md)).
 3. **To operate phone apps**: follow the "Set up phone control" wizard in Settings and pair wireless debugging on the phone once ([setup guide](docs/setup-guide.en.md)). Skip this if you only want chat, web and files.
 
@@ -169,14 +169,14 @@ More answers are in the [FAQ](docs/faq.en.md).
 
 ## 来源与许可 / Origin & license
 
-诺伊基于 [Mika](https://github.com/wangzan101/Mika)（Apache-2.0, Copyright 2026 wangzan101）
+诺伊基于 [Nuoyi](https://github.com/wangzan101/Mika)（Apache-2.0, Copyright 2026 wangzan101）
 二次开发，与上游项目无隶属或背书关系。上游的 [LICENSE](LICENSE)、[NOTICE](NOTICE) 与
 [第三方组件声明](licenses/THIRD_PARTY_NOTICES.md) 一并保留；上游文档见
 [docs index](docs/README.en.md)，问题反馈请到 [本仓库 Issues](https://github.com/cnwhli/nuoyi/issues/new)。
 
 ## Star History
 
-以下数据属于上游项目 [Mika](https://github.com/wangzan101/Mika)，仅作来源致谢，不代表诺伊的下载量或排名。
+以下数据属于上游项目 [Nuoyi](https://github.com/wangzan101/Mika)，仅作来源致谢，不代表诺伊的下载量或排名。
 
 <a href="https://star-history.com/#wangzan101/Mika&Date">
   <picture>
@@ -187,7 +187,7 @@ More answers are in the [FAQ](docs/faq.en.md).
 
 ## Contributors
 
-感谢 [Mika 上游项目的贡献者](https://github.com/wangzan101/Mika/graphs/contributors)，
+感谢 [Nuoyi 上游项目的贡献者](https://github.com/wangzan101/Mika/graphs/contributors)，
 诺伊的语音、额度路由与品牌改造都建立在他们的工作之上。
 
 ## License

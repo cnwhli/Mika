@@ -98,7 +98,7 @@ class RootCommands(
 
     /** 在单独的线程上读(不占公共线程池)。 */
     private fun <T> onThread(block: () -> T): CompletableFuture<T> = CompletableFuture<T>().also { f ->
-        Thread({ runCatching(block).fold({ f.complete(it) }, { f.completeExceptionally(it) }) }, "mika-root").apply { isDaemon = true }.start()
+        Thread({ runCatching(block).fold({ f.complete(it) }, { f.completeExceptionally(it) }) }, "nuoyi-root").apply { isDaemon = true }.start()
     }
 
     /** 读完一个流,最多留 [MAX_BYTES],多的数着丢掉。 */
@@ -119,7 +119,7 @@ class RootCommands(
     }
 
     private companion object {
-        const val MARK = "__mika_root_ok__"
+        const val MARK = "__nuoyi_root_ok__"
         const val MAX_BYTES = 1 shl 20
         const val STOP_GRACE_MS = 2_000L
     }

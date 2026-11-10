@@ -45,11 +45,11 @@ class OpenLinkDeviceTest {
     fun unresolvableUriReturns5() {
         val shell = DeviceSupport.shell()
         val id = agent.display.displayId
-        assertEquals(ShellService.START_UNRESOLVED, shell.startView(id, null, "mika-no-such-scheme://page/1", null))
+        assertEquals(ShellService.START_UNRESOLVED, shell.startView(id, null, "nuoyi-no-such-scheme://page/1", null))
         assertEquals(ShellService.START_UNRESOLVED, shell.startView(id, null, "https://example.com/", "com.nuoyi.agent.no.such.app"))
         // 外壳侧再查一次:绕过分发器直接调也打不开
         assertEquals(ShellService.START_INVALID_LINK, shell.startView(id, null, "tel:10086", null))
-        val r = runBlocking { agent.screen.openLink(null, "mika-no-such-scheme://page/1", null) }
+        val r = runBlocking { agent.screen.openLink(null, "nuoyi-no-such-scheme://page/1", null) }
         assertEquals(ActionResult.Failed("link_unresolved"), r)
     }
 }

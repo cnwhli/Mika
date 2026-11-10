@@ -44,7 +44,7 @@ class McpRpcTest {
         assertEquals(200, r.status)
         val result = r.json()["result"]!!.jsonObject
         assertEquals("2025-06-18", result["protocolVersion"]!!.jsonPrimitive.content)
-        assertEquals("mika", result["serverInfo"]!!.jsonObject["name"]!!.jsonPrimitive.content)
+        assertEquals("nuoyi", result["serverInfo"]!!.jsonObject["name"]!!.jsonPrimitive.content)
         assertTrue(result["capabilities"]!!.jsonObject.containsKey("tools"))
         assertNull("no sessions", r.headers["Mcp-Session-Id"])
         assertEquals(listOf<String?>("desk"), seen)
@@ -63,10 +63,10 @@ class McpRpcTest {
         val list = post("""{"jsonrpc":"2.0","id":"a","method":"tools/list"}""", mapOf("MCP-Protocol-Version" to "2025-06-18"))
         assertEquals(200, list.status)
         val names = list.json()["result"]!!.jsonObject["tools"]!!.jsonArray.map { it.jsonObject["name"]!!.jsonPrimitive.content }
-        assertTrue("mika_run_task" in names && "mika_answer" in names)
+        assertTrue("nuoyi_run_task" in names && "nuoyi_answer" in names)
         assertEquals("a", list.json()["id"]!!.jsonPrimitive.content)
 
-        val call = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mika_run_task","arguments":{"goal":"check battery"}}}""")
+        val call = post("""{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nuoyi_run_task","arguments":{"goal":"check battery"}}}""")
         val result = call.json()["result"]!!.jsonObject
         assertFalse(result["isError"]!!.jsonPrimitive.boolean)
         assertEquals("t1", result["structuredContent"]!!.jsonObject["task_id"]!!.jsonPrimitive.content)
@@ -75,7 +75,7 @@ class McpRpcTest {
     }
 
     @Test fun badArgumentsAreToolErrorsNotProtocolErrors() {
-        val r = post("""{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mika_task_status","arguments":{}}}""")
+        val r = post("""{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"nuoyi_task_status","arguments":{}}}""")
         assertEquals(200, r.status)
         val result = r.json()["result"]!!.jsonObject
         assertTrue(result["isError"]!!.jsonPrimitive.boolean)
@@ -85,7 +85,7 @@ class McpRpcTest {
     @Test fun answeringAConfirmationIsAToolError() {
         fake.start("pay", null)
         fake.set("t1", TaskState.WaitingTakeover("payment", "Pay now"))
-        val r = post("""{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"mika_answer","arguments":{"task_id":"t1","text":"approve"}}}""")
+        val r = post("""{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"nuoyi_answer","arguments":{"task_id":"t1","text":"approve"}}}""")
         val result = r.json()["result"]!!.jsonObject
         assertTrue(result["isError"]!!.jsonPrimitive.boolean)
         assertTrue(fake.answers.isEmpty())
@@ -102,7 +102,7 @@ class McpRpcTest {
         }
         assertEquals(McpRpc.INVALID_PARAMS, post("""{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"rm_rf"}}""").errorCode())
         assertEquals(McpRpc.INVALID_PARAMS,
-            post("""{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"mika_list_tasks","arguments":[1]}}""").errorCode())
+            post("""{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"nuoyi_list_tasks","arguments":[1]}}""").errorCode())
         assertEquals(405, post("", method = "GET").status)
         assertEquals(405, post("", method = "DELETE").status)
         assertEquals(415, post("{}", mapOf("content-type" to "text/plain")).status)
@@ -117,7 +117,7 @@ class McpRpcTest {
         val result = d.json()["result"]!!.jsonObject
         assertEquals("complete", result["resultType"]!!.jsonPrimitive.content)
         assertTrue(result["supportedVersions"]!!.jsonArray.map { it.jsonPrimitive.content }.contains(McpRpc.MODERN))
-        assertEquals("mika", result["_meta"]!!.jsonObject[McpRpc.META_SERVER]!!.jsonObject["name"]!!.jsonPrimitive.content)
+        assertEquals("nuoyi", result["_meta"]!!.jsonObject[McpRpc.META_SERVER]!!.jsonObject["name"]!!.jsonPrimitive.content)
 
         val l = post("""{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{${modernMeta()}}}""", modernHeaders("tools/list"))
         assertEquals(7, l.json()["result"]!!.jsonObject["tools"]!!.jsonArray.size)
@@ -130,19 +130,19 @@ class McpRpcTest {
     }
 
     @Test fun modernToolCallChecksMirroredHeaders() {
-        val body = """{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"mika_list_tasks","arguments":{},${modernMeta()}}}"""
-        post(body, modernHeaders("tools/call", name = "mika_list_tasks")).let {
+        val body = """{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"nuoyi_list_tasks","arguments":{},${modernMeta()}}}"""
+        post(body, modernHeaders("tools/call", name = "nuoyi_list_tasks")).let {
             assertEquals(200, it.status)
             assertFalse("工具调用的结果不可缓存,不带缓存提示", "ttlMs" in it.json()["result"]!!.jsonObject)
         }
-        val encoded = "=?base64?" + Base64.getEncoder().encodeToString("mika_list_tasks".toByteArray()) + "?="
+        val encoded = "=?base64?" + Base64.getEncoder().encodeToString("nuoyi_list_tasks".toByteArray()) + "?="
         assertEquals(200, post(body, modernHeaders("tools/call", name = encoded)).status)
-        post(body, modernHeaders("tools/call", name = "mika_run_task")).let {
+        post(body, modernHeaders("tools/call", name = "nuoyi_run_task")).let {
             assertEquals(400, it.status); assertEquals(McpRpc.HEADER_MISMATCH, it.errorCode())
         }
         assertEquals(McpRpc.HEADER_MISMATCH, post(body, modernHeaders("tools/call")).errorCode())
-        assertEquals(McpRpc.HEADER_MISMATCH, post(body, modernHeaders("tools/list", name = "mika_list_tasks")).errorCode())
-        assertEquals(McpRpc.HEADER_MISMATCH, post(body, mapOf("Mcp-Method" to "tools/call", "Mcp-Name" to "mika_list_tasks")).errorCode())
+        assertEquals(McpRpc.HEADER_MISMATCH, post(body, modernHeaders("tools/list", name = "nuoyi_list_tasks")).errorCode())
+        assertEquals(McpRpc.HEADER_MISMATCH, post(body, mapOf("Mcp-Method" to "tools/call", "Mcp-Name" to "nuoyi_list_tasks")).errorCode())
     }
 
     @Test fun modernUnsupportedVersionListsSupportedOnes() {

@@ -26,7 +26,7 @@ import java.io.File
 
 /** App 级唯一实例:设置页与经过认证的 MCP 共用,不经过模型、屏幕工具或运行记录。 */
 class AndroidDeviceAccess(context: Context, helper: () -> INuoyiShell?) {
-    val settings = DeviceAccessSettings(File(context.filesDir, "settings"), KeystoreKeyCipher("mika-device-access"))
+    val settings = DeviceAccessSettings(File(context.filesDir, "settings"), KeystoreKeyCipher("nuoyi-device-access"))
     val access = DeviceAccess(AndroidDeviceAccessPort(context, helper), settings)
 }
 

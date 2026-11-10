@@ -94,7 +94,7 @@ fun toolDispatcher(
     workspace: () -> String = { "default" },
     /** 沙箱开始跑一条命令或脚本时(任务卡片显示「沙箱:…」)。 */
     onSandboxCommand: (String) -> Unit = {},
-    /** 沙箱里 `mika progress` 报的进度。 */
+    /** 沙箱里 `nuoyi progress` 报的进度。 */
     onSandboxProgress: (String) -> Unit = {},
     /** 沙箱工具在等运行环境准备好(任务卡片显示「正在准备」)。 */
     onSandboxPreparing: () -> Unit = {},

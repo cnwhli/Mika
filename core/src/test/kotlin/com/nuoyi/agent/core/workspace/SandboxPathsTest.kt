@@ -21,13 +21,13 @@ class SandboxPathsTest {
         assertNull(SandboxPaths.normalize("/workspace/../etc"))
         assertNull(SandboxPaths.normalize("/etc/passwd"))
         assertNull(SandboxPaths.normalize("/workspacex/a"))
-        assertNull(SandboxPaths.normalize("/opt/mika/skills/../../../root"))
+        assertNull(SandboxPaths.normalize("/opt/nuoyi/skills/../../../root"))
         assertNull(SandboxPaths.resolveHost(Files.createTempDirectory("r").toFile(), "../x"))
     }
 
     @Test fun skillsReadableNotWritable() {
-        val p = SandboxPaths.normalize("/opt/mika/skills/app/x/scripts/a.py")
-        assertEquals("/opt/mika/skills/app/x/scripts/a.py", p)
+        val p = SandboxPaths.normalize("/opt/nuoyi/skills/app/x/scripts/a.py")
+        assertEquals("/opt/nuoyi/skills/app/x/scripts/a.py", p)
         assertFalse(SandboxPaths.isWritable(p!!))
         assertTrue(SandboxPaths.isWritable(SandboxPaths.normalize("out/a.png")!!))
     }

@@ -9,17 +9,17 @@ import java.time.ZoneId
 /**
  * 离线重算:用现在的 [Grounding] 重新核对录下来的运行(不调模型)。没设目录时跳过。
  *
- *   MIKA_RESCORE_DIR=/path/to/runs ./gradlew :core:test --tests '*RescoreRecordedRuns*' --rerun
+ *   NUOYI_RESCORE_DIR=/path/to/runs ./gradlew :core:test --tests '*RescoreRecordedRuns*' --rerun
  *
  * 递归找目录下所有 events.jsonl;每次核查(verifier 事件)按 [RecordedVerifications] 配上它核的那次 finish(不论先后)取回答,
  * 证据用核查之前的全部读屏文字和工具结果里的全部字符串(不含那次 finish 自己的),相对日期按那次核查的时刻换算(时区取
- * MIKA_RESCORE_ZONE,没设用本机的)。结果写到 <目录>/rescore.tsv:运行、当时的结论与理由、现在的兜底结论、找不到的事实。
+ * NUOYI_RESCORE_ZONE,没设用本机的)。结果写到 <目录>/rescore.tsv:运行、当时的结论与理由、现在的兜底结论、找不到的事实。
  */
 class RescoreRecordedRuns {
     @Test fun rescore() {
-        val dir = (System.getenv("MIKA_RESCORE_DIR") ?: System.getProperty("mika.rescore.dir"))?.let(::File)
-        assumeTrue("MIKA_RESCORE_DIR not set", dir != null && dir.isDirectory)
-        val zone = System.getenv("MIKA_RESCORE_ZONE")?.let(ZoneId::of) ?: ZoneId.systemDefault()
+        val dir = (System.getenv("NUOYI_RESCORE_DIR") ?: System.getProperty("nuoyi.rescore.dir"))?.let(::File)
+        assumeTrue("NUOYI_RESCORE_DIR not set", dir != null && dir.isDirectory)
+        val zone = System.getenv("NUOYI_RESCORE_ZONE")?.let(ZoneId::of) ?: ZoneId.systemDefault()
         val rows = mutableListOf("run\tthen\tthen_reason\tnow\tnot_found")
         dir!!.walk().filter { it.name == "events.jsonl" }.sorted().forEach { f ->
             val events = f.readLines().mapNotNull { runCatching { RunEvent.decode(it) }.getOrNull() }

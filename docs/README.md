@@ -26,7 +26,7 @@
 
 | 文档 | 讲什么 |
 | --- | --- |
-| [CLI / Skill：安装、升级和卸载](computer-install.md) | 在电脑上装 `mika` 命令或 Agent 用的 Skill |
+| [CLI / Skill：安装、升级和卸载](computer-install.md) | 在电脑上装 `nuoyi` 命令或 Agent 用的 Skill |
 | [CLI 与 Skill：连接与任务命令](cli.md) | 连接手机、派任务、查进度、追问和插话的命令 |
 | [飞书机器人](feishu.md) | 扫码新建、关联已有应用、私聊派任务与收取结果 |
 | [电脑连接（MCP）](mcp.md) | 让 MCP 客户端把任务交给 Nuoyi：USB、Wi-Fi / VPN、工具、安全 |

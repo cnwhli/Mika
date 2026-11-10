@@ -201,7 +201,7 @@ class RunHandle internal constructor(
     private var closing = false
     private var sinceSummary = 0
     private val metrics = RunMetrics.Builder(runId)
-    private val writer = Thread(::drain, "mika-run-$runId").apply { isDaemon = true }
+    private val writer = Thread(::drain, "nuoyi-run-$runId").apply { isDaemon = true }
 
     init {
         writeSummary()

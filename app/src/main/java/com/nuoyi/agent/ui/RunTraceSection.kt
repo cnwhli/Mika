@@ -140,7 +140,7 @@ private fun TraceExportControls(archive: TraceArchive) {
     ListRow(null, stringResource(R.string.trace_attach), stringResource(R.string.trace_attach_hint),
         onClick = { includeBody = !includeBody }) { NuoyiSwitch(includeBody, null) }
     ListRow(NuoyiIcons.Doc, stringResource(R.string.trace_save), onClick = {
-        if (includeBody) zip.launch("mika-trace-${archive.runId}.zip") else proto.launch("mika-trace-${archive.runId}.pb")
+        if (includeBody) zip.launch("nuoyi-trace-${archive.runId}.zip") else proto.launch("nuoyi-trace-${archive.runId}.pb")
     }) { RowChevron() }
     if (result != 0) Text(stringResource(result), Modifier.padding(horizontal = 16.dp, vertical = 6.dp), style = NuoyiType.Hint)
 }

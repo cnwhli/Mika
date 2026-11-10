@@ -44,7 +44,7 @@ class SandboxBridge(
 ) {
     fun open(): Session {
         val rnd = SecureRandom()
-        val name = "mika-bridge-" + String(CharArray(16) { NAME_CHARS[rnd.nextInt(NAME_CHARS.length)] })
+        val name = "nuoyi-bridge-" + String(CharArray(16) { NAME_CHARS[rnd.nextInt(NAME_CHARS.length)] })
         val token = Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32).also(rnd::nextBytes))
         return Session(name, token, LocalServerSocket(name), onProgress, onShare, info, onPhone)
     }
@@ -64,7 +64,7 @@ class SandboxBridge(
         private val work = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         /** 工具上下文属于同一个任务,来自多个 CLI 连接的手机请求顺序执行。 */
         private val phoneLock = Mutex()
-        private val acceptor = thread(isDaemon = true, name = "mika-bridge-accept") { acceptLoop() }
+        private val acceptor = thread(isDaemon = true, name = "nuoyi-bridge-accept") { acceptLoop() }
 
         private fun acceptLoop() {
             while (!closed) {
@@ -75,7 +75,7 @@ class SandboxBridge(
                 if (uid != Process.myUid() || clients.size >= MAX_CONNECTIONS) { runCatching { s.close() }; continue }
                 runCatching { s.soTimeout = CLIENT_TIMEOUT_MS }
                 clients += s
-                thread(isDaemon = true, name = "mika-bridge-conn") { serve(s) }
+                thread(isDaemon = true, name = "nuoyi-bridge-conn") { serve(s) }
             }
         }
 

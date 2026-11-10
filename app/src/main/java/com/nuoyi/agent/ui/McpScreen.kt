@@ -145,7 +145,7 @@ internal fun ComputerAccessPage(
             transport == 2 -> relayGuide?.invoke(client == 1)
             transport == 1 -> NetworkGuide(ui, mcp = client == 1, onNetworkEnabled, onCopy)
             client == 0 -> GuideStep(stringResource(R.string.mcp_cli_connect), stringResource(R.string.mcp_cli_connect_sub),
-                stringResource(R.string.mcp_copy_command), { onCopy("mika connect") }, command = "mika connect")
+                stringResource(R.string.mcp_copy_command), { onCopy("nuoyi connect") }, command = "nuoyi connect")
             else -> McpUsbGuide(ui, onCopy)
         }
 
@@ -246,7 +246,7 @@ private fun NetworkGuide(ui: ComputerAccessUi, mcp: Boolean, onNetworkEnabled: (
     }
     FooterNote(stringResource(R.string.mcp_address_foot))
     if (!mcp) {
-        val command = address?.let { "mika connect --url http://$it:${ui.port} --token-file /path/to/token" }
+        val command = address?.let { "nuoyi connect --url http://$it:${ui.port} --token-file /path/to/token" }
         GroupCard {
             ListRow(NuoyiIcons.Code, stringResource(R.string.mcp_cli_connect), stringResource(R.string.mcp_cli_network_sub), first = true)
             command?.let { CommandText(it) }

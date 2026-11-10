@@ -75,7 +75,7 @@
     <string name="fail_revoked">O pareamento expirou</string>
     <string name="fail_revoked_body">O sistema pode tê-lo revogado depois de muito tempo sem uso, ou ele foi removido. Basta parear de novo. Ative “Desativar tempo limite de autorização do adb” em Opções do desenvolvedor para ele não expirar mais.</string>
     <string name="fail_key_unreadable">Não é possível ler a chave de pareamento</string>
-    <string name="fail_key_unreadable_body">O Nuoyi não consegue mais ler a chave usada no pareamento. Pareie de novo uma vez; o Nuoyi criará uma chave nova e a entrada antiga “mika@…” em Dispositivos pareados poderá ser removida.</string>
+    <string name="fail_key_unreadable_body">O Nuoyi não consegue mais ler a chave usada no pareamento. Pareie de novo uma vez; o Nuoyi criará uma chave nova e a entrada antiga “nuoyi@…” em Dispositivos pareados poderá ser removida.</string>
     <string name="fail_helper">Conectado, mas não foi possível se preparar</string>
     <string name="fail_helper_body">Tentar de novo costuma resolver.</string>
     <string name="fail_unknown">Algo deu errado</string>

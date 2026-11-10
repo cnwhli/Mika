@@ -11,7 +11,7 @@ plugins {
 // ".Foo" 这种相对写法会按 applicationId 解析,换了 ID 就会 ClassNotFoundException。
 val brandApplicationId = "com.voicehelm.agent"
 val brandName = "声舵"
-val brandWakeWord = "小舵"
+val brandWakeWord = "诺伊"
 
 // 关于页上的构建编号:当前提交的短哈希;没有 git(如从源码包编译)时写 dev
 val gitHash: String = runCatching {

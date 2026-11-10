@@ -137,8 +137,8 @@ class VoiceCapabilities private constructor(
     }
 
     companion object {
-        /** 出厂固定唤醒词。换品牌时只改这里和 app 的 BuildConfig 常量。 */
-        const val DEFAULT_FIXED_WAKE_WORD = "小舵"
+        /** 出厂固定唤醒词「诺伊」。换词时这里和 app/build.gradle.kts 的 brandWakeWord 必须同步，VoiceRuntime 会校验。 */
+        const val DEFAULT_FIXED_WAKE_WORD = "诺伊"
 
         fun publicEdition(fixedWakeWord: String = DEFAULT_FIXED_WAKE_WORD): VoiceCapabilities {
             val word = when (val r = WakeWordPolicy.check(fixedWakeWord)) {

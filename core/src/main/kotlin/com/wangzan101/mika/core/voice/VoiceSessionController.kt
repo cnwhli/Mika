@@ -291,7 +291,7 @@ class VoiceSessionController(
         return prefix + VoiceEffect.Finish
     }
 
-    /** 系统／热词层已经剥掉唤醒词时，这里再兜一次底，顺手把「小舵，帮我…」处理干净。 */
+    /** 系统／热词层已经剥掉唤醒词时，这里再兜一次底，顺手把「诺伊，帮我…」处理干净。 */
     private fun stripWake(raw: String): String {
         val text = raw.trim()
         val words = wakeWords().map { it.trim() }.filter { it.isNotBlank() }.sortedByDescending { it.length }

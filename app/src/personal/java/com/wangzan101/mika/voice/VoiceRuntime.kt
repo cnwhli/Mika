@@ -22,6 +22,9 @@ object VoiceRuntime : VoiceRuntimeApi {
         check(BuildConfig.VOICE_CUSTOM_WAKE_WORD && BuildConfig.VOICE_ALWAYS_ON) {
             "personal flavor must enable custom wake word and always-on microphone"
         }
+        check(BuildConfig.VOICE_FIXED_WAKE_WORD == VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD) {
+            "brandWakeWord in app/build.gradle.kts must match core DEFAULT_FIXED_WAKE_WORD"
+        }
     }
 
     /** 进程冷启动后把上次定的词读回来；不读也能用出厂固定词。 */

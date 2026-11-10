@@ -122,7 +122,10 @@ class VoiceSessionControllerTest {
     @Test fun fixedWakeWordIsStrippedFromTheGoal() {
         val c = controller()
         c.onWake(WakeSource.SystemAssistant)
-        assertEquals(listOf("帮我打开微信"), c.onUtterance("小舵，帮我打开微信").goals())
+        assertEquals(
+            listOf("帮我打开微信"),
+            c.onUtterance("${VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD}，帮我打开微信").goals(),
+        )
     }
 
     @Test fun renamedWakeWordTakesEffectInPersonalEdition() {
@@ -135,7 +138,7 @@ class VoiceSessionControllerTest {
         c.onSpeechDone() // 播完「在，请说。」
         assertEquals(listOf("帮我定个闹钟"), c.onUtterance("阿福，帮我定个闹钟").goals())
         // 出厂词仍然兼容
-        assertEquals(listOf("小舵"), settings.wakeWords().take(1))
+        assertEquals(listOf(VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD), settings.wakeWords().take(1))
     }
 
     @Test fun whileTaskRunsOnlyShortControlPhrasesAreAccepted() {

@@ -37,10 +37,10 @@ class VoiceCapabilitiesTest {
         assertEquals(WakeWordResult.Ok("阿福", custom = true), settings.set("阿福"))
         assertEquals("阿福", settings.current())
         assertTrue(settings.isCustom())
-        // 固定词仍保留，老习惯喊「小舵」一样能醒
-        assertEquals(listOf("小舵", "阿福"), settings.wakeWords())
+        // 固定词仍保留，老习惯喊出厂词一样能醒
+        assertEquals(listOf(VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD, "阿福"), settings.wakeWords())
         settings.reset()
-        assertEquals("小舵", settings.current())
+        assertEquals(VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD, settings.current())
     }
 
     @Test fun rejectWordsThatBreakTheDialog() {
@@ -57,9 +57,18 @@ class VoiceCapabilitiesTest {
     }
 
     @Test fun normalizeKeepsChineseAndFoldsFullWidth() {
-        assertEquals("小舵", WakeWordPolicy.normalize("  小舵，"))
+        assertEquals(VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD, WakeWordPolicy.normalize("  诺伊，"))
         assertEquals("A1", WakeWordPolicy.normalize("Ａ１"))
         assertEquals(WakeWordResult.Ok("阿福", custom = false), WakeWordPolicy.check(" 阿福 "))
+    }
+
+    /** 唤醒词是产品决策，锁在这里：换词要显式改，不能因为重构悄悄变回去。 */
+    @Test fun factoryWakeWordIsNoYi() {
+        assertEquals("诺伊", VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD)
+        assertEquals(WakeWordResult.Ok("诺伊", custom = false), WakeWordPolicy.check("诺伊"))
+        assertEquals("诺伊", VoiceCapabilities.publicEdition().fixedWakeWord)
+        assertEquals("诺伊", VoiceCapabilities.personalEdition().fixedWakeWord)
+        assertEquals(listOf("诺伊"), VoiceCapabilities.publicEdition().wakeWords())
     }
 
     @Test fun invalidCustomWordDoesNotReplaceCurrent() {

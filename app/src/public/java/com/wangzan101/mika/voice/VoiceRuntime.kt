@@ -23,6 +23,10 @@ object VoiceRuntime : VoiceRuntimeApi {
             "public flavor must not enable custom wake word or always-on microphone"
         }
         check(capabilities.edition == VoiceEdition.PUBLIC)
+        // 唤醒词有两处常量，改词漏改一处会让商店文案和实际识别对不上，启动即报错
+        check(BuildConfig.VOICE_FIXED_WAKE_WORD == VoiceCapabilities.DEFAULT_FIXED_WAKE_WORD) {
+            "brandWakeWord in app/build.gradle.kts must match core DEFAULT_FIXED_WAKE_WORD"
+        }
     }
 
     override fun wakeWords(): List<String> = capabilities.wakeWords()

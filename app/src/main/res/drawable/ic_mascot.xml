@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 诺伊吉祥物:可爱的未来人。用作启动图标前景与界面 Logo。与 ui/theme/Mascot.kt 的动画版同造型。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 天线 -->
+    <path android:pathData="M54,26 L54,13"
+        android:strokeColor="#6FC3FF" android:strokeWidth="4" android:strokeLineCap="round"/>
+    <path android:pathData="M54,11 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0"
+        android:fillColor="#2A9DFF"/>
+    <path android:pathData="M54,11 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0"
+        android:fillColor="#EAF7FF"/>
+
+    <!-- 两侧科技耳 -->
+    <path android:pathData="M22,50 h7 a4,4 0 0,1 4,4 v12 a4,4 0 0,1 -4,4 h-7 a4,4 0 0,1 -4,-4 v-12 a4,4 0 0,1 4,-4 z"
+        android:fillColor="#C9E6FF"/>
+    <path android:pathData="M86,50 h-7 a4,4 0 0,0 -4,4 v12 a4,4 0 0,0 4,4 h7 a4,4 0 0,0 4,-4 v-12 a4,4 0 0,0 -4,-4 z"
+        android:fillColor="#C9E6FF"/>
+
+    <!-- 头 -->
+    <path android:pathData="M54,26
+        C30,26 24,40 24,58
+        C24,80 36,92 54,92
+        C72,92 84,80 84,58
+        C84,40 78,26 54,26 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="24"
+                android:endX="54" android:endY="94" android:startColor="#EAF6FF" android:endColor="#FFFFFF"/>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M54,26
+        C30,26 24,40 24,58
+        C24,80 36,92 54,92
+        C72,92 84,80 84,58
+        C84,40 78,26 54,26 Z"
+        android:strokeColor="#BFE0FF" android:strokeWidth="2"/>
+
+    <!-- 腮红 -->
+    <path android:pathData="M36,66 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" android:fillColor="#FFD2DD" android:fillAlpha="0.85"/>
+    <path android:pathData="M72,66 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" android:fillColor="#FFD2DD" android:fillAlpha="0.85"/>
+
+    <!-- 眼睛 -->
+    <path android:pathData="M43,54 m-7,0 a7,9 0 1,0 14,0 a7,9 0 1,0 -14,0" android:fillColor="#20303A"/>
+    <path android:pathData="M65,54 m-7,0 a7,9 0 1,0 14,0 a7,9 0 1,0 -14,0" android:fillColor="#20303A"/>
+    <path android:pathData="M45.5,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
+    <path android:pathData="M67.5,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
+
+    <!-- 微笑 -->
+    <path android:pathData="M44,70 Q54,80 64,70"
+        android:strokeColor="#20303A" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000"/>
+</vector>

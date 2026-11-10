@@ -1,22 +1,22 @@
 {
-  "tag_name": "v0.1.38",
-  "name": "诺伊 0.1.38",
-  "body": "### 本次更新\n\n- 品牌与唤醒词统一为「诺伊」；公版唤醒词固定不可自定义，个人版可自定义并支持本地常驻热词。\n- 任何入口问「诺伊你是谁」，都由本地代码固定回答「我是李万禧的女儿，数字女儿」，不经过模型、不联网、不消耗额度。\n- 新增免手语音入口、系统数字助手会话、半双工关麦与敏感动作二次确认。\n- 新增额度感知路由：官方公开免费档与自有 Key 之间自动切换、冷却与到期自愈。\n- 发布渠道切到官网，App 内更新、下载域名白名单与签名校验全部改为自有链路。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。普通用户选「公版 · 全架构」；arm64 设备可选体积更小的专用包。\n个人版仅供自用侧载，包名与公版不同，可并排安装。\n\n安装前请核对下载页给出的 SHA-256 与签名证书指纹。App 内更新会自动校验\n大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，\n详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
+  "tag_name": "v0.1.39",
+  "name": "诺伊 0.1.39",
+  "body": "### 本次更新\n\n- 全新吉祥物形象「诺伊」：带天线、科技耳与微笑的可爱未来人。作启动图标，常驻对话页顶栏，浮在悬浮小窗里（带呼吸 / 眨眼 / 说话动作），并贯穿屏幕顶部的灵动岛胶囊。\n- 通知进灵动岛：任务完成 / 失败 / 取消时，除系统通知栏外，还在屏幕顶部居中弹出灵动岛风格胶囊（带相应表情的诺伊），点一下回 App；未授权「显示在其他应用上层」时退化为普通通知。\n- 两个发行版本说明更新：个人版强调为「全功能定制版」，常驻热词仅个人版提供（公版受 Android 系统限制，系统级常驻热词接口不对普通应用开放）。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。普通用户选「公版 · 全架构」；arm64 设备可选体积更小的专用包。\n个人版仅供自用侧载，包名与公版不同，可并排安装。\n\n安装前请核对下载页给出的 SHA-256 与签名证书指纹。App 内更新会自动校验\n大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，\n详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
   "published_at": "2026-11-10T00:00:00Z",
   "html_url": "https://noy.127068.xyz/download/",
   "prerelease": false,
   "assets": [
     {
-      "name": "Nuoyi-v0.1.38-personal-arm64.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.38/Nuoyi-v0.1.38-personal-arm64.apk",
-      "size": 82757845,
-      "digest": "sha256:e51e556ea385e3a77675d60ebb79f1007f3fcb4da6bb5849aa748bc7de40c6fa"
+      "name": "Nuoyi-v0.1.39-personal-arm64.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.39/Nuoyi-v0.1.39-personal-arm64.apk",
+      "size": 82072037,
+      "digest": "sha256:67d130f9290f13ed55e72854ffa8448f242c68495ae5327713419cd6039f9172"
     },
     {
-      "name": "Nuoyi-v0.1.38-personal.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.38/Nuoyi-v0.1.38-personal.apk",
-      "size": 95353988,
-      "digest": "sha256:f3d01da205cf1820ee812fd88613335a29fd491798007a69a74349b63b27bcd8"
+      "name": "Nuoyi-v0.1.39-personal.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.39/Nuoyi-v0.1.39-personal.apk",
+      "size": 94668180,
+      "digest": "sha256:1c4f0ec1704d760eaa7d34232cb6b1d06fa57b0253f617da17c81a87388b4c03"
     }
   ]
 }

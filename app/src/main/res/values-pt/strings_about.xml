@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">A nova versão do Nuoyi está pronta</string>
     <string name="about_auto_update_confirm_detail">Instale %1$s agora ou desative as atualizações automáticas e verifique manualmente em Configurações.</string>
     <string name="about_auto_update_now">Atualizar agora</string>
+    <string name="about_identity_title">Identidade do produto · resposta fixa</string>
+    <string name="about_identity_note">Ao perguntar quem é a Nuoyi, a resposta vem diretamente do código local: sem chamar o modelo, sem gastar tokens e sem rede. É a mesma frase ao digitar, por voz, ao responder uma notificação ou ao interromper uma tarefa.</string>
+    <string name="about_identity_badge">Resposta local fixa · sem conexão · consumo zero</string>
 </resources>

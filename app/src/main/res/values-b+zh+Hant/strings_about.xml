@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">新版 諾伊 已就緒</string>
     <string name="about_auto_update_confirm_detail">可以現在安裝 %1$s，也可以關閉自動更新，之後在設定中手動檢查。</string>
     <string name="about_auto_update_now">立即更新</string>
+    <string name="about_identity_title">產品身份 · 固定回答</string>
+    <string name="about_identity_note">問「你是誰」時，這句回答由本機程式碼直接給出：不經過模型、不消耗額度、不連網。打字、語音、通知回覆與任務中插話都是同一句。</string>
+    <string name="about_identity_badge">本地固定應答 · 不連網 · 零用量</string>
 </resources>

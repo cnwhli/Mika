@@ -4,7 +4,10 @@ import androidx.compose.foundation.gestures.scrollBy
 import com.nuoyi.agent.core.agent.QuoteMessage
 import com.nuoyi.agent.core.record.ConversationTokens
 import com.nuoyi.agent.core.cap.web.AttachedPage
+import com.nuoyi.agent.core.voice.ProductIdentity
 import com.nuoyi.agent.ui.components.DirectionalIcon
+import com.nuoyi.agent.ui.components.PillTone
+import com.nuoyi.agent.ui.components.StatusPill
 import com.nuoyi.agent.ui.components.keepsKeyboard
 import android.content.Context
 import android.graphics.Bitmap
@@ -144,6 +147,8 @@ import com.nuoyi.agent.ui.theme.NuoyiShapes
 import com.nuoyi.agent.ui.theme.NuoyiSize
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import com.nuoyi.agent.ui.viewer.FileViewer
+import com.nuoyi.agent.ui.theme.MascotMood
+import com.nuoyi.agent.ui.theme.NuoyiMascot
 import com.nuoyi.agent.ui.theme.NuoyiType
 import com.nuoyi.agent.voice.HoldToTalk
 import com.nuoyi.agent.voice.VoiceSource
@@ -359,8 +364,11 @@ fun ChatScreen(
             ?: kept?.let { ChatCopy.KEPT_PAGE to ChatCopy.Tone.Ok }
             ?: ChatTokensCopy.conversationSubtitle(endedRuns, runMetrics)?.let { it to null }
         Column(Modifier.behindMenu(menuOpen) { lift.value }.onSizeChanged { topHeight = it.height }) {
+            // 顶栏常驻显示诺伊吉祥物:思考中(任务在跑)给「思考」表情,平时「待命」。
+            val mascotMood = if (last?.status?.isActive() == true) MascotMood.Thinking else MascotMood.Idle
             TopBar(
                 ChatCopy.APP_TITLE,
+                leading = { NuoyiMascot(mascotMood, size = 34.dp) },
                 left = NuoyiIcons.Menu, leftLabel = stringResource(R.string.chat_menu), onLeft = onOpenDrawer,
                 // 别的对话里还有任务在跑(并行时):菜单上一个小圆点,侧栏「进行中」里能切过去
                 leftBadge = others.isNotEmpty(),
@@ -1093,8 +1101,21 @@ private fun StatusCard(
                         }
                     }
                     MarkdownText(status.answer, AnswerText.copy(color = NuoyiTheme.colors.ink))
-                    // 来源:旧记录里模型写的依据文字,或运行记录里代码记下的来源;都没有就不显示
-                    if (status.evidence != null || runId != null) SourceChip(status.evidence, runId, loadSource, openSource)
+                    // 身份固定回答由本地代码直接给出：在界面上标出来，别让它看起来像模型生成的。
+                    // 用回答文本比对而不是给 Done 加字段，历史回放（fromTurn）也能照样显示。
+                    val localIdentityReply = status.answer.trim() == ProductIdentity.REPLY
+                    if (localIdentityReply) {
+                        StatusPill(
+                            stringResource(R.string.about_identity_badge),
+                            tone = PillTone.Ok,
+                            modifier = Modifier.padding(top = 10.dp),
+                        )
+                    }
+                    // 来源:旧记录里模型写的依据文字,或运行记录里代码记下的来源;都没有就不显示。
+                    // 本地固定应答没有"来源"可看，这一行也不该和运行记录混在一起。
+                    if (!localIdentityReply && (status.evidence != null || runId != null)) {
+                        SourceChip(status.evidence, runId, loadSource, openSource)
+                    }
                 }
             }
         }

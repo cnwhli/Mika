@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
@@ -251,6 +252,8 @@ fun TopBar(
     leftLabel: String = "",
     /** 左边按钮上的小圆点,见 [BarIconButton]。 */
     leftBadge: Boolean = false,
+    /** 标题左边的小图标位(例如一直显示的吉祥物),不给就和普通标题一样。 */
+    leading: (@Composable RowScope.() -> Unit)? = null,
     right: (@Composable RowScope.() -> Unit)? = null,
     subtitle: String? = null,
     subtitleColor: Color = Color.Unspecified,
@@ -264,6 +267,11 @@ fun TopBar(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             if (left != null) BarIconButton(left, leftLabel, onLeft, badge = leftBadge) else Spacer(Modifier.size(NuoyiSize.IconButton))
+            if (leading != null) {
+                Spacer(Modifier.width(2.dp))
+                leading()
+                Spacer(Modifier.width(2.dp))
+            }
             Column(Modifier.weight(1f).padding(horizontal = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(title, style = NuoyiType.Title, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (!subtitle.isNullOrEmpty()) {

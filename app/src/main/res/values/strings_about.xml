@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">A new Nuoyi version is ready</string>
     <string name="about_auto_update_confirm_detail">Install %1$s now, or turn off auto-update and check for updates manually in Settings.</string>
     <string name="about_auto_update_now">Update now</string>
+    <string name="about_identity_title">Product identity · fixed reply</string>
+    <string name="about_identity_note">Ask who Nuoyi is and the answer comes straight from local code: no model call, no token usage, no network. Typing, voice, notification replies and interruptions during a task all get the same line.</string>
+    <string name="about_identity_badge">Fixed local reply · offline · zero usage</string>
 </resources>

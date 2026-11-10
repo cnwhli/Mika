@@ -51,6 +51,7 @@ import com.nuoyi.agent.about.CheckStatus
 import com.nuoyi.agent.about.NuoyiLinks
 import com.nuoyi.agent.about.ReleaseInfo
 import com.nuoyi.agent.about.UpdateState
+import com.nuoyi.agent.core.voice.ProductIdentity
 import com.nuoyi.agent.ui.components.ButtonKind
 import com.nuoyi.agent.ui.components.GroupCard
 import com.nuoyi.agent.ui.components.ListRow
@@ -147,6 +148,23 @@ fun AboutScreen(
             Text(AboutCopy.DATA_NOTE, style = NuoyiType.Caption, color = c.ink2)
         }
 
+        // 产品身份卡：把那句写死的代码常量和它的本地短路机制直接摆到界面上，随时可核对。
+        // 回答文本不进翻译资源——它是常量，改一句话只需要改 core 里那一处。
+        Column(
+            Modifier.fillMaxWidth().padding(top = 12.dp)
+                .background(c.accentSoft, RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 14.dp)
+                .testTag("about-identity"),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                Icon(NuoyiIcons.Shield, null, Modifier.size(17.dp), tint = c.accent)
+                Text(AboutCopy.IDENTITY_TITLE, style = NuoyiType.BodyStrong, color = c.ink)
+            }
+            Text(ProductIdentity.REPLY, Modifier.padding(top = 10.dp), style = NuoyiType.BodyStrong, color = c.ink)
+            Text(AboutCopy.IDENTITY_BADGE, Modifier.padding(top = 5.dp), style = NuoyiType.Caption, color = c.accent)
+            Text(AboutCopy.IDENTITY_NOTE, Modifier.padding(top = 6.dp), style = NuoyiType.Caption, color = c.ink2)
+        }
+
         Column(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 buildAnnotatedString {
@@ -187,7 +205,7 @@ private fun Hero(versionName: String, build: String, beta: Boolean) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painterResource(R.drawable.mika_launcher_art), contentDescription = null,
+            painterResource(R.drawable.ic_mascot), contentDescription = null,
             Modifier.size(72.dp).clip(RoundedCornerShape(20.dp)),
         )
         Text("诺伊", Modifier.padding(top = 12.dp), style = NuoyiType.Title, fontWeight = FontWeight.Bold, color = c.ink)

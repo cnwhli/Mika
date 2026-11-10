@@ -18,6 +18,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 灵动岛胶囊在屏幕顶部画图需要「显示在其他应用上层」;未授权时胶囊不显示,不影响其余功能。 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- 批量日程经安卓日历提供方一次写入；用户未授权时退回系统日历的新建页。 -->
@@ -235,6 +237,16 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Runs a user-requested phone task on the app's own virtual display and shows its progress; afterwards keeps the one web page the user asked to keep open running, for at most two hours" />
+        </service>
+
+        <!-- 灵动岛:把 Nuoyi 自己的通知显示在屏幕顶部居中的胶囊里。需要「显示在其他应用上层」权限,没有时不启动。 -->
+        <service
+            android:name="com.nuoyi.agent.notify.DynamicIslandService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Shows Nuoyi's own notifications as a Dynamic-Island-style capsule at the top of the screen" />
         </service>
 
         <!-- 用户绑定并打开微信渠道后保持长轮询；没有本地服务器，任务仍交给 TaskService。 -->

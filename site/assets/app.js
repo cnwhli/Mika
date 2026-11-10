@@ -16,14 +16,19 @@
     });
   }
 
+  // 内容永远不能因为动画而消失：只有顶层窗口且脚本正常执行时才短暂开启动画，
+  // 1.6 秒后无条件撤销；iframe 预览 / 无观察器 / 脚本异常时全部直接可见。
   var reveals = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window) {
+  if ('IntersectionObserver' in window && window.top === window) {
+    var root = document.documentElement;
+    root.classList.add('anim');
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
       });
     }, { threshold: 0.08 });
     reveals.forEach(function (el) { io.observe(el); });
+    setTimeout(function () { root.classList.remove('anim'); }, 1600);
   } else {
     reveals.forEach(function (el) { el.classList.add('in'); });
   }

@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import com.nuoyi.agent.R
 import com.nuoyi.agent.core.voice.WakeSource
 
 /**
@@ -60,7 +61,9 @@ class AlwaysOnWakeWordService : Service() {
             VoiceRuntime::wakeWords,
             AssistantTaskBridge(this),
             consent::read,
-            onFinish = { main.post { startEngine() } },
+            onFinish = { main.post { startEngine(); showForeground() } },
+            // 热词唤醒没有系统助手窗口，就把这句固定回答留在常驻通知里：既念出来，也看得见。
+            onFixedReply = { question, answer -> showFixedReply(question, answer) },
         ).also { it.start(WakeSource.LocalHotword) }
     }
 
@@ -97,6 +100,19 @@ class AlwaysOnWakeWordService : Service() {
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
+    }
+
+    /** 身份固定回答在常驻通知上留一份可见文字；会话结束后由 showForeground() 复原。 */
+    private fun showFixedReply(question: String, answer: String) {
+        val detail = "› $question\n$answer\n${getString(R.string.about_identity_badge)}"
+        val notification = Notification.Builder(this, CHANNEL)
+            .setSmallIcon(android.R.drawable.ic_btn_speak_now)
+            .setContentTitle(getString(R.string.about_identity_title))
+            .setContentText(answer)
+            .setStyle(Notification.BigTextStyle().bigText(detail))
+            .setOngoing(true)
+            .build()
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
     }
 
     companion object {

@@ -71,8 +71,10 @@ import com.nuoyi.agent.ui.ScreenCopy
 import com.nuoyi.agent.ui.components.ButtonSize
 import com.nuoyi.agent.ui.components.NuoyiButton
 import com.nuoyi.agent.ui.components.NuoyiLogo
+import com.nuoyi.agent.ui.theme.MascotMood
 import com.nuoyi.agent.ui.theme.NuoyiColors
 import com.nuoyi.agent.ui.theme.NuoyiIcons
+import com.nuoyi.agent.ui.theme.NuoyiMascot
 import com.nuoyi.agent.ui.theme.NuoyiShapes
 import com.nuoyi.agent.ui.theme.NuoyiTheme
 import kotlin.math.ceil
@@ -202,7 +204,7 @@ private fun Capsule(view: CapsuleView.Shown, end: Boolean, onTap: () -> Unit, ta
                 .morphLayout(morph, end),
         ) {
             if (view.pill) PillRow(view, end, need)
-            else Box(Modifier.size(CapsuleHeight), contentAlignment = Alignment.Center) { CapsuleLogo() }
+            else Box(Modifier.size(CapsuleHeight), contentAlignment = Alignment.Center) { CapsuleLogo(moodFor(view.kind)) }
             if (glow.value > 0f) Box(Modifier.matchParentSize().background(androidx.compose.ui.graphics.Color.White.copy(alpha = glow.value)))
         }
         // 外圈和角标不随底淡下去;缩回时贴着图标那一边,不跟着还没收完的宽度走
@@ -229,13 +231,13 @@ private fun PillRow(view: CapsuleView.Shown, end: Boolean, need: Boolean) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp, if (end) Alignment.End else Alignment.Start),
     ) {
-        if (!end) CapsuleLogo()
+        if (!end) CapsuleLogo(moodFor(view.kind))
         Leading(view.kind)
         Text(
             view.text, Modifier.weight(1f, fill = false), style = CapsuleText,
             color = if (need) c.warn else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis,
         )
-        if (end) CapsuleLogo()
+        if (end) CapsuleLogo(moodFor(view.kind))
     }
 }
 
@@ -423,7 +425,7 @@ private fun TakeoverBar(view: CapsuleView.Shown, onStop: () -> Unit, onHandBack:
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        CapsuleLogo()
+        CapsuleLogo(moodFor(view.kind))
         Column(Modifier.weight(1f, fill = false).semantics(mergeDescendants = true) {}) {
             Text(view.text, style = CapsuleText, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
             view.detail?.let { Text(it, style = BarDetail, color = c.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis) }
@@ -439,10 +441,18 @@ private fun TakeoverBar(view: CapsuleView.Shown, onStop: () -> Unit, onHandBack:
     }
 }
 
-/** 胶囊上的 Nuoyi 图标(圆形)。 */
+/** 胶囊上的诺伊吉祥物(有动作):按此刻状态切换表情。 */
 @Composable
-private fun CapsuleLogo() {
-    NuoyiLogo(LogoSize, corner = LogoSize / 2)
+private fun CapsuleLogo(mood: MascotMood) {
+    NuoyiMascot(mood, size = LogoSize)
+}
+
+/** 胶囊状态对应的吉祥物表情。 */
+private fun moodFor(kind: CapsuleKind): MascotMood = when {
+    kind.needsYou -> MascotMood.Listening
+    kind == CapsuleKind.Running || kind == CapsuleKind.Held -> MascotMood.Thinking
+    kind == CapsuleKind.Done -> MascotMood.Happy
+    else -> MascotMood.Idle
 }
 
 /**

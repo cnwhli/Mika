@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">新版の Nuoyi が利用できます</string>
     <string name="about_auto_update_confirm_detail">今すぐ %1$s をインストールするか、自動更新をオフにして設定から手動で確認できます。</string>
     <string name="about_auto_update_now">今すぐ更新</string>
+    <string name="about_identity_title">製品アイデンティティ · 固定の返答</string>
+    <string name="about_identity_note">「あなたは誰」と聞くと、この返答は端末内のコードが直接返します。モデルを通さず、トークンを消費せず、通信もしません。文字入力、音声、通知からの返信、タスク中の割り込みでも同じ一言です。</string>
+    <string name="about_identity_badge">ローカル固定応答 · オフライン · 消費ゼロ</string>
 </resources>

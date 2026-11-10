@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>身份固定应答 · 诺伊 Nuoyi</title>
+<meta name="description" content="「我是李万禧的女儿，数字女儿」写死在诺伊的代码里：打字、语音、通知回复、任务中插话等所有入口都由本地直接应答，不经过模型、不消耗额度、不联网。" />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://noy.127068.xyz/identity/" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-5.5-5.5M19 12l-5.5 5.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.5v6c0 4.7 3.2 8.4 7.5 10 4.3-1.6 7.5-5.3 7.5-10v-6z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></g></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+    <button class="menu-toggle" aria-label="展开导航" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="../">首页</a>
+      <a href="../download/">下载</a>
+      <a href="../guide/">使用指南</a>
+      <a class="active" href="./">身份应答</a>
+      <a href="../privacy/">隐私</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
+      <a class="btn btn-primary btn-sm" href="../download/">获取 APK</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head"><div class="wrap">
+    <span class="eyebrow">产品身份</span>
+    <h1>一句话，写死在代码里</h1>
+    <p class="lead">这不是提示词里的一句「请这样回答」，也不是模型学出来的口径。它是本地代码里的常量，所有入口统一短路到它，模型连请求都收不到。</p>
+  </div></section>
+
+  <section class="section tight"><div class="wrap">
+    <div class="identity-panel">
+      <div class="identity-topline">
+        <span class="local-badge"><span class="dot"></span>本地固定应答 · 不经模型</span>
+        <span class="local-badge"><span class="dot"></span>用量 0 / 0 · 零联网</span>
+      </div>
+      <p class="q">问：诺伊你是谁？</p>
+      <p class="a">「我是李万禧的女儿，数字女儿」</p>
+      <p class="note">这句回答写死在代码里：无论从打字、语音、通知回复还是任务中插话问起，都由本地直接应答，不经过模型、不消耗额度、不联网。唤醒词与品牌同名也不会被误剥成「是谁」。</p>
+      <div class="identity-flow">
+        <span class="flow-node">任意入口提问</span><span class="flow-arrow">→</span>
+        <span class="flow-node hit">本地身份硬闸</span><span class="flow-arrow">→</span>
+        <span class="flow-node hit">固定回答 + 屏幕可见 / 语音播报</span>
+        <span class="flow-arrow">⇢</span><span class="flow-node cut">模型请求</span>
+        <span class="flow-node cut">网络请求</span>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section tight"><div class="wrap article">
+    <h2>所有入口，同一句回答</h2>
+    <p class="lead">硬闸装在<strong>模型调用层</strong>，而不是某一个界面按钮上。新加的入口默认也在闸后，不需要各自记得实现一遍。</p>
+    <div class="table-wrap matrix" style="margin-top:26px">
+      <table>
+        <thead><tr><th>提问入口</th><th>短路位置</th><th>是否进模型</th><th>是否联网</th><th>用量</th></tr></thead>
+        <tbody>
+          <tr><td><strong>打字输入</strong></td><td><code>ModelCaller</code> 的 <code>IdentityGate</code></td><td class="yes">否</td><td class="yes">否</td><td class="yes">0 / 0</td></tr>
+          <tr><td><strong>语音唤起</strong></td><td><code>VoiceSessionController</code> 直接 TTS + 屏幕卡片</td><td class="yes">否</td><td class="yes">否</td><td class="yes">0 / 0</td></tr>
+          <tr><td><strong>通知快捷回复</strong></td><td><code>ModelCaller</code> 的 <code>IdentityGate</code></td><td class="yes">否</td><td class="yes">否</td><td class="yes">0 / 0</td></tr>
+          <tr><td><strong>任务中插话</strong></td><td>语音层 / 模型调用层双闸，且不打断正在跑的任务</td><td class="yes">否</td><td class="yes">否</td><td class="yes">0 / 0</td></tr>
+          <tr><td><strong>channel / trigger</strong></td><td><code>ModelCaller</code> 的 <code>IdentityGate</code></td><td class="yes">否</td><td class="yes">否</td><td class="yes">0 / 0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lead" style="font-size:14.5px;margin-top:16px">判定只收短问句（中文与英文常见问法），「帮我查一下这个人是谁」这类任务句不会被误拦，仍照常执行。</p>
+  </div></section>
+
+  <section class="section tight"><div class="wrap">
+    <span class="eyebrow">为什么不会被误剥词</span>
+    <h2 class="title">品牌与唤醒词同名，判定用的是原句</h2>
+    <p class="lead">唤醒词是「诺伊」，品牌名也是「诺伊」。如果按老办法先把唤醒词从句子里剥掉再判意图，「诺伊是谁」就只剩「是谁」，身份问句会认不出来，甚至被当成一句没头没尾的闲聊丢给模型。</p>
+    <div class="grid grid-2" style="margin-top:30px">
+      <div class="card"><h3>❌ 先剥唤醒词</h3><p><code>诺伊是谁</code> → <code>是谁</code> → 判不出身份 → 可能转给模型，答案随模型飘。</p></div>
+      <div class="card"><h3>✅ 用用户原句判</h3><p>语音层与模型调用层都拿用户原话判；<code>诺伊是谁</code>、<code>诺伊你是谁</code>、<code>你是谁</code> 全部命中同一句固定回答。</p></div>
+    </div>
+  </div></section>
+
+  <section class="section tight"><div class="wrap article">
+    <h2>屏幕上能看到什么</h2>
+    <p class="lead">「本地直接应答」不等于「只念给你听、什么都看不见」。这句回答和它的机制在三个地方都可见：</p>
+    <div class="guarantee-grid" style="grid-template-columns:repeat(3,1fr);margin-top:22px">
+      <div class="guarantee"><b>聊天回答卡片</b><span>固定回答照常显示在消息列表里，并带「本地固定应答 · 不联网 · 零用量」标记，不会伪装成模型生成的内容。</span></div>
+      <div class="guarantee"><b>语音会话窗口</b><span>系统数字助手唤起时，会话区域显示问句、回答与本地标记，同时播报；个人版热词唤醒也会在通知里留下可见文字。</span></div>
+      <div class="guarantee"><b>关于页</b><span>关于 诺伊 里常驻一张产品身份卡，直接写出这句回答和它的本地短路机制，任何时候都能翻出来核对。</span></div>
+    </div>
+  </div></section>
+
+  <section class="section tight"><div class="wrap article">
+    <h2>代码在哪，谁在盯着它</h2>
+    <p class="lead">改这句回答只需要改常量 <code>ProductIdentity.REPLY</code> 与系统提示词里的同一句，测试会盯住两处一致。</p>
+    <div class="code-list">
+      <div class="code-item"><b>固定回答与问句识别</b><code>core/.../voice/ProductIdentity.kt</code><span>常量 REPLY、matches() / answerFor()。</span></div>
+      <div class="code-item"><b>所有入口的统一硬闸</b><code>core/.../identity/IdentityGate.kt</code><span>只取最近一句用户亲口说的话，工具结果与截图不算。</span></div>
+      <div class="code-item"><b>模型调用层短路</b><code>core/.../agent/ModelCaller.kt</code><span>routed() 与 complete() 双入口，返回 Usage(0, 0)。</span></div>
+      <div class="code-item"><b>语音层短路</b><code>core/.../voice/VoiceSessionController.kt</code><span>用原句判定，直接 TTS；任务运行中也不打断任务。</span></div>
+      <div class="code-item"><b>提示词兜底</b><code>core/.../prompts/system/identity.md</code><span>万一绕过前两道闸，口径仍一致。</span></div>
+      <div class="code-item"><b>界面可见化</b><code>app/.../ui/ChatScreen.kt · AboutScreen.kt</code><span>回答徽章、关于页身份卡；语音会话卡片在 app/.../voice/。</span></div>
+    </div>
+    <p class="lead" style="font-size:14.5px;margin-top:22px">对应单测：<code>ProductIdentityTest</code>、<code>IdentityGateTest</code>、<code>ModelCallerIdentityTest</code>、<code>VoiceSessionControllerTest</code>、<code>VoiceCommandTest</code>、<code>SystemPromptTest</code>，覆盖中英文问句、任务句不误拦、任务中插话不打断、零用量与提示词一致。</p>
+  </div></section>
+
+  <section class="section tight"><div class="wrap center">
+    <h2 class="title">装上去，亲口问一次</h2>
+    <p class="lead">断网、不填任何 Key 也能问。答案永远是同一句。</p>
+    <div class="hero-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="../download/">前往下载页</a>
+      <a class="btn btn-ghost" href="../guide/">使用指南 <svg style="width:16px;height:16px"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div></section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="brand" href="../"><span class="brand-mark"></span><span>诺伊<small>NUOYI</small></span></a>
+      <p style="color:var(--faint);font-size:13px;margin-top:12px">喊一声，事情就办完了。</p>
+    </div>
+    <div class="footer-links">
+      <a href="../download/">下载</a>
+      <a href="../guide/">使用指南</a>
+      <a href="./">身份应答</a>
+      <a href="../privacy/">隐私说明</a>
+      <a href="../api/latest.json">版本清单</a>
+      <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · 基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。</p>
+  </div>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

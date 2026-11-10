@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">Новая версия Nuoyi готова</string>
     <string name="about_auto_update_confirm_detail">Установите %1$s сейчас или отключите автообновление и проверяйте обновления в настройках.</string>
     <string name="about_auto_update_now">Обновить сейчас</string>
+    <string name="about_identity_title">Идентичность продукта · фиксированный ответ</string>
+    <string name="about_identity_note">На вопрос «кто ты» ответ выдаёт локальный код напрямую: без обращения к модели, без расхода токенов и без сети. Одна и та же фраза при наборе текста, голосом, из уведомления и при реплике во время задачи.</string>
+    <string name="about_identity_badge">Локальный фиксированный ответ · без сети · нулевой расход</string>
 </resources>

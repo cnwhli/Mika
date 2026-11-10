@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">Versi baru Nuoyi siap</string>
     <string name="about_auto_update_confirm_detail">Pasang %1$s sekarang atau matikan pembaruan otomatis dan periksa secara manual di Pengaturan.</string>
     <string name="about_auto_update_now">Perbarui sekarang</string>
+    <string name="about_identity_title">Identitas produk · jawaban tetap</string>
+    <string name="about_identity_note">Saat bertanya siapa Nuoyi, jawabannya langsung berasal dari kode lokal: tanpa memanggil model, tanpa memakai token, dan tanpa jaringan. Kalimat yang sama lewat ketikan, suara, balasan notifikasi, maupun selaan saat tugas berjalan.</string>
+    <string name="about_identity_badge">Jawaban lokal tetap · tanpa jaringan · tanpa kuota</string>
 </resources>

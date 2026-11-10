@@ -66,4 +66,7 @@
     <string name="about_auto_update_confirm_title">الإصدار الجديد من Nuoyi جاهز</string>
     <string name="about_auto_update_confirm_detail">ثبّت %1$s الآن، أو أوقف التحديث التلقائي وتحقق يدوياً في الإعدادات.</string>
     <string name="about_auto_update_now">حدّث الآن</string>
+    <string name="about_identity_title">هوية المنتج · إجابة ثابتة</string>
+    <string name="about_identity_note">عندما تسأل من هي نويي، تأتي الإجابة مباشرة من الشيفرة المحلية: دون استدعاء النموذج، ودون استهلاك رموز، ودون اتصال بالشبكة. الجملة نفسها عبر الكتابة أو الصوت أو الرد من الإشعار أو المقاطعة أثناء المهمة.</string>
+    <string name="about_identity_badge">إجابة محلية ثابتة · دون اتصال · استهلاك صفري</string>
 </resources>

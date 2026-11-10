@@ -11,12 +11,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.nuoyi.agent.R
 
-/** Nuoyi 的标志:圆角方块里的图标画。圆角默认按边长的 0.28(36dp 约 10,76dp 约 22)。 */
+/** Nuoyi 的标志:圆角方块里的吉祥物。圆角默认按边长的 0.28(36dp 约 10,76dp 约 22)。 */
 @Composable
 fun NuoyiLogo(size: Dp, modifier: Modifier = Modifier, corner: Dp = size * 0.28f) {
     Image(
-        painterResource(R.drawable.mika_launcher_art), contentDescription = null,
+        painterResource(R.drawable.ic_mascot), contentDescription = null,
         modifier.size(size).clip(RoundedCornerShape(corner)),
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
     )
 }

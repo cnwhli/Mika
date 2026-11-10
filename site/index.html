@@ -29,6 +29,7 @@
       <a class="active" href="./">首页</a>
       <a href="download/">下载</a>
       <a href="guide/">使用指南</a>
+      <a href="identity/">身份应答</a>
       <a href="privacy/">隐私</a>
       <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码 ↗</a>
       <a class="btn btn-primary btn-sm nav-cta" href="download/"><svg><use href="#i-download"/></svg>获取 APK</a>
@@ -44,7 +45,7 @@
         <h1>喊一声<span class="grad">「诺伊」</span><br />事情就办完了</h1>
         <p class="lead">说出要办的事，诺伊会在后台屏幕上把应用和网页一步步操作完，再把结果念给你听。不用盯着屏幕，也不用一直用手点。</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="download/"><svg><use href="#i-download"/></svg>下载公版 v0.1.38</a>
+          <a class="btn btn-primary" href="download/"><svg><use href="#i-download"/></svg>下载公版 v0.1.39</a>
           <a class="btn btn-ghost" href="guide/">先看怎么设置 <svg><use href="#i-arrow"/></svg></a>
         </div>
         <div class="hero-meta">
@@ -66,12 +67,42 @@
     </div>
   </section>
 
-  <section class="section tight">
+  <section class="section tight" id="identity">
     <div class="wrap">
-      <div class="identity reveal">
+      <div class="identity-panel">
+        <div class="identity-topline">
+          <span class="eyebrow"><span class="dot"></span>产品身份 · 写死在本地</span>
+          <span class="local-badge"><span class="dot"></span>本地固定应答，不经模型</span>
+        </div>
         <p class="q">问：诺伊你是谁？</p>
         <p class="a">「我是李万禧的女儿，数字女儿」</p>
         <p class="note">这句回答写死在代码里：无论从打字、语音、通知回复还是任务中插话问起，都由本地直接应答，不经过模型、不消耗额度、不联网。唤醒词与品牌同名也不会被误剥成「是谁」。</p>
+
+        <p class="identity-label">所有入口，同一句回答</p>
+        <div class="entry-row">
+          <span class="entry">打字输入</span>
+          <span class="entry">语音唤起</span>
+          <span class="entry">通知快捷回复</span>
+          <span class="entry">任务中插话</span>
+          <span class="entry">channel / trigger</span>
+        </div>
+
+        <p class="identity-label">三条硬保证 + 一道边界</p>
+        <div class="guarantee-grid">
+          <div class="guarantee"><b>不经过模型</b><span>硬闸装在模型调用层，请求根本不发出去，模型没有机会改写答案。</span></div>
+          <div class="guarantee"><b>不消耗额度</b><span>返回用量固定为 0 / 0，不占任何免费档或自己的 Key 额度。</span></div>
+          <div class="guarantee"><b>不联网</b><span>整条链路在本机完成，断网、没填 Key 也能照常回答。</span></div>
+          <div class="guarantee"><b>不会被误剥词</b><span>唤醒词与品牌都叫「诺伊」，身份判定用用户原句，不会把「诺伊你是谁」削成「是谁」。</span></div>
+        </div>
+
+        <div class="identity-flow" aria-label="本地固定应答流程">
+          <span class="flow-node">任意入口提问</span><span class="flow-arrow">→</span>
+          <span class="flow-node hit">本地身份硬闸</span><span class="flow-arrow">→</span>
+          <span class="flow-node hit">固定回答 + 屏幕可见 / 语音播报</span>
+          <span class="flow-arrow">⇢</span><span class="flow-node cut">模型请求</span>
+          <span class="flow-node cut">网络请求</span>
+        </div>
+        <a class="identity-more" href="identity/">查看入口矩阵、代码位置与测试保障 <svg style="width:16px;height:16px"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
@@ -111,7 +142,7 @@
       <p class="lead">两份 APK 用同一份代码、同一套签名体系分别构建，包名不同，可以并排安装、数据互不覆盖。</p>
       <div class="table-wrap" style="margin-top:32px">
         <table>
-          <thead><tr><th>对比项</th><th>公版 <span class="tag">对外分发</span></th><th>个人版 <span class="tag">自用侧载</span></th></tr></thead>
+          <thead><tr><th>对比项</th><th>公版 <span class="tag">对外分发</span></th><th>个人版 <span class="tag tag-accent">全功能定制版</span></th></tr></thead>
           <tbody>
             <tr><td><strong>唤醒词</strong></td><td class="yes">固定「诺伊」</td><td class="yes">可自定义，出厂也是「诺伊」</td></tr>
             <tr><td><strong>本地常驻热词</strong></td><td class="no">不包含（公版编译期就不带这段代码）</td><td class="yes">包含，真正免手唤起</td></tr>
@@ -120,10 +151,52 @@
             <tr><td><strong>应用包名</strong></td><td><code>com.nuoyi.agent</code></td><td><code>com.nuoyi.agent.personal</code></td></tr>
             <tr><td><strong>更新清单</strong></td><td>官网 <code>api/latest.json</code></td><td>官网 <code>api/latest-personal.json</code></td></tr>
             <tr><td><strong>适用对象</strong></td><td>对外发布、应用商店合规路径</td><td>自用设备，需自行侧载安装</td></tr>
+            <tr><td><strong>吉祥物形象</strong></td><td class="yes">同一只可爱未来人「诺伊」：作启动图标、常驻对话页顶栏、浮在小窗里（带呼吸/眨眼/说话动作）</td><td class="yes">同上；这只形象还进屏幕顶部的灵动岛胶囊</td></tr>
+            <tr><td><strong>通知（灵动岛）</strong></td><td class="yes">任务完成/失败/取消时进系统通知栏，已授权「显示在其他应用上层」时同时以顶部居中胶囊呈现</td><td class="yes">同左；个人版常驻麦克风已授权，灵动岛随任务终态自动弹出并点按回 App</td></tr>
           </tbody>
         </table>
       </div>
       <p class="lead" style="margin-top:18px;font-size:14.5px">公版受 Android 系统限制：系统级常驻热词接口不对普通应用开放，常驻麦克风也受系统与应用市场政策约束，因此把常驻热词只放在个人版。</p>
+    </div>
+  </section>
+
+  <section class="section tight" id="mascot">
+    <div class="wrap grid grid-2" style="align-items:center;gap:40px">
+      <div style="text-align:center">
+        <svg viewBox="0 0 160 180" width="200" height="225" role="img" aria-label="诺伊，一只可爱的未来人吉祥物">
+          <defs>
+            <radialGradient id="head" cx="50%" cy="38%" r="72%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#d8efff"/>
+            </radialGradient>
+          </defs>
+          <line x1="80" y1="46" x2="80" y2="22" stroke="#6fc3ff" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="80" cy="15" r="9" fill="#2a9dff"/>
+          <circle cx="76" cy="12" r="3" fill="#ffffff"/>
+          <rect x="22" y="80" width="16" height="26" rx="7" fill="#c9e6ff"/>
+          <rect x="122" y="80" width="16" height="26" rx="7" fill="#c9e6ff"/>
+          <ellipse cx="80" cy="102" rx="50" ry="52" fill="url(#head)" stroke="#bfe0ff" stroke-width="3"/>
+          <circle cx="52" cy="118" r="8" fill="#ffd2dd"/>
+          <circle cx="108" cy="118" r="8" fill="#ffd2dd"/>
+          <ellipse cx="63" cy="94" rx="7" ry="9" fill="#20303a"/>
+          <ellipse cx="97" cy="94" rx="7" ry="9" fill="#20303a"/>
+          <circle cx="65" cy="91" r="2.5" fill="#fff"/>
+          <circle cx="99" cy="91" r="2.5" fill="#fff"/>
+          <path d="M68 118 Q80 130 92 118" fill="none" stroke="#20303a" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <span class="eyebrow">贯穿全产品的形象</span>
+        <h2 class="title">一只可爱的未来人，诺伊</h2>
+        <p class="lead">从启动图标到悬浮小窗，从对话页顶栏到屏幕顶部的灵动岛，诺伊始终是这个形象——带天线、科技耳和微笑的未来人。它在小窗和灵动岛里都是有动作的：轻轻呼吸、偶尔眨眼，听你说话时天线灯亮起，开口时嘴一张一合。</p>
+        <div class="entry-row" style="margin-top:8px">
+          <span class="entry">启动图标</span>
+          <span class="entry">悬浮小窗</span>
+          <span class="entry">对话页顶栏常驻</span>
+          <span class="entry">灵动岛胶囊</span>
+        </div>
+        <p class="note" style="margin-top:14px;color:var(--muted);font-size:14px">通知也遵循这套形象语言：任务完成 / 失败 / 取消时，顶部居中的灵动岛胶囊会带上相应表情的诺伊，点一下即可回到 App；未授权「显示在其他应用上层」时，退化为普通系统通知。</p>
+      </div>
     </div>
   </section>
 
@@ -186,6 +259,7 @@
     <div class="footer-links">
       <a href="download/">下载</a>
       <a href="guide/">使用指南</a>
+      <a href="identity/">身份应答</a>
       <a href="privacy/">隐私说明</a>
       <a href="api/latest.json">版本清单</a>
       <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a>
@@ -194,7 +268,7 @@
   </div>
   <div class="wrap">
     <p class="footer-note">诺伊 Nuoyi 基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。本站为唯一对外发布渠道，请只从本页或自有 GitHub Releases 下载安装包并核对 SHA-256。</p>
-    <p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · 版本 v0.1.38</p>
+    <p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · 版本 v0.1.39</p>
   </div>
 </footer>
 <script src="assets/app.js"></script>

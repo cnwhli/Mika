@@ -7,6 +7,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.nuoyi.agent.core.voice.VoiceCapabilities
 import com.nuoyi.agent.core.voice.VoiceConsent
+import com.nuoyi.agent.core.voice.ProductIdentity
 import com.nuoyi.agent.core.voice.VoiceEffect
 import com.nuoyi.agent.core.voice.VoiceSessionController
 import com.nuoyi.agent.core.voice.VoiceSessionState
@@ -25,13 +26,16 @@ class VoiceSessionHost(
     private val tasks: VoiceTaskBridge,
     consent: () -> VoiceConsent,
     private val onFinish: () -> Unit,
+    /** 身份固定回答除了播报，还要在屏幕上可见；由有窗口/通知的宿主决定怎么显示。 */
+    private val onFixedReply: ((question: String, answer: String) -> Unit)? = null,
 ) {
     private val main = Handler(Looper.getMainLooper())
     private val controller = VoiceSessionController(capabilities, wakeWords, tasks, consent)
     private val speaker = VoiceSpeaker(context) { run(controller.onSpeechDone()) }
+    private var lastUtterance = ""
     private val recognizer = AssistantRecognizer(
         context,
-        onText = { run(controller.onUtterance(it)) },
+        onText = { lastUtterance = it; run(controller.onUtterance(it)) },
         onUnrecoverable = { run(controller.onHide()) },
     )
     private var released = false
@@ -84,7 +88,11 @@ class VoiceSessionHost(
         if (released) return
         for (e in effects) when (e) {
             is VoiceEffect.SetMic -> if (e.enabled) recognizer.start() else recognizer.stop()
-            is VoiceEffect.Speak -> speaker.speak(e.text)
+            is VoiceEffect.Speak -> {
+                speaker.speak(e.text)
+                // 身份回答在 core 里已经短路到 TTS；这里只负责把同一句也摆到可见界面上。
+                if (e.text == ProductIdentity.REPLY) onFixedReply?.invoke(lastUtterance, e.text)
+            }
             is VoiceEffect.StartTask -> tasks.start(e.goal)
             is VoiceEffect.Steer -> tasks.steer(e.text)
             VoiceEffect.CancelTask -> tasks.cancel()

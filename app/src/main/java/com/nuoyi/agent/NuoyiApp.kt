@@ -46,10 +46,17 @@ import com.nuoyi.agent.task.TaskRecovery
 import com.nuoyi.agent.task.TriggerOutcomes
 import com.nuoyi.agent.task.TaskService
 import com.nuoyi.agent.task.TaskCenterState
+import com.nuoyi.agent.task.TaskRun
 import com.nuoyi.agent.teach.TeachRuntime
+import com.nuoyi.agent.notify.DynamicIslandService
+import com.nuoyi.agent.notify.NotificationCenter
+import com.nuoyi.agent.notify.NuoyiNotification
+import com.nuoyi.agent.notify.Tone
+import com.nuoyi.agent.core.agent.TaskState
 import com.nuoyi.agent.ui.ChatViewModel
 import com.nuoyi.agent.ui.TaskActions
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
@@ -68,6 +75,7 @@ import com.nuoyi.agent.task.ResourceScheduler
 import com.nuoyi.agent.task.RemoteTaskHub
 import com.nuoyi.agent.task.FileChildRunStore
 import com.nuoyi.agent.task.TriggerRuntime
+import android.content.Intent
 
 /**
  * App 容器:进程里共用的服务都在这里建一份,经各自的 Owner 接口交给安卓入口(界面、服务、广播、provider),
@@ -391,6 +399,12 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
         // 内置浏览器:设了代理才给 WebView 设上(读设置要解密,放到后台;没设代理不为此加载 WebView)
         scope.launch(Dispatchers.IO) { runCatching { com.nuoyi.agent.cap.web.WebProxy.apply(this@NuoyiApp) } }
         capsule.start()
+        // 任务跑完(成功/失败/取消)时发一条通知:进系统通知栏,也进屏幕顶部的灵动岛胶囊。
+        observeTaskNotifications()
+        // 有「显示在其他应用上层」权限就启动灵动岛;没有则胶囊不显示,其余功能不受影响。
+        if (android.provider.Settings.canDrawOverlays(this)) {
+            runCatching { startForegroundService(Intent(this, DynamicIslandService::class.java)) }
+        }
         // 内置助手的真实现,并开始看着助手(Nuoyi 进程起来后,还活着的助手会自己交接 Binder)
         phone.shellManager.start()
         // 连接一可用就补上默认打开的几项能力
@@ -437,6 +451,51 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
                 TriggerRuntime.syncTimeZone(this@NuoyiApp)
                 TriggerRuntime.rearm(this@NuoyiApp)
             }.onFailure { Log.w("NuoyiTrigger", "could not restore schedules after quit", it) }
+        }
+    }
+
+    /**
+     * 盯着每个正在跑的任务:某个任务刚进入终态(成功/失败/取消)就发一条通知(同时进系统通知栏和灵动岛)。
+     * [taskState.runs] 只增删任务、不重发任务内部的状态变化,所以这里对每条运行单独收它的 [TaskRun.state] 流来抓终态。
+     * 用「对话:槽位」当通知 id,同一任务只提示一次;任务从列表消失后清掉记录,下次再跑还能提醒。
+     */
+    private fun observeTaskNotifications() {
+        scope.launch {
+            val jobs = LinkedHashMap<String, Job>()
+            val watched = LinkedHashMap<String, TaskRun>()
+            val notified = mutableSetOf<String>()
+            taskState.runs.collect { list ->
+                val present = list.associateBy { "${it.conversationId}:${it.slot}" }
+                // 任务不见了:停掉它的监听、清掉已提醒记录
+                jobs.keys.filter { it !in present }.forEach { k ->
+                    jobs.remove(k)?.cancel()
+                    watched.remove(k)
+                    notified.remove(k)
+                }
+                for ((key, run) in present) {
+                    // 任务实例没换就复用原监听器,换了(极少见)就重建
+                    if (jobs[key] != null && watched[key] === run) continue
+                    jobs.remove(key)?.cancel()
+                    watched[key] = run
+                    jobs[key] = launch {
+                        run.state.collect { st ->
+                            if (st is TaskState.Terminal && notified.add(key)) {
+                                val (title, tone) = when (st) {
+                                    is TaskState.Succeeded -> "任务完成" to Tone.Success
+                                    is TaskState.Failed -> "任务失败" to Tone.Alert
+                                    is TaskState.Cancelled -> "已取消" to Tone.Info
+                                    else -> "任务结束" to Tone.Info
+                                }
+                                val text = run.goal.takeIf { g -> g.isNotBlank() } ?: "一个任务结束了"
+                                NotificationCenter.post(
+                                    this@NuoyiApp,
+                                    NuoyiNotification(id = "task-$key", title = title, text = text, tone = tone),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

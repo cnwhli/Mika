@@ -50,9 +50,9 @@ fun WelcomeScreen(onStart: () -> Unit) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
                 Column(Modifier.fillMaxWidth().padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painterResource(R.drawable.mika_launcher_art), null,
+                        painterResource(R.drawable.ic_mascot), null,
                         Modifier.size(76.dp).shadow(14.dp, LogoShape, clip = false).clip(LogoShape),
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                     )
                     Text(WelcomeCopy.TITLE, Modifier.padding(top = 20.dp), style = NuoyiType.LargeTitle, fontSize = 26.sp, color = c.ink, textAlign = TextAlign.Center)
                     Text(

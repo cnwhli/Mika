@@ -45,6 +45,12 @@ object AboutCopy {
     val GUIDE_SUB: String get() = tr(R.string.about_guide_sub)
 
     val DATA_NOTE: String get() = tr(R.string.about_data_note)
+
+    /** 产品身份卡：固定回答本身直接用 [com.nuoyi.agent.core.voice.ProductIdentity.REPLY]，不进翻译资源。 */
+    val IDENTITY_TITLE: String get() = tr(R.string.about_identity_title)
+    val IDENTITY_NOTE: String get() = tr(R.string.about_identity_note)
+    val IDENTITY_BADGE: String get() = tr(R.string.about_identity_badge)
+
     val LICENSE_LINK: String get() = tr(R.string.about_license_link)
     val AUTHOR: String get() = tr(R.string.about_author)
     val LICENSE_TITLE: String get() = tr(R.string.about_license_title)

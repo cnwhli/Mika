@@ -32,13 +32,22 @@ open class SandboxForeground : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(NotificationChannel(CHANNEL, tr(R.string.notif_channel_prepare), NotificationManager.IMPORTANCE_MIN))
+        runCatching {
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(NotificationChannel(CHANNEL, tr(R.string.notif_channel_prepare), NotificationManager.IMPORTANCE_MIN))
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // startForegroundService 之后必须尽快进入前台
-        startForeground(ID, notification(null), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        // startForegroundService 之后必须尽快进入前台;系统拒绝时(Android 14+ 常见)异常会从主线程冒出打崩进程,
+        // 所以这里必须兜住:进不了前台就停掉自己,准备任务仍在 RuntimePreparer 的协程里跑。
+        val foregroundOk = runCatching {
+            startForeground(ID, notification(null), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        }.onFailure { android.util.Log.w("NuoyiSandboxFg", "cannot enter foreground", it) }.isSuccess
+        if (!foregroundOk) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         if (FeatureFlags.get(this).quitRequested()) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()

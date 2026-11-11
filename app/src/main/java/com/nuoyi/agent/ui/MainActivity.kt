@@ -121,6 +121,9 @@ class MainActivity : ComponentActivity() {
         }
         monitor = SystemStatusMonitor(this, PhoneServices.of(this).shellControl)
         val store = ProviderStore.get(this)
+        // 界面稳定存活 3 秒才算这次启动成功;若在这之前又崩了,连续崩溃计数继续累加,
+        // 下次启动会自动进安全模式(CrashGuard),避免「启动即闪退」时连诊断都导不出来。
+        window.decorView.postDelayed({ com.nuoyi.agent.diag.CrashGuard.noteHealthyStart(this) }, 3000L)
         setContent {
             // 外观按设置来,改了当场换;系统栏图标的深浅跟着界面
             val dark = appearanceDark()

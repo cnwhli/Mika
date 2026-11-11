@@ -103,6 +103,8 @@ object DiagnosticsCollector {
                 DiagnosticsSnapshot.Update(u.status.name, u.latest?.version, u.update?.version)
             },
             speech = speech(app),
+            // 最近一次崩溃的堆栈:闪退时用户仍能从「关于 › 反馈 › 诊断信息」里把它发出来
+            crash = com.nuoyi.agent.diag.CrashGuard.latestReport(app),
         )
     }
 

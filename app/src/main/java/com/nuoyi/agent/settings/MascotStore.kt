@@ -42,16 +42,54 @@ class MascotStore(private val prefs: SharedPreferences) {
     fun clear() {
         prefs.edit().remove(KEY_PATH).putBoolean(KEY_USE_CUSTOM, false).apply()
         _path.value = null
+        synchronized(this) { cached = null; cachedPath = null; cachedStamp = -1L }
     }
 
-    /** 读出当前吉祥物位图;没有或读不出返回 null(调用方退回内置形象)。 */
+    @Volatile private var cachedPath: String? = null
+    @Volatile private var cachedStamp: Long = -1L
+    @Volatile private var cached: Bitmap? = null
+
+    /**
+     * 读出当前吉祥物位图;没有或读不出返回 null(调用方退回内置形象)。
+     *
+     * 之前是裸 `decodeFile`:用户从相册选一张 4000×3000 的照片就是约 48MB 的位图,
+     * 而欢迎页 / Logo / 聊天页 / 关于页 / 设置页各自 `remember` 一次,同一张图会被解码好几份,
+     * 在荣耀这类内存吃紧的机器上很容易 OOM 直接闪退。这里按最长边 1024 采样,
+     * 全进程只缓存一份,并兜住 OutOfMemoryError —— 读不出来就退回内置小女孩,绝不崩。
+     */
     fun loadBitmap(): Bitmap? {
         val p = _path.value ?: return null
-        return BitmapFactory.decodeFile(p)
+        val stamp = runCatching { File(p).lastModified() }.getOrDefault(0L)
+        synchronized(this) {
+            cached?.takeIf { cachedPath == p && cachedStamp == stamp && !it.isRecycled }?.let { return it }
+        }
+        val decoded = try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(p, bounds)
+            var sample = 1
+            val longest = maxOf(bounds.outWidth, bounds.outHeight)
+            while (longest / sample > MAX_SIDE) sample *= 2
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = sample.coerceAtLeast(1)
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+            BitmapFactory.decodeFile(p, opts)
+        } catch (e: OutOfMemoryError) {
+            null
+        } catch (e: Throwable) {
+            null
+        } ?: return null
+        synchronized(this) {
+            cachedPath = p
+            cachedStamp = stamp
+            cached = decoded
+        }
+        return decoded
     }
 
     companion object {
         private const val PREFS = "mascot"
+        private const val MAX_SIDE = 1024
         private const val KEY_PATH = "custom_path"
         private const val KEY_USE_CUSTOM = "use_custom"
         @Volatile private var instance: MascotStore? = null

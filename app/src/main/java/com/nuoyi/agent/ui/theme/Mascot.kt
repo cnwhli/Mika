@@ -101,8 +101,11 @@ fun rememberMascotBitmap(): ImageBitmap? {
 private fun rememberDefaultMascotBitmap(): ImageBitmap {
     val ctx = LocalContext.current
     return remember(ctx) {
-        BitmapFactory.decodeResource(ctx.resources, R.drawable.nuoyi_girl)?.asImageBitmap()
-            ?: ImageBitmap(1, 1)
+        // 解码内置图也不能把 App 带崩:极少数 ROM / 低内存时 decodeResource 会抛异常或 OOM,
+        // 兜不住就退回 1×1 占位(条带绘制对任意尺寸都安全),其余界面照常显示。
+        runCatching {
+            BitmapFactory.decodeResource(ctx.resources, R.drawable.nuoyi_girl)?.asImageBitmap()
+        }.getOrNull() ?: ImageBitmap(1, 1)
     }
 }
 

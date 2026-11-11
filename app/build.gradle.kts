@@ -45,8 +45,8 @@ android {
         applicationId = brandApplicationId
         minSdk = 30
         targetSdk = 35
-        versionCode = 45
-        versionName = "0.1.44"
+        versionCode = 46
+        versionName = "0.1.45"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
         buildConfigField("String", "BRAND_NAME", "\"$brandName\"")

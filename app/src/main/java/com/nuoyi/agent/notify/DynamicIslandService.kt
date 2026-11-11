@@ -112,9 +112,19 @@ class DynamicIslandService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startForeground(1, NotificationCenter.islandServiceNotification(this))
+        // Android 14+ 拒绝前台服务(后台启动限制 / 通知渠道 / specialUse 校验)时会在 startForeground 抛异常。
+        // Service.onCreate 跑在主线程,异常冒出去会打崩整个 App 进程 —— 真机上表现为「一打开就闪退」。
+        // 进不了前台就安静停掉:胶囊不显示,其余功能照常用,绝不牵连主进程。
+        val foregroundOk = runCatching {
+            startForeground(1, NotificationCenter.islandServiceNotification(this))
+        }.onFailure { android.util.Log.w("NuoyiIsland", "cannot enter foreground, capsule disabled", it) }.isSuccess
+        if (!foregroundOk) {
+            stopSelf()
+            return
+        }
         // 顺带开始监听通话状态(需要 READ_PHONE_STATE,没有则静默跳过)
-        CallStateMonitor.start(this)
+        runCatching { CallStateMonitor.start(this) }
+            .onFailure { android.util.Log.w("NuoyiIsland", "call state monitor failed", it) }
         // 别叫 flags:下面 LayoutParams.apply 里也有个 flags 字段,同名会让编译器把赋值算到这个 val 上
         val featureFlags = FeatureFlags.get(this)
         avoidStatusBar = featureFlags.islandAvoidStatusBar()

@@ -33,6 +33,8 @@ data class DiagnosticsSnapshot(
     val update: Update,
     /** 语音转文字:选了什么、手机自带识别的情况;旧的调用处不给就不写这一段。 */
     val speech: Speech? = null,
+    /** 最近一次崩溃的记录(CrashGuard 落盘的堆栈);没崩过为 null。闪退时靠这一段定位。 */
+    val crash: String? = null,
 ) {
     data class App(val versionName: String, val build: String, val installer: String?, val language: String)
 
@@ -195,6 +197,13 @@ object Diagnostics {
         line("last check", s.update.status)
         line("latest seen", s.update.latest ?: "none")
         line("update available", s.update.available ?: "no")
+
+        // 闪退排查:把崩溃处理器落盘的堆栈原样附上(已经过 sanitize 脱敏)。
+        // 没崩过就不写这一段,老的诊断单测断言的段落列表保持不变。
+        s.crash?.let { report ->
+            section("Crash")
+            appendLine(report.take(12_000))
+        }
     }.trimEnd() + "\n")
 
     private fun StringBuilder.phone(s: DiagnosticsSnapshot) {

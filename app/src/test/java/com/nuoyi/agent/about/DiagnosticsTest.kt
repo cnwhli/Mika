@@ -86,6 +86,19 @@ class DiagnosticsTest {
         assertTrue(t.contains("update available: 0.1.8"))
     }
 
+    /** 闪退时诊断信息要带上崩溃堆栈:用户不用 adb / logcat 也能把异常原文发出来。 */
+    @Test
+    fun crashSectionCarriesStackTrace() {
+        val report = "time: 2026-11-11 14:20:33\n" +
+            "exception: java.lang.IllegalStateException: boom\n" +
+            "stack:\n  at com.nuoyi.agent.ui.MainActivity.onCreate(MainActivity.kt:42)"
+        val t = Diagnostics.render(snapshot().copy(crash = report))
+        assertTrue(t.contains("[Crash]"))
+        assertTrue(t, t.contains("java.lang.IllegalStateException: boom"))
+        assertTrue(t, t.contains("MainActivity.onCreate(MainActivity.kt:42)"))
+        assertTrue(t.trimEnd().endsWith("MainActivity.onCreate(MainActivity.kt:42)"))
+    }
+
     /** 语音转文字一段:选择、自带识别的情况、手机上登记的识别服务(组件名、开不开放、要的权限);在模型之后。 */
     @Test
     fun speechSectionListsRecognitionServices() {

@@ -46,8 +46,10 @@ import com.nuoyi.agent.callnotes.MinutesAnalyzer
 import com.nuoyi.agent.callnotes.applyMinutesActions
 import com.nuoyi.agent.callnotes.readMinutesFromTree
 import com.nuoyi.agent.callnotes.readMinutesFromUri
+import com.nuoyi.agent.callnotes.MinutesCapture
 import com.nuoyi.agent.callnotes.MinutesFile
 import com.nuoyi.agent.callnotes.discoverMinutes
+import com.nuoyi.agent.notify.EXTRA_OPEN_ROUTE
 import com.nuoyi.agent.settings.FeatureFlags
 import com.nuoyi.agent.settings.ProviderStore
 import com.nuoyi.agent.ui.components.ButtonKind
@@ -215,6 +217,18 @@ private fun CallLiveScreen(onClose: () -> Unit) {
                 NuoyiButton("整理纪要文件夹", onClick = { treeLauncher.launch(lastTree) }, kind = ButtonKind.Secondary)
                 NuoyiButton("选单个文件", onClick = { fileLauncher.launch(arrayOf("text/plain", "text/markdown", "application/json", "*/*")) }, kind = ButtonKind.Tonal)
             }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NuoyiButton("逐条抓屏收录", onClick = {
+                    MinutesCapture.postNotice(context)
+                    status = "常驻通知已发出：切到厂商纪要页面，下拉点「抓取当前屏」，翻页可继续抓"
+                }, kind = ButtonKind.Secondary)
+                NuoyiButton("打开纪要收件箱", onClick = {
+                    context.startActivity(Intent(context, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        putExtra(EXTRA_OPEN_ROUTE, OpenRoutes.CALL_NOTES)
+                    })
+                }, kind = ButtonKind.Tonal)
+            }
 
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -229,7 +243,8 @@ private fun CallLiveScreen(onClose: () -> Unit) {
             when {
                 scanning -> Text("正在查找通话纪要…", style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3)
                 candidates.isEmpty() -> Text(
-                    "暂时没找到可自动读取的纪要。第一次用请先点「整理纪要文件夹」授权一次目录，之后这里会自动列出；部分机型只允许读自己授权过的文件夹。",
+                    "没找到纪要文件是正常的——多数厂商只把纪要存在自己的 App 里。请用「通话纪要」页的收件箱（分享 / 复制 / 抓屏）逐条收录。" +
+                        "若你的机型确实导出过 .txt / .md，点「整理纪要文件夹」授权一次目录后这里会自动列出。",
                     style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3,
                 )
                 else -> Column(Modifier.fillMaxWidth()) {
@@ -255,7 +270,9 @@ private fun CallLiveScreen(onClose: () -> Unit) {
             }
 
             Text(
-                "系统通话纪要常见位置：小米/红米「录音机 › 通话录音」、华为/荣耀「实用工具 › 通话纪要」、OPPO/vivo「录音 › 通话」。也可直接选导出的 .txt / .md / .json 文件。",
+                "多数厂商的「通话纪要」是系统 App 里的私有数据：没有文件夹、不生成 .txt，也不能批量导出。" +
+                    "请改用「通话纪要」页的收件箱：在纪要 App 里分享给「诺伊 · 收进纪要库」、复制后粘贴，或用下方按钮逐条抓屏。" +
+                    "只有极少数机型会真的落盘成文件（小米/红米「录音机 › 通话录音」、荣耀「实用工具 › 通话纪要」等），那种才用上面的文件入口。",
                 style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3,
             )
 

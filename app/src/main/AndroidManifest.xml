@@ -257,6 +257,37 @@
             android:exported="false"
             android:theme="@style/Theme.Nuoyi" />
 
+        <!--
+            厂商「通话纪要」是系统 App 里的私有数据:没有对外文件夹、也不给批量导出。
+            用户在那个 App 里点「分享 → 诺伊 · 收进纪要库」就把一段文字存进 MinutesInbox,
+            攒够之后由诺伊自己全量整理 / 导出。这个 Activity 不显示界面,收完立即退出。
+        -->
+        <activity
+            android:name="com.nuoyi.agent.callnotes.MinutesInboxActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/minutes_inbox_label"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!-- 常驻「抓取当前屏」通知上的两个动作:不切换前台 Activity 才能读到厂商纪要页面的文字 -->
+        <receiver
+            android:name="com.nuoyi.agent.callnotes.MinutesCaptureReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.nuoyi.agent.action.CAPTURE_MINUTES" />
+                <action android:name="com.nuoyi.agent.action.CAPTURE_MINUTES_DONE" />
+            </intent-filter>
+        </receiver>
+
         <!-- 开机自启系统级灵动岛(需用户开通过「显示在其他应用上层」)。 -->
         <receiver
             android:name="com.nuoyi.agent.BootReceiver"

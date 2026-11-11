@@ -144,6 +144,7 @@ fun SettingsScreen(
     var islandCallMode by remember { mutableStateOf(flags.islandCallMode()) }
     var islandIdlePill by remember { mutableStateOf(flags.islandIdlePill()) }
     var islandAvoidStatusBar by remember { mutableStateOf(flags.islandAvoidStatusBar()) }
+    var islandHugCutout by remember { mutableStateOf(flags.islandHugCutout()) }
     var islandExpandCard by remember { mutableStateOf(flags.islandExpandCard()) }
     // 换语言时界面会重建,这里每次进来读一次即可
     val language = remember { AppLanguage.current(context) }
@@ -252,6 +253,8 @@ fun SettingsScreen(
             onIslandIdlePill = { flags.setIslandIdlePill(it); islandIdlePill = it },
             islandAvoidStatusBar = islandAvoidStatusBar,
             onIslandAvoidStatusBar = { flags.setIslandAvoidStatusBar(it); islandAvoidStatusBar = it },
+            islandHugCutout = islandHugCutout,
+            onIslandHugCutout = { flags.setIslandHugCutout(it); islandHugCutout = it },
             islandExpandCard = islandExpandCard,
             onIslandExpandCard = { flags.setIslandExpandCard(it); islandExpandCard = it },
             islandDwellMs = islandDwellMs,

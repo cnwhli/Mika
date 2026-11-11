@@ -193,6 +193,19 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     fun islandIdlePillChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_IDLE_PILL, false)
     fun islandExpandCardChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_EXPAND_CARD, true)
 
+    /**
+     * 贴合前摄挖孔(类灵动岛):把胶囊对齐到 DisplayCutout 的位置并允许画进 cutout 区域。
+     * 注意这不是 iOS 那种系统级灵动岛 —— Android 不允许第三方 App 往系统状态栏里塞 UI,
+     * 能做到只是「浮窗盖在挖孔上、宽度跟着挖孔走」。默认开,没有挖孔的设备自动退回普通顶部居中。
+     */
+    fun islandHugCutout(): Boolean = prefs.getBoolean(ISLAND_HUG_CUTOUT, true)
+
+    fun setIslandHugCutout(on: Boolean) {
+        prefs.edit().putBoolean(ISLAND_HUG_CUTOUT, on).apply()
+    }
+
+    fun islandHugCutoutChanges(): Flow<Boolean> = prefFlagFlow(ISLAND_HUG_CUTOUT, true)
+
     /** 灵动岛胶囊在屏幕上的位置(像素,左上角原点)。-1 表示用默认(顶部居中),拖动后才存绝对坐标。 */
     fun islandPos(): Pair<Int, Int> = prefs.getInt(ISLAND_POS_X, -1) to prefs.getInt(ISLAND_POS_Y, -1)
 
@@ -318,6 +331,7 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         private const val ISLAND_CALL_MODE = "island_call_mode"
         private const val ISLAND_IDLE_PILL = "island_idle_pill"
         private const val ISLAND_EXPAND_CARD = "island_expand_card"
+        private const val ISLAND_HUG_CUTOUT = "island_hug_cutout"
         private const val ISLAND_POS_X = "island_pos_x"
         private const val ISLAND_POS_Y = "island_pos_y"
         private const val ISLAND_POS_SW = "island_pos_screen_w"

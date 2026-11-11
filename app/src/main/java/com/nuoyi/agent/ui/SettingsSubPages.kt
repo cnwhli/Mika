@@ -179,6 +179,8 @@ fun NotificationsScreen(
     onIslandIdlePill: (Boolean) -> Unit = {},
     islandAvoidStatusBar: Boolean = true,
     onIslandAvoidStatusBar: (Boolean) -> Unit = {},
+    islandHugCutout: Boolean = true,
+    onIslandHugCutout: (Boolean) -> Unit = {},
     islandExpandCard: Boolean = true,
     onIslandExpandCard: (Boolean) -> Unit = {},
     islandDwellMs: Long = 6000L,
@@ -284,7 +286,16 @@ fun NotificationsScreen(
                     NuoyiSwitch(islandExpandCard, onIslandExpandCard)
                 }
                 ListRow(
-                    NuoyiIcons.Shield, "避开状态栏 / 挖孔区", "胶囊最低只能拖到状态栏下方，不会压住时钟或前摄；横竖屏、分屏会按比例还原位置",
+                    NuoyiIcons.Spark, "贴合前摄挖孔（类灵动岛）",
+                    "把胶囊对齐到挖孔的位置与宽度、允许画进挖孔区，尽量做出「岛」的视觉效果；展开卡片自动回到屏幕中间。" +
+                        "注意：Android 不允许第三方 App 把界面塞进系统状态栏，这不是 iOS 那种系统级灵动岛，部分厂商仍会裁掉状态栏里的部分。" +
+                        "手动拖过胶囊后暂时以你的位置为准，点「复位胶囊位置」即可恢复贴合。",
+                    onClick = { onIslandHugCutout(!islandHugCutout) },
+                ) {
+                    NuoyiSwitch(islandHugCutout, onIslandHugCutout)
+                }
+                ListRow(
+                    NuoyiIcons.Shield, "避开状态栏 / 挖孔区", "胶囊最低只能拖到状态栏下方，不会压住时钟或前摄；横竖屏、分屏会按比例还原位置（贴合挖孔开启时由挖孔决定位置）",
                     onClick = { onIslandAvoidStatusBar(!islandAvoidStatusBar) },
                 ) {
                     NuoyiSwitch(islandAvoidStatusBar, onIslandAvoidStatusBar)
@@ -319,7 +330,7 @@ fun NotificationsScreen(
                     },
                 ) { RowChevron() }
                 ListRow(
-                    NuoyiIcons.Wrench, "复位胶囊位置", "把拖到别处的胶囊恢复到屏幕顶部居中（清掉拖动记录）",
+                    NuoyiIcons.Wrench, "复位胶囊位置", "把拖到别处的胶囊恢复默认：开了贴合挖孔就回到挖孔位置，否则回到屏幕顶部居中（清掉拖动记录）",
                     onClick = {
                         FeatureFlags.get(context).setIslandPos(-1, -1)
                         if (Settings.canDrawOverlays(context)) {

@@ -1,6 +1,7 @@
 package com.nuoyi.agent.ui
 
 import android.Manifest
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +40,8 @@ import java.util.Date
 import java.util.Locale
 import com.nuoyi.agent.callnotes.CallNote
 import com.nuoyi.agent.callnotes.CallSessionStore
+import com.nuoyi.agent.callnotes.MinutesCapture
+import com.nuoyi.agent.callnotes.MinutesInbox
 import com.nuoyi.agent.callnotes.MinutesAnalyzer
 import com.nuoyi.agent.callnotes.TodoItem
 import com.nuoyi.agent.callnotes.TodoStore
@@ -100,6 +104,11 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
     var query by remember { mutableStateOf("") }
     /** 每通电话的要点拼成一段文本,供搜索直接命中要点内容(只读一次,避免输入时反复读文件)。 */
     var notesIndex by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+    /** 厂商纪要 App 没有文件夹也不能批量导出,所以自己攒一个收件箱。 */
+    val inbox = remember { MinutesInbox.of(context) }
+    var clips by remember { mutableStateOf(inbox.list()) }
+    var clearArmed by remember { mutableStateOf(false) }
+    fun reloadInbox() { clips = inbox.list() }
 
     suspend fun reloadSessions() {
         val (list, index) = withContext(Dispatchers.IO) {
@@ -110,7 +119,16 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
         sessions = list
         notesIndex = index
     }
-    LaunchedEffect(Unit) { reloadSessions() }
+    LaunchedEffect(Unit) { reloadSessions(); reloadInbox() }
+    // 从厂商纪要 App 分享 / 抓屏回来时,页面可能还在栈里没重建,ON_RESUME 时重新读一次收件箱
+    val lifecycle = androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) reloadInbox()
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
 
     fun refresh() { todos = TodoStore.of(context).list() }
 
@@ -216,6 +234,23 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
             status = "已导出通话记录 (JSON)"
         }
     }
+    // 收件箱全量导出:厂商不给批量导出,这里把攒下来的所有片段一次写成一份文件
+    val exportInboxTxt = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri != null) scope.launch {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { os -> os.write(inbox.exportText().toByteArray()) }
+            }
+            status = "已导出全部纪要 (TXT)"
+        }
+    }
+    val exportInboxJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) scope.launch {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { os -> os.write(inbox.exportJson().toByteArray()) }
+            }
+            status = "已导出全部纪要 (JSON)"
+        }
+    }
 
     PageScaffold("通话纪要", onBack) {
         Box(Modifier.fillMaxWidth().padding(vertical = 4.dp), contentAlignment = Alignment.Center) {
@@ -227,8 +262,8 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
             val hasCal = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
             ListRow(
-                NuoyiIcons.Doc, "导入系统通话纪要",
-                "选荣耀 / 小米等系统生成的通话纪要文件夹，自动整理成日程、提醒、待办",
+                NuoyiIcons.Doc, "导入纪要文件（可选）",
+                "只有极少数机型会把纪要写成 .txt / .md 文件；多数厂商的纪要只存在系统 App 里，请用下面的「纪要收件箱」",
                 first = true,
                 onClick = { if (hasCal) treeLauncher.launch(null) else calPerms.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR)) },
             ) { RowChevron() }
@@ -244,6 +279,84 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                     }
                 },
             ) { if (!recording) RowChevron() }
+        }
+
+        // 厂商纪要 App 是私有数据,没有文件夹、不生成文件、也不给批量导出;用「收件箱」逐条攒,再由诺伊全量导出
+        GroupLabel("纪要收件箱 · 厂商 App 没有文件夹也能用")
+        GroupCard {
+            ListRow(
+                NuoyiIcons.Doc, "已收录 ${clips.size} 段纪要",
+                "分享 / 复制 / 抓屏，把厂商纪要 App 里的文字一段段攒进诺伊，之后统一整理与全量导出",
+                first = true,
+            ) {
+                Text("${clips.size} 段", style = NuoyiType.Hint, color = NuoyiTheme.colors.accent)
+            }
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                NuoyiButton("粘贴剪贴板", onClick = {
+                    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                    val t = runCatching {
+                        cm?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.text?.toString().orEmpty()
+                    }.getOrDefault("")
+                    if (t.isBlank()) status = "剪贴板里没有文字：先在厂商纪要 App 里长按复制"
+                    else {
+                        val added = inbox.add(t, "clipboard", "剪贴板")
+                        reloadInbox()
+                        status = if (added == null) "这段文字已经收过了，未重复收录" else "已收录，共 ${inbox.list().size} 段"
+                    }
+                }, size = ButtonSize.Small, kind = ButtonKind.Primary)
+                NuoyiButton("抓取别的 App 屏幕", onClick = {
+                    MinutesCapture.postNotice(context)
+                    status = "已发常驻通知：切到厂商纪要页面，下拉通知点「抓取当前屏」，可连续抓多页"
+                }, size = ButtonSize.Small, kind = ButtonKind.Tonal)
+                NuoyiButton("刷新", onClick = { reloadInbox(); status = "已刷新，共 ${clips.size} 段" },
+                    size = ButtonSize.Small, kind = ButtonKind.Secondary)
+            }
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                NuoyiButton("整理全部", onClick = {
+                    val t = inbox.combined()
+                    if (t.isBlank()) status = "收件箱还是空的，先收一段纪要"
+                    else scope.launch { analyze(t) }
+                }, size = ButtonSize.Small, kind = ButtonKind.Primary)
+                NuoyiButton("导出全部 TXT", onClick = { exportInboxTxt.launch("nuoyi-全部通话纪要.txt") },
+                    size = ButtonSize.Small, kind = ButtonKind.Tonal)
+                NuoyiButton("导出全部 JSON", onClick = { exportInboxJson.launch("nuoyi-全部通话纪要.json") },
+                    size = ButtonSize.Small, kind = ButtonKind.Secondary)
+                NuoyiButton(if (clearArmed) "再点一次清空" else "清空", onClick = {
+                    if (clearArmed) {
+                        inbox.clear(); reloadInbox(); clearArmed = false; status = "收件箱已清空"
+                    } else clearArmed = true
+                }, size = ButtonSize.Small, kind = ButtonKind.Secondary)
+            }
+            if (clips.isEmpty()) {
+                ListRow(null, "还没有收录纪要", "在厂商纪要 App 里点「分享」选「诺伊 · 收进纪要库」，或复制文字后回来粘贴") {}
+            } else {
+                clips.takeLast(5).asReversed().forEach { clip ->
+                    ListRow(
+                        null,
+                        "${MinutesInbox.fmt(clip.atMs)} · ${sourceLabel(clip.source)}",
+                        clip.text.replace('\n', ' ').take(90),
+                        onClick = { scope.launch { analyze(clip.text) } },
+                        trailing = {
+                            TextButton(onClick = { inbox.delete(clip.id); reloadInbox() }) {
+                                Text("删除", style = NuoyiType.Hint, color = NuoyiTheme.colors.bad)
+                            }
+                        },
+                    )
+                }
+            }
+            FooterNote(
+                "厂商的「通话纪要」是系统 App 里的私有数据：既没有对外文件夹，也不生成 .txt 文件，更不给批量导出，" +
+                    "第三方应用无法读它的数据库。可用的三条通道：① 在纪要页点分享 → 选「诺伊 · 收进纪要库」；" +
+                    "② 长按复制纪要文字 → 回来点「粘贴剪贴板」；③ 点「抓取别的 App 屏幕」，" +
+                    "切到纪要页后下拉通知点「抓取当前屏」（需开启诺伊的无障碍服务）。" +
+                    "攒够后点「整理全部」或「导出全部」，这就是诺伊自己的批量导出。",
+            )
         }
 
         GroupLabel("通话记录")
@@ -468,6 +581,15 @@ private suspend fun readMinutesFromTree(context: Context, treeUri: Uri): String 
     com.nuoyi.agent.callnotes.readMinutesFromTree(context, treeUri)
 
 /** 时间戳 → 「MM-dd HH:mm」。 */
+/** 收件箱里每段纪要的来源,给人看的短标签。 */
+private fun sourceLabel(source: String): String = when (source) {
+    "share" -> "分享"
+    "screen" -> "抓屏"
+    "clipboard" -> "剪贴板"
+    "file" -> "文件"
+    else -> source
+}
+
 private fun fmtDate(ms: Long): String = SimpleDateFormat("MM-dd HH:mm", Locale.CHINA).format(Date(ms))
 
 /** 毫秒时长 → 「MM:SS」或「H:MM:SS」。 */

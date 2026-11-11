@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.os.Build
 import android.os.IBinder
 import android.view.ContextThemeWrapper
 import android.view.Gravity
@@ -54,6 +56,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nuoyi.agent.R
 import com.nuoyi.agent.callnotes.CallState
@@ -76,9 +79,16 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * 系统级灵动岛:把 [NotificationCenter.active] 的通知、以及实时通话状态,显示在屏幕顶部居中的胶囊里(像 iOS 灵动岛)。
+ * 类灵动岛胶囊:把 [NotificationCenter.active] 的通知、以及实时通话状态,显示在屏幕顶部居中的胶囊里。
  * 胶囊可拖动;多条通知会堆叠(角标显示条数),点一下展开成卡片逐条查看 / 清除 / 直达对应页面,长按划掉最新一条。
  * 展开期间通知不会被倒计时撤掉,尺寸变化后会重新把窗口 clamp 回屏幕内。
+ *
+ * **Android 的硬边界**:iOS 的灵动岛是系统 UI,第三方通过 Live Activity 把数据交给系统渲染;
+ * Android 没有对等的公开 API,第三方 App 既不能往系统状态栏里塞自定义界面,也不能改写前摄挖孔区域的显示内容。
+ * 这里能做到的是 `TYPE_APPLICATION_OVERLAY` 浮窗 + `LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS` + 读 `DisplayCutout`
+ * 把胶囊对齐到挖孔的位置与宽度,视觉上尽量像「岛」;状态栏里那个常驻的小图标才是 Android 允许第三方真正放进去的东西。
+ * 部分厂商仍会裁掉浮窗落在状态栏/挖孔区的部分,所以设置页提供「贴合前摄挖孔」开关,关掉就退回普通顶部胶囊。
+ *
  * 它本身不依赖系统通知栏权限;若没有「显示在其他应用上层」权限就不显示。
  * 用前台服务保活(常驻低优先通知只用来保活,胶囊显示不靠它);被系统清掉时 [onTaskRemoved] 会再把自己拉起来。
  */
@@ -89,6 +99,8 @@ class DynamicIslandService : Service() {
     private var params: WindowManager.LayoutParams? = null
     /** 是否避开状态栏/挖孔区;设置页改开关后由 IslandContent 订阅实时同步。 */
     private var avoidStatusBar = true
+    /** 是否贴合前摄挖孔(类灵动岛);设备没有挖孔时自动为 false。用 State 以便在开关切换时重组胶囊宽度。 */
+    private var hugCutout by mutableStateOf(false)
     /** 监听横竖屏/分屏等配置变化,Service 本身没有 onConfigurationChanged 回调。 */
     private var configCallback: ComponentCallbacks? = null
 
@@ -103,8 +115,14 @@ class DynamicIslandService : Service() {
         startForeground(1, NotificationCenter.islandServiceNotification(this))
         // 顺带开始监听通话状态(需要 READ_PHONE_STATE,没有则静默跳过)
         CallStateMonitor.start(this)
-        avoidStatusBar = FeatureFlags.get(this).islandAvoidStatusBar()
+        // 别叫 flags:下面 LayoutParams.apply 里也有个 flags 字段,同名会让编译器把赋值算到这个 val 上
+        val featureFlags = FeatureFlags.get(this)
+        avoidStatusBar = featureFlags.islandAvoidStatusBar()
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        val dm = resources.displayMetrics
+        val savedPos = featureFlags.islandPosForScreen(dm.widthPixels, dm.heightPixels)
+        // 有挖孔 + 开关打开 + 用户没手动拖过,才贴合;否则走原来的顶部居中 / 自定义位置逻辑
+        hugCutout = featureFlags.islandHugCutout() && cutoutRect() != null && savedPos == null
         val compose = ComposeView(ContextThemeWrapper(this, R.style.Theme_Nuoyi)).apply { setContent { NuoyiTheme { IslandContent() } } }
         val params = WindowManager.LayoutParams().apply {
             type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -116,10 +134,16 @@ class DynamicIslandService : Service() {
             width = WindowManager.LayoutParams.WRAP_CONTENT
             height = WindowManager.LayoutParams.WRAP_CONTENT
             y = statusBarTop()
+            if (hugCutout) {
+                // 不设 ALWAYS 的话系统会把浮窗整体下推到挖孔下方,永远贴不到前摄。
+                // 即便设了,个别厂商仍可能裁掉浮窗在状态栏区域的部分 —— 这属于系统限制。
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                gravity = Gravity.TOP or Gravity.START
+                y = cutoutRect()?.top ?: 0
+            }
         }
-        // 之前拖动过就按保存时的屏幕尺寸等比还原;否则保持顶部居中(拖动后会切到绝对坐标)
-        val dm = resources.displayMetrics
-        val saved = FeatureFlags.get(this).islandPosForScreen(dm.widthPixels, dm.heightPixels)
+        // 之前拖动过就按保存时的屏幕尺寸等比还原;贴合模式下位置由挖孔决定,忽略手动位置
+        val saved = if (hugCutout) null else savedPos
         if (saved != null) {
             params.gravity = Gravity.TOP or Gravity.START
             params.x = saved.first
@@ -132,6 +156,14 @@ class DynamicIslandService : Service() {
             // 视图测量完成后再 clamp 一次,确保胶囊完整落在当前屏幕内(旋转/分屏后尤其重要)
             clampToScreen(params)
             wm!!.updateViewLayout(compose, params)
+            // 真正测量完之后才有真实宽度,这时才能按挖孔中心把胶囊对齐过去
+            compose.post {
+                if (hugCutout) alignToCutout(expanded = false)
+                else {
+                    clampToScreen(params)
+                    runCatching { wm?.updateViewLayout(compose, params) }
+                }
+            }
         } catch (e: SecurityException) {
             stopSelf()
         } catch (e: Throwable) {
@@ -160,6 +192,10 @@ class DynamicIslandService : Service() {
      * 没拖动过的胶囊仍保持顶部居中,只更新离顶距离(横竖屏状态栏高度可能不同)。
      */
     private fun relayoutForScreen() {
+        if (hugCutout) {
+            alignToCutout(expanded = false)
+            return
+        }
         val p = params ?: return
         val v = view ?: return
         val dm = resources.displayMetrics
@@ -185,7 +221,8 @@ class DynamicIslandService : Service() {
         p.y = p.y.coerceIn(low, max(low, dm.heightPixels - h))
     }
 
-    private fun minIslandY(): Int = if (avoidStatusBar) statusBarTop() else 0
+    /** 贴合挖孔时允许 y 落在状态栏/挖孔区域;否则按「避开状态栏」开关限制最低位置。 */
+    private fun minIslandY(): Int = if (hugCutout) 0 else if (avoidStatusBar) statusBarTop() else 0
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         // 被系统清掉时立刻把自己拉起来,尽量保证系统级胶囊常驻(仍需用户授予自启动白名单才真正有效)
@@ -203,6 +240,37 @@ class DynamicIslandService : Service() {
         return h + (10 * resources.displayMetrics.density).toInt()
     }
 
+    /** 顶部前摄挖孔(屏幕坐标);没有挖孔、或系统不肯把 cutout 信息给浮窗时返回 null。 */
+    private fun cutoutRect(): Rect? {
+        val manager = wm ?: return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
+        val cutout = runCatching { manager.currentWindowMetrics.windowInsets.displayCutout }.getOrNull() ?: return null
+        return cutout.boundingRects.filter { it.top <= 4 && it.width() > 8 }.minByOrNull { it.top }
+    }
+
+    /** 贴合挖孔时胶囊的宽度:至少包住挖孔、左右各延展一点,再夹到能放得下图标和标题的范围。 */
+    private fun islandWidth(): Dp? {
+        if (!hugCutout) return null
+        val w = cutoutRect()?.width() ?: return null
+        val density = resources.displayMetrics.density
+        return ((w / density) + 56f).coerceIn(160f, 320f).dp
+    }
+
+    /** 按挖孔中心对齐;展开成卡片后以屏幕中心为准并落到挖孔下方,免得整张卡片压住状态栏。 */
+    private fun alignToCutout(expanded: Boolean) {
+        val p = params ?: return
+        val v = view ?: return
+        val c = cutoutRect() ?: return
+        val dm = resources.displayMetrics
+        val width = v.width
+        p.gravity = Gravity.TOP or Gravity.START
+        val centerX = if (expanded) dm.widthPixels / 2f else c.centerX().toFloat()
+        p.x = (centerX - width / 2f).roundToInt().coerceIn(0, max(0, dm.widthPixels - width))
+        p.y = if (expanded) c.bottom + (6 * dm.density).toInt() else c.top
+        clampToScreen(p)
+        runCatching { wm?.updateViewLayout(v, p) }
+    }
+
     /** 打开 App;[route] 不为空时(如 "callnotes")由 MainActivity 直接跳到对应页面。 */
     private fun openApp(route: String? = null) {
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -213,8 +281,12 @@ class DynamicIslandService : Service() {
         startActivity(intent)
     }
 
-    /** 胶囊/卡片尺寸变化(展开、收起、通知增减)后重新把窗口限制在屏幕内。 */
-    private fun clampAfterResize() {
+    /** 胶囊/卡片尺寸变化(展开、收起、通知增减)后重新把窗口限制在屏幕内;贴合模式下顺便重新对齐。 */
+    private fun clampAfterResize(expanded: Boolean) {
+        if (hugCutout) {
+            alignToCutout(expanded)
+            return
+        }
         val p = params ?: return
         val v = view ?: return
         clampToScreen(p)
@@ -274,6 +346,9 @@ class DynamicIslandService : Service() {
         val dm = resources.displayMetrics
         // 连屏幕尺寸一起存,下次横竖屏/分屏时才能按同一比例还原
         FeatureFlags.get(this).setIslandPos(p.x, p.y, dm.widthPixels, dm.heightPixels)
+        // 手动拖过就以用户的位置为准(只在内存里退出贴合,不改设置开关):
+        // 「复位胶囊位置」清掉位置后,服务重启会重新贴合挖孔。
+        hugCutout = false
     }
 
     @Composable
@@ -285,7 +360,11 @@ class DynamicIslandService : Service() {
         val callMode by flags.islandCallModeChanges().collectAsState(initial = flags.islandCallMode())
         val avoidStatus by flags.islandAvoidStatusBarChanges().collectAsState(initial = flags.islandAvoidStatusBar())
         val expandOnTap by flags.islandExpandCardChanges().collectAsState(initial = flags.islandExpandCard())
+        val hugPref by flags.islandHugCutoutChanges().collectAsState(initial = flags.islandHugCutout())
         var expanded by remember { mutableStateOf(false) }
+        // 初始状态由 onCreate 处理,这里只响应「用户在设置页切换开关」,避免一启动就抹掉拖过的位置
+        var hugInitialized by remember { mutableStateOf(false) }
+        val pillWidth: Dp? = if (hugCutout) islandWidth() else null
 
         val inCall = callMode && (call.offhook || call.ringing)
         val hasContent = inCall || active.isNotEmpty()
@@ -299,11 +378,30 @@ class DynamicIslandService : Service() {
                 view?.let { v -> runCatching { wm?.updateViewLayout(v, p) } }
             }
         }
+        // 设置页切换「贴合挖孔」时立即生效:打开就清掉手动位置并对齐,关闭就回到原来的位置逻辑
+        LaunchedEffect(hugPref) {
+            if (!hugInitialized) {
+                hugInitialized = true
+                return@LaunchedEffect
+            }
+            // 重新打开贴合时清掉旧的拖动位置,让它真的贴回挖孔;关闭则保留用户拖过的位置
+            if (hugPref) flags.setIslandPos(-1, -1)
+            val canHug = hugPref && cutoutRect() != null
+            hugCutout = canHug
+            params?.let { p ->
+                p.layoutInDisplayCutoutMode = if (canHug) {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                } else {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+                }
+                if (canHug) alignToCutout(expanded = false) else relayoutForScreen()
+            }
+        }
         // 展开卡片期间暂停自动收起;尺寸动画走完后再按新的宽高把窗口 clamp 回屏幕内
         LaunchedEffect(expanded, active.size, inCall) {
             NotificationCenter.expiryPaused = expanded && expandOnTap
             delay(280)
-            clampAfterResize()
+            clampAfterResize(expanded)
         }
         // 通知清空或通话结束后别留一张空卡片
         LaunchedEffect(hasContent) { if (!hasContent) expanded = false }
@@ -325,6 +423,7 @@ class DynamicIslandService : Service() {
                         active = active,
                         expandOnTap = expandOnTap,
                         duration = duration,
+                        pillWidth = pillWidth,
                         onExpand = { expanded = true },
                     )
                 }
@@ -358,6 +457,8 @@ class DynamicIslandService : Service() {
         active: List<NuoyiNotification>,
         expandOnTap: Boolean,
         duration: String,
+        /** 贴合挖孔时给定宽度(跟着挖孔走),其余情况为 null 保持自适应。 */
+        pillWidth: Dp?,
         onExpand: () -> Unit,
     ) {
         val c = NuoyiTheme.colors
@@ -388,7 +489,11 @@ class DynamicIslandService : Service() {
             if (call == null && dwell > 0) progress.animateTo(0f, tween(dwell.toInt(), easing = LinearEasing))
         }
 
-        Box(Modifier.widthIn(max = 340.dp).padding(bottom = 10.dp)) {
+        Box(
+            Modifier.widthIn(max = 340.dp)
+                .then(if (pillWidth != null) Modifier.width(pillWidth) else Modifier)
+                .padding(bottom = 10.dp),
+        ) {
             // 背后露出的两片圆角,视觉上像叠了一摞通知
             if (count > 2) {
                 Box(
@@ -408,7 +513,7 @@ class DynamicIslandService : Service() {
             }
             Box(
                 Modifier
-                    .widthIn(max = 340.dp)
+                    .then(if (pillWidth != null) Modifier.fillMaxWidth() else Modifier.widthIn(max = 340.dp))
                     .shadow(14.dp, RoundedCornerShape(24.dp), clip = false)
                     .clip(RoundedCornerShape(24.dp))
                     .border(1.5.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(24.dp))

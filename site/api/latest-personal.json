@@ -1,22 +1,22 @@
 {
-  "tag_name": "v0.1.43",
-  "name": "诺伊 0.1.43",
-  "body": "### 本次更新\n\n- **小女孩增加独立头部动作**，头和身体分开动：以前是整张插画一起倾斜，现在脖子以上可以单独点头、歪头、摇头、抬头，肩膀和衣服保持不动，动作明显更自然。\n  - 空闲随机轮播 10 种小动作，新增：**点头、歪头、摇头、抬头张望**；原有呼吸、摸头、转身、伸懒腰、招手、眨眼保留。摸头时手会跟着脑袋偏，不会摸空。\n  - 跟随状态：后台跑任务 → 头微垂、随书写轻轻点动，继续低头写作业；聆听 → 侧过头把耳朵凑近声源；说话 → 连续点头 + 嘴张合；开心 → 蹦跳时脑袋左右轻晃。\n  - 眨眼、小嘴、耳机声波会跟着头部一起移动，不会留在原位。\n  - 实现上用「水平条带局部形变」：整张插画按 24/48 条水平带绘制，每条带按所在高度取头部权重施加位移与横向压缩，条带边界按变换后的坐标精确对齐。**不拆图、不裁剪**，因此没有接缝、白边或双影；「设置 › 吉祥物」上传的自定义图片同样会有头部动作，仍不叠加内置手臂和书桌。\n- 版本号升至 0.1.43（versionCode 44），签名证书不变，v0.1.42 及更早版本可直接覆盖安装；`BETA` 保持关闭。其余功能（纪要收件箱三通道 + 全量导出、胶囊贴合挖孔 / 展开卡片 / 通知堆叠）与 v0.1.42 一致。\n\n### 需要如实说明的边界\n\n- 头部动作是 2D 局部形变，能表现点头、歪头、左右摇头和抬头，但**不是 3D 转头**，不会看到侧脸；这是单张平面插画做动画的固有限制。\n- 小尺寸（灵动胶囊 / 通话页）只能看清整体浮动、倾斜和道具轮廓，头部细节在设置页 / 关于页的大图里最清楚。\n- Android 不允许第三方 App 把视图嵌进系统状态栏，也不存在 iOS 式「真正的灵动岛」。胶囊是贴合挖孔的 `TYPE_APPLICATION_OVERLAY` 浮窗；部分 ROM 会裁切状态栏 / 挖孔区浮窗，遇到时关闭「贴合挖孔」开关即可退回安全区域。\n- 抓屏收录只能读到 Accessibility 能取到的文字节点；分享图片暂不做 OCR，只接 `text/plain`。受 Android 限制，第三方 App 也无法录制或转写通话中对方的声音。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。普通用户选「公版 · 全架构」；arm64 设备可选体积更小的专用包。个人版仅供自用侧载，包名与公版不同，可并排安装。\n\n安装前请核对下载页给出的 SHA-256 与签名证书指纹（证书 SHA-256：`97:BF:C9:61:14:CA:00:E7:87:51:10:FB:CF:CD:4A:90:A4:68:99:AC:00:64:BC:B7:B5:96:3C:6D:85:E1:2B:06`）。App 内更新会自动校验大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
-  "published_at": "2026-11-11T05:29:28Z",
+  "tag_name": "v0.1.44",
+  "name": "诺伊 0.1.44",
+  "body": "### 本次更新（修复版）\n\n真机诊断里 `arm64 sandbox: supported (Broken: 缺少 nuoyi 命令(安装包不完整))` 暴露了一个从品牌替换时就存在的故障：**运行环境（沙箱）一直没装起来**，所有「处理文件 / 运行脚本 / 沙箱里调手机工具」都不可用。本版修好。\n\n**根因**：品牌替换时把代码里读的路径改成了 `assets/sandbox/nuoyi`、环境变量改成了 `NUOYI_BRIDGE / NUOYI_TOKEN`、命令改成了 `nuoyi`，但**磁盘上那个桥客户端脚本的文件名还叫 `mika`，脚本内部也还在读 `MIKA_*`**。于是安装器解完 31MB 运行环境后，在配置阶段找不到脚本，直接报「安装包不完整」。单元测试因为注入的是假脚本字节，从来没读过真实 assets，所以一直全绿没发现。\n\n修复内容：\n\n- `assets/sandbox/mika` → **`assets/sandbox/nuoyi`**，脚本内命令名、用法提示、错误信息统一为 `nuoyi`；环境变量改为 `NUOYI_BRIDGE / NUOYI_TOKEN`，与 `ProcRunner.env()` 注入的一致（原来会连不上本地桥，报 \"not running inside a Nuoyi sandbox command\"）。保留上游 Apache-2.0 版权声明。\n- 发给模型的 `run_command` 工具提示词里 3 处 `mika phone` → `nuoyi phone`；`tools/sandbox/build-runtime.py` 重建运行环境时也生成 `usr/local/bin/nuoyi`。\n- 随包 `rootfs.tar.xz` 里还预置着上游的 `usr/local/bin/mika`（读旧环境变量、必然失败）。安装时用同一份桥客户端把它覆盖掉，旧对话 / 第三方技能里若仍写 `mika` 也能正常走桥，不必为了一个文件名重打 31MB 运行环境包。\n- 加了一个构建期校验 `verifySandboxClient`：每次 `preBuild` 都检查 `assets/sandbox/nuoyi` 存在，缺文件直接构建失败，杜绝再次漏改。\n- 版本号升至 0.1.44（versionCode 45），签名证书不变，v0.1.43 可直接覆盖安装。\n\n**升级后**：App 启动会自动重试准备运行环境，诊断里 `arm64 sandbox` 应从 `Broken: ...` 变成 `Ready`。若仍是 Broken，去「设置 → 文件与计算环境 → 重置运行环境」手动重置一次（会删掉之前失败的半成品，对话记录和设置不受影响）。\n\n### 诊断里另外几项（不是 App 故障）\n\n- `helper: Connecting` / `no wireless debugging port found`：荣耀等 ROM 会屏蔽无线调试端口的 mDNS 广播，App 自动发现不到端口。打开「开发者选项 → 无线调试」，看页面上「IP 地址和端口」冒号后面的数字（例如 41235），在第 6 步的「填无线调试的端口」里手填即可；端口每次重启 / 重开无线调试都会变。也可以关掉再打开无线调试、换个 Wi-Fi 再试。\n- `write secure settings: not granted` / `[Recovery] ... not applied`：这些高级开关需要 `adb shell pm grant ... android.permission.WRITE_SECURE_SETTINGS`，而 ADB 助手又依赖上面的连接，属于先有鸡还是先有蛋。用电脑 USB 连一次授权，或在系统设置里手动把 App 加进「不受电池优化限制」和自启动白名单。\n- `battery optimization: restricted`：会影响常驻与后台自恢复，建议手动放行。\n- `android: 17 (SDK 37)` 高于本 App 的 `targetSdk 35`，`restricted settings: may block` 时需在系统「应用信息」里允许受限设置，否则无障碍 / 辅助权限可能被拦。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。自用选「个人版 · arm64 专用」，装不上再换「个人版 · 全架构」。\n\n签名证书 SHA-256：`97:BF:C9:61:14:CA:00:E7:87:51:10:FB:CF:CD:4A:90:A4:68:99:AC:00:64:BC:B7:B5:96:3C:6D:85:E1:2B:06`。App 内更新会自动校验大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
+  "published_at": "2026-11-11T06:00:43Z",
   "html_url": "https://noy.127068.xyz/download/",
   "prerelease": false,
   "assets": [
     {
-      "name": "Nuoyi-v0.1.43-personal-arm64.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.43/Nuoyi-v0.1.43-personal-arm64.apk",
-      "size": 82670214,
-      "digest": "sha256:0877e14c98711f5ad0a8e51e981914676aae7ad2a301f7227af11e92933618f7"
+      "name": "Nuoyi-v0.1.44-personal-arm64.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal-arm64.apk",
+      "size": 82670367,
+      "digest": "sha256:4026a90bfafdf280cf7432ed152728e9c918cc83df4af8e5026683b7a4c7e9bd"
     },
     {
-      "name": "Nuoyi-v0.1.43-personal.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.43/Nuoyi-v0.1.43-personal.apk",
-      "size": 95266357,
-      "digest": "sha256:e49c60f0fb20f5b3b039d57065a21675c69364833c00b2126789b60f2f70ffee"
+      "name": "Nuoyi-v0.1.44-personal.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal.apk",
+      "size": 95266510,
+      "digest": "sha256:543c2bf6c1b7f58b7b04b0db3b3c7862ad432b844d827ed2f837e30f8557cade"
     }
   ]
 }

@@ -18,7 +18,7 @@ import com.nuoyi.agent.ui.theme.rememberMascotBitmap
 fun NuoyiLogo(size: Dp, modifier: Modifier = Modifier, corner: Dp = size * 0.28f) {
     val custom = rememberMascotBitmap()
     Image(
-        painter = custom?.let { BitmapPainter(it) } ?: painterResource(R.drawable.ic_mascot),
+        painter = custom?.let { BitmapPainter(it) } ?: painterResource(R.drawable.nuoyi_girl),
         contentDescription = null,
         modifier = modifier.size(size).clip(RoundedCornerShape(corner)),
         contentScale = ContentScale.Fit,

@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 状态栏小图标:诺伊吉祥物头部剪影(白色,系统会按通知色着色)。 -->
+<!-- 状态栏小图标:Q 版小女孩头部与长发剪影(白色,系统会按通知色着色)。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <path android:pathData="M12,3 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"
-        android:fillColor="#FFFFFFFF"/>
-    <path android:pathData="M12,5 L12,8" android:strokeColor="#FFFFFFFF" android:strokeWidth="2" android:strokeLineCap="round"/>
-    <path android:pathData="M12,8
-        C7,8 5,11 5,15
-        C5,19 8,21 12,21
-        C16,21 19,19 19,15
-        C19,11 17,8 12,8 Z"
+    <path android:pathData="M12,2 C7,2 4,5 4,10 C4,13 4.5,15 5,17 L3,22 L7.5,21 C9,22 10.5,22.5 12,22.5 C13.5,22.5 15,22 16.5,21 L21,22 L19,17 C19.5,15 20,13 20,10 C20,5 17,2 12,2 Z"
         android:fillColor="#FFFFFFFF"/>
 </vector>

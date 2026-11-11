@@ -206,7 +206,7 @@ private fun Hero(versionName: String, build: String, beta: Boolean) {
         Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 会呼吸/眨眼的可爱未来人吉祥物(与启动图标、悬浮胶囊、聊天页同造型),不是静态图
+        // 会轻轻浮动的小女孩吉祥物(与启动图标、悬浮胶囊、聊天页同造型),不是静态图
         NuoyiMascot(MascotMood.Idle, size = 72.dp, customBitmap = rememberMascotBitmap())
         Text("诺伊", Modifier.padding(top = 12.dp), style = NuoyiType.Title, fontWeight = FontWeight.Bold, color = c.ink)
         Text(AboutCopy.TAGLINE, Modifier.padding(top = 4.dp), style = NuoyiType.Caption, color = c.ink2, textAlign = TextAlign.Center)

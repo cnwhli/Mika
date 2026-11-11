@@ -1,55 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 诺伊吉祥物:可爱的未来人。用作启动图标前景与界面 Logo。与 ui/theme/Mascot.kt 的动画版同造型。 -->
+<!-- 诺伊吉祥物:Q 版小女孩(黑色长发、碎刘海、浅蓝耳机、星星发饰、粉色睡衣)。
+     用作启动图标前景;界面里的同款透明插画是 R.drawable.nuoyi_girl。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 天线 -->
-    <path android:pathData="M54,26 L54,13"
-        android:strokeColor="#6FC3FF" android:strokeWidth="4" android:strokeLineCap="round"/>
-    <path android:pathData="M54,11 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0"
+    <!-- 脑后长发 -->
+    <path android:pathData="M54,20 C32,20 24,34 24,58 C24,76 26,88 28,98 L80,98 C82,88 84,76 84,58 C84,34 76,20 54,20 Z"
+        android:fillColor="#2F3038"/>
+
+    <!-- 粉色睡衣与蓝色领口 -->
+    <path android:pathData="M34,96 C40,88 46,86 54,86 C62,86 68,88 74,96 L78,108 L30,108 Z"
+        android:fillColor="#FBE1E7"/>
+    <path android:pathData="M44,89 Q54,97 64,89"
+        android:strokeColor="#2A9DFF" android:strokeWidth="3.5" android:strokeLineCap="round" android:fillColor="#00000000"/>
+
+    <!-- 脸 -->
+    <path android:pathData="M54,64 m-24,0 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0"
+        android:fillColor="#FFE2D2"/>
+
+    <!-- 碎刘海 -->
+    <path android:pathData="M30,56 C30,34 40,24 54,24 C68,24 78,34 78,56 C72,46 68,44 62,48 C58,52 54,52 50,48 C42,42 36,48 30,56 Z"
+        android:fillColor="#2F3038"/>
+
+    <!-- 耳机头梁与耳罩 -->
+    <path android:pathData="M25,58 C23,26 38,14 54,14 C70,14 85,26 83,58"
+        android:strokeColor="#A8DCFF" android:strokeWidth="7" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <path android:pathData="M20,50 h7 a5,5 0 0,1 5,5 v14 a5,5 0 0,1 -5,5 h-7 a5,5 0 0,1 -5,-5 v-14 a5,5 0 0,1 5,-5 z"
+        android:fillColor="#8FD0FF"/>
+    <path android:pathData="M88,50 h-7 a5,5 0 0,0 -5,5 v14 a5,5 0 0,0 5,5 h7 a5,5 0 0,0 5,-5 v-14 a5,5 0 0,0 -5,-5 z"
+        android:fillColor="#8FD0FF"/>
+
+    <!-- 星星发饰 -->
+    <path android:pathData="M72,26 l3,6 6.5,1 -4.8,4.5 1.2,6.5 -5.9,-3.2 -5.9,3.2 1.2,-6.5 -4.8,-4.5 6.5,-1 z"
         android:fillColor="#2A9DFF"/>
-    <path android:pathData="M54,11 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0"
-        android:fillColor="#EAF7FF"/>
-
-    <!-- 两侧科技耳 -->
-    <path android:pathData="M22,50 h7 a4,4 0 0,1 4,4 v12 a4,4 0 0,1 -4,4 h-7 a4,4 0 0,1 -4,-4 v-12 a4,4 0 0,1 4,-4 z"
-        android:fillColor="#C9E6FF"/>
-    <path android:pathData="M86,50 h-7 a4,4 0 0,0 -4,4 v12 a4,4 0 0,0 4,4 h7 a4,4 0 0,0 4,-4 v-12 a4,4 0 0,0 -4,-4 z"
-        android:fillColor="#C9E6FF"/>
-
-    <!-- 头 -->
-    <path android:pathData="M54,26
-        C30,26 24,40 24,58
-        C24,80 36,92 54,92
-        C72,92 84,80 84,58
-        C84,40 78,26 54,26 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="54" android:startY="24"
-                android:endX="54" android:endY="94" android:startColor="#EAF6FF" android:endColor="#FFFFFF"/>
-        </aapt:attr>
-    </path>
-    <path android:pathData="M54,26
-        C30,26 24,40 24,58
-        C24,80 36,92 54,92
-        C72,92 84,80 84,58
-        C84,40 78,26 54,26 Z"
-        android:strokeColor="#BFE0FF" android:strokeWidth="2"/>
 
     <!-- 腮红 -->
-    <path android:pathData="M36,66 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" android:fillColor="#FFD2DD" android:fillAlpha="0.85"/>
-    <path android:pathData="M72,66 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" android:fillColor="#FFD2DD" android:fillAlpha="0.85"/>
+    <path android:pathData="M36,74 m-4.5,0 a4.5,3 0 1,0 9,0 a4.5,3 0 1,0 -9,0" android:fillColor="#FFB9C8" android:fillAlpha="0.85"/>
+    <path android:pathData="M72,74 m-4.5,0 a4.5,3 0 1,0 9,0 a4.5,3 0 1,0 -9,0" android:fillColor="#FFB9C8" android:fillAlpha="0.85"/>
 
     <!-- 眼睛 -->
-    <path android:pathData="M43,54 m-7,0 a7,9 0 1,0 14,0 a7,9 0 1,0 -14,0" android:fillColor="#20303A"/>
-    <path android:pathData="M65,54 m-7,0 a7,9 0 1,0 14,0 a7,9 0 1,0 -14,0" android:fillColor="#20303A"/>
-    <path android:pathData="M45.5,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
-    <path android:pathData="M67.5,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
+    <path android:pathData="M44,64 m-6,0 a6,8 0 1,0 12,0 a6,8 0 1,0 -12,0" android:fillColor="#2B2B33"/>
+    <path android:pathData="M64,64 m-6,0 a6,8 0 1,0 12,0 a6,8 0 1,0 -12,0" android:fillColor="#2B2B33"/>
+    <path android:pathData="M46,60 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
+    <path android:pathData="M66,60 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" android:fillColor="#FFFFFF"/>
 
-    <!-- 微笑 -->
-    <path android:pathData="M44,70 Q54,80 64,70"
-        android:strokeColor="#20303A" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <!-- 微微抿嘴 -->
+    <path android:pathData="M50,77 Q54,80 58,77"
+        android:strokeColor="#A6605E" android:strokeWidth="2.4" android:strokeLineCap="round" android:fillColor="#00000000"/>
 </vector>

@@ -1,58 +1,68 @@
 package com.nuoyi.agent.ui.theme
 
+import android.graphics.BitmapFactory
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.nuoyi.agent.R
 import com.nuoyi.agent.settings.MascotStore
-import kotlin.math.max
+import kotlinx.coroutines.delay
+import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.random.Random
 
-/** 诺伊吉祥物的表情/动作状态。 */
+/** 诺伊吉祥物的状态:直接对应 App 此刻在做什么。 */
 enum class MascotMood { Idle, Listening, Thinking, Speaking, Happy }
 
-private val HeadTop = Color(0xFFEAF6FF)
-private val HeadBottom = Color(0xFFFFFFFF)
-private val HeadStroke = Color(0xFFBFE0FF)
-private val EarFill = Color(0xFFC9E6FF)
-private val Eye = Color(0xFF20303A)
-private val Glint = Color(0xFFFFFFFF)
-private val Cheek = Color(0xFFFFD2DD)
-private val AntennaStem = Color(0xFF6FC3FF)
-private val AntennaOrb = Color(0xFF2A9DFF)
+private val Skin = Color(0xFFFFE2D2)
+private val Sleeve = Color(0xFFFBE1E7)
+private val Outline = Color(0xFF2F3038)
+private val BrandBlue = Color(0xFF2A9DFF)
+private val PaperWhite = Color(0xFFFFFFFF)
+private val DeskWood = Color(0xFFF3E7D6)
+private val MouthPink = Color(0xFFA6605E)
 
-/**
- * 诺伊吉祥物:一个可爱的未来人。和启动图标用的矢量 [R.drawable.ic_mascot] 同造型,这里加了动作。
- * - [Idle] 轻轻上下呼吸、偶尔眨眼;
- * - [Listening] 天线灯呼吸、眼睛左右微动;
- * - [Thinking] 天线灯转圈、脑袋小幅点头;
- * - [Speaking] 嘴一张一合、脑袋轻晃;
- * - [Happy] 眼睛弯成 ^^、开心地蹦一下。
- * 颜色固定(不随深浅主题变),保证在哪都和图标是同一个形象。
- */
+/** 空闲时随机轮播的小动作。 */
+private enum class IdleMove { Breathe, HeadScratch, LookAround, TurnAround, Stretch, Wave, Blink }
+
+/** 叠在插画上的手臂/手势。 */
+private enum class ArmPose { None, Write, Listen, Gesture, Cheer, HeadScratch, Stretch, Wave }
+
+private data class IdleMotion(val move: IdleMove, val progress: Float)
+
 /**
  * 读出用户上传的自定义吉祥物位图(设置 › 吉祥物里上传的)。没上传或读不出返回 null,
  * 调用方照常画内置形象。位图会随设置变化实时刷新。
@@ -68,8 +78,48 @@ fun rememberMascotBitmap(): ImageBitmap? {
 }
 
 /**
- * 诺伊吉祥物:[customBitmap] 不为空时画这张用户上传的图(随心情轻轻上下浮动),否则画内置的矢量未来人。
- * 颜色固定(不随深浅主题变),保证在哪都和图标是同一个形象。
+ * 内置吉祥物:以小女孩的发型、神态与粉色睡衣风格化绘制的 Q 版插画(透明背景 PNG)。
+ * 随包发布、不依赖外部文件;卡通化形象,不含任何真人照片。
+ */
+@Composable
+private fun rememberDefaultMascotBitmap(): ImageBitmap {
+    val ctx = LocalContext.current
+    return remember(ctx) {
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.nuoyi_girl)?.asImageBitmap()
+            ?: ImageBitmap(1, 1)
+    }
+}
+
+/** 每隔一两秒随机换一个空闲小动作,并给出这一次动作 0→1 的进度。 */
+@Composable
+private fun rememberIdleMotion(): IdleMotion {
+    var move by remember { mutableStateOf(IdleMove.Breathe) }
+    var seq by remember { mutableStateOf(0) }
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(Random.nextInt(1500, 2900).toLong())
+            val all = IdleMove.values()
+            move = all[Random.nextInt(all.size)]
+            seq++
+        }
+    }
+    LaunchedEffect(seq) {
+        progress.snapTo(0f)
+        progress.animateTo(1f, tween(durationMillis = 1200, easing = FastOutSlowInEasing))
+    }
+    val p by progress.asState()
+    return IdleMotion(move, p)
+}
+
+/**
+ * 诺伊吉祥物(动画版):
+ * - [MascotMood.Thinking] 后台有任务在跑 → 低头写作业,桌面/纸/铅笔/笔画增长;
+ * - [MascotMood.Idle] 空闲 → 随机轮播摸头、转一转、左右张望、伸懒腰、招手、眨眼、呼吸;
+ * - [MascotMood.Listening] 手放耳边 + 声波; [MascotMood.Speaking] 点头说话 + 手势;
+ * - [MascotMood.Happy] 蹦跳 + 双手举起 + 星星闪。
+ *
+ * 用户上传自定义图片时仍保留整体浮动/倾斜/转身,但不叠加手臂和道具,以免和别的形象打架。
  */
 @Composable
 fun NuoyiMascot(
@@ -78,193 +128,232 @@ fun NuoyiMascot(
     size: Dp = 64.dp,
     customBitmap: ImageBitmap? = null,
 ) {
+    val defaultBitmap = rememberDefaultMascotBitmap()
+    val bitmap = customBitmap ?: defaultBitmap
+    val builtIn = customBitmap == null
+    val idle = rememberIdleMotion()
     val t = rememberInfiniteTransition("mascot")
-    // 呼吸:整张图上下浮动
-    val bob by t.animateFloat(0f, -1f, infiniteRepeatable(
-        animation = keyframes { durationMillis = 1800; 0f at 0; -1f at 900; 0f at 1800 },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 眨眼:大部分时间睁着,周期末快速闭一下
-    val blink by t.animateFloat(1f, 1f, infiniteRepeatable(
-        animation = keyframes {
-            durationMillis = 4200
-            1f at 0; 1f at 3700; 0.12f at 3820; 1f at 4000
-        },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 天线灯呼吸(0.4~1)
-    val orb by t.animateFloat(0.45f, 1f, infiniteRepeatable(
-        animation = keyframes { durationMillis = 1400; 0.45f at 0; 1f at 700; 0.45f at 1400 },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 说话嘴型(0 闭 ~ 1 张)
-    val mouth by t.animateFloat(0f, 1f, infiniteRepeatable(
-        animation = keyframes {
-            durationMillis = 360
-            0f at 0; 1f at 90; 0.2f at 180; 0.9f at 270; 0f at 360
-        },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 开心蹦跳
-    val hop by t.animateFloat(0f, -1f, infiniteRepeatable(
-        animation = keyframes { durationMillis = 900; 0f at 0; -1f at 300; 0f at 600; 0f at 900 },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 思考点头
-    val nod by t.animateFloat(-0.04f, 0.04f, infiniteRepeatable(
-        animation = keyframes { durationMillis = 1600; -0.04f at 0; 0.04f at 800; -0.04f at 1600 },
-        repeatMode = RepeatMode.Restart,
-    ))
-    // 听/说时眼睛左右微动
-    val look by t.animateFloat(-1f, 1f, infiniteRepeatable(
-        animation = keyframes { durationMillis = 2200; -1f at 0; 1f at 1100; -1f at 2200 },
-        repeatMode = RepeatMode.Restart,
-    ))
-
-    val moodBob = when (mood) {
-        MascotMood.Happy -> hop
-        MascotMood.Thinking -> nod
-        else -> 0f
-    }
-    val eyeOpen = if (mood == MascotMood.Happy) 1f else blink
-    val talk = if (mood == MascotMood.Speaking) mouth else 0f
-    val orbGlow = if (mood == MascotMood.Listening || mood == MascotMood.Thinking) orb else 0.85f
-    val eyeShift = if (mood == MascotMood.Listening || mood == MascotMood.Speaking) look * 1.4f else 0f
+    val cycle by t.animateFloat(
+        0f, 1f,
+        infiniteRepeatable(animation = tween(1600, easing = LinearEasing), repeatMode = RepeatMode.Restart),
+    )
+    val fast by t.animateFloat(
+        0f, 1f,
+        infiniteRepeatable(animation = tween(620, easing = LinearEasing), repeatMode = RepeatMode.Restart),
+    )
 
     Canvas(modifier.size(size)) {
-        // size(Dp) 在这里能拿到 Density,用来把上下浮动的量级换算成像素
-        val bobPxTotal = (bob + moodBob) * size.toPx() * 0.04f
-        val canvas = this.size
-        if (customBitmap != null) {
-            // 用户上传的图:按比例塞满正方形,保留透明区域,并跟随心情轻轻上下浮动
-            val bw = customBitmap.width.toFloat().coerceAtLeast(1f)
-            val bh = customBitmap.height.toFloat().coerceAtLeast(1f)
-            val scale = canvas.width / max(bw, bh)
-            val dw = bw * scale
-            val dh = bh * scale
-            drawImage(
-                image = customBitmap,
-                dstOffset = IntOffset(
-                    ((canvas.width - dw) / 2f).roundToInt(),
-                    ((canvas.height - dh) / 2f + bobPxTotal).roundToInt(),
-                ),
-                dstSize = IntSize(dw.roundToInt(), dh.roundToInt()),
-            )
-        } else {
-            drawMascot(
-                mood = mood,
-                bobPx = bobPxTotal,
-                eyeOpen = eyeOpen,
-                talk = talk,
-                orbGlow = orbGlow,
-                eyeShiftPx = eyeShift,
-            )
+        val s = size.toPx()
+        val p = idle.progress
+        val amp = sin(p * PI).toFloat()                 // 0 → 1 → 0,一次小动作的幅度
+        val breathe = sin(cycle * 2f * PI).toFloat()    // -1 → 1
+        var yShift = breathe * s * 0.012f
+        var tilt = 0f
+        var scaleX = 1f
+        var scaleY = 1f
+        var arm = ArmPose.None
+        var desk = false
+        var sound = false
+        var mouth = false
+        var sparkle = false
+        var blink = false
+
+        when (mood) {
+            MascotMood.Thinking -> {
+                // 后台任务:伏案写作业
+                desk = true
+                arm = ArmPose.Write
+                tilt = -4f + breathe * 1.5f
+                yShift += s * 0.015f
+            }
+            MascotMood.Listening -> {
+                arm = ArmPose.Listen
+                sound = true
+                tilt = 4f + breathe * 1.5f
+            }
+            MascotMood.Speaking -> {
+                arm = ArmPose.Gesture
+                mouth = true
+                tilt = breathe * 3f
+            }
+            MascotMood.Happy -> {
+                arm = ArmPose.Cheer
+                sparkle = true
+                yShift -= abs(sin(cycle * 2f * PI).toFloat()) * s * 0.06f
+                tilt = sin(cycle * 4f * PI).toFloat() * 6f
+            }
+            MascotMood.Idle -> when (idle.move) {
+                IdleMove.Breathe -> scaleY = 1f + amp * 0.02f
+                IdleMove.HeadScratch -> {
+                    arm = ArmPose.HeadScratch
+                    tilt = -5f * amp
+                }
+                IdleMove.LookAround -> tilt = sin(p * 2f * PI).toFloat() * 12f
+                IdleMove.TurnAround -> {
+                    scaleX = 1f - 0.7f * amp
+                    tilt = sin(p * PI).toFloat() * 8f
+                }
+                IdleMove.Stretch -> {
+                    scaleY = 1f + 0.08f * amp
+                    yShift -= amp * s * 0.03f
+                    arm = ArmPose.Stretch
+                    mouth = true
+                }
+                IdleMove.Wave -> {
+                    arm = ArmPose.Wave
+                    tilt = 4f * amp
+                }
+                IdleMove.Blink -> blink = amp > 0.28f
+            }
+        }
+
+        val pivot = Offset(s / 2f, s * 0.82f)
+        translate(0f, yShift) {
+            rotate(tilt, pivot) {
+                scale(scaleX, scaleY, pivot) {
+                    drawImage(image = bitmap, dstSize = IntSize(s.roundToInt(), s.roundToInt()))
+                }
+            }
+            if (builtIn) {
+                if (desk) drawWritingDesk(s, fast)
+                if (sound) drawSoundWaves(s, cycle)
+                if (sparkle) drawSparkles(s, cycle)
+                if (mouth) drawTalkingMouth(s, fast)
+                if (blink) drawBlink(s)
+                if (arm != ArmPose.None) drawArmPose(arm, s, fast, amp)
+            }
         }
     }
 }
 
-private fun DrawScope.drawMascot(
-    mood: MascotMood,
-    bobPx: Float,
-    eyeOpen: Float,
-    talk: Float,
-    orbGlow: Float,
-    eyeShiftPx: Float,
-) {
-    val w = size.width
-    val cx = w / 2f
-    // 头部圆心与半径(以宽度为单位,保持正方形比例)
-    val headCx = cx
-    val headCy = w * 0.56f + bobPx
-    val headRx = w * 0.30f
-    val headRy = w * 0.31f
+/** 一条卡通手臂:肩 → 肘 → 手,末端是圆圆的肤色小手。 */
+private fun DrawScope.drawLimb(shoulder: Offset, elbow: Offset, hand: Offset, s: Float) {
+    val stroke = s * 0.085f
+    val handR = s * 0.052f
+    drawLine(color = Sleeve, start = shoulder, end = elbow, strokeWidth = stroke, cap = StrokeCap.Round)
+    drawLine(color = Sleeve, start = elbow, end = hand, strokeWidth = stroke, cap = StrokeCap.Round)
+    drawCircle(color = Outline, radius = handR * 1.12f, center = hand)
+    drawCircle(color = Skin, radius = handR, center = hand)
+}
 
-    // 天线
-    val stemTop = headCy - headRy - w * 0.02f
-    val orbY = stemTop - w * 0.10f
-    drawLine(
-        color = AntennaStem,
-        start = Offset(headCx, stemTop),
-        end = Offset(headCx, orbY + w * 0.05f),
-        strokeWidth = w * 0.035f,
-        cap = StrokeCap.Round,
-    )
-    drawCircle(
-        color = AntennaOrb,
-        radius = w * 0.055f * (0.6f + orbGlow * 0.4f),
-        center = Offset(headCx, orbY),
-    )
-    drawCircle(color = Glint, radius = w * 0.022f, center = Offset(headCx - w * 0.018f, orbY - w * 0.018f))
-
-    // 两侧科技耳
-    val earW = w * 0.10f
-    val earH = w * 0.16f
-    val earY = headCy - earH / 2
-    drawRoundRect(
-        color = EarFill,
-        topLeft = Offset(headCx - headRx - earW * 0.5f, earY),
-        size = Size(earW, earH),
-        cornerRadius = androidx.compose.ui.geometry.CornerRadius(earW * 0.4f),
-    )
-    drawRoundRect(
-        color = EarFill,
-        topLeft = Offset(headCx + headRx - earW * 0.5f, earY),
-        size = Size(earW, earH),
-        cornerRadius = androidx.compose.ui.geometry.CornerRadius(earW * 0.4f),
-    )
-
-    // 头
-    val headPath = Path().apply {
-        // 用圆角路径近似:椭圆
-        addOval(androidx.compose.ui.geometry.Rect(
-            headCx - headRx, headCy - headRy, headCx + headRx, headCy + headRy))
-    }
-    drawPath(
-        path = headPath,
-        brush = Brush.verticalGradient(0f to HeadTop, 1f to HeadBottom, startY = headCy - headRy, endY = headCy + headRy),
-    )
-    drawPath(path = headPath, color = HeadStroke, style = Stroke(w * 0.02f))
-
-    // 腮红
-    drawCircle(color = Cheek, radius = w * 0.05f, center = Offset(headCx - headRx * 0.55f, headCy + headRy * 0.32f))
-    drawCircle(color = Cheek, radius = w * 0.05f, center = Offset(headCx + headRx * 0.55f, headCy + headRy * 0.32f))
-
-    // 眼睛
-    val eyeRy = w * 0.085f * eyeOpen.coerceAtLeast(0.12f)
-    val eyeRx = w * 0.062f
-    val eyeY = headCy - headRy * 0.18f
-    val eyeLx = headCx - headRx * 0.38f + eyeShiftPx
-    val eyeRx2 = headCx + headRx * 0.38f + eyeShiftPx
-    val eyeStroke = Stroke(w * 0.022f, cap = StrokeCap.Round)
-    if (mood == MascotMood.Happy) {
-        // ^^ 弯眼:上凸的弧
-        val ew = eyeRx * 2
-        val eh = eyeRy * 2
-        drawArc(color = Eye, startAngle = 200f, sweepAngle = 140f, useCenter = false,
-            topLeft = Offset(eyeLx - eyeRx, eyeY - eyeRy), size = Size(ew, eh), style = eyeStroke)
-        drawArc(color = Eye, startAngle = 200f, sweepAngle = 140f, useCenter = false,
-            topLeft = Offset(eyeRx2 - eyeRx, eyeY - eyeRy), size = Size(ew, eh), style = eyeStroke)
-    } else {
-    drawOval(color = Eye, topLeft = Offset(eyeLx - eyeRx, eyeY - eyeRy), size = Size(eyeRx * 2, eyeRy * 2))
-    drawOval(color = Eye, topLeft = Offset(eyeRx2 - eyeRx, eyeY - eyeRy), size = Size(eyeRx * 2, eyeRy * 2))
-    drawCircle(color = Glint, radius = w * 0.02f, center = Offset(eyeLx + eyeRx * 0.3f, eyeY - eyeRy * 0.4f))
-    drawCircle(color = Glint, radius = w * 0.02f, center = Offset(eyeRx2 + eyeRx * 0.3f, eyeY - eyeRy * 0.4f))
-    }
-
-    // 嘴
-    val mouthY = headCy + headRy * 0.42f
-    val mouthW = w * 0.12f
-    if (talk > 0.05f) {
-        drawOval(
-            color = Eye,
-            topLeft = Offset(headCx - mouthW * 0.5f, mouthY - w * 0.02f - talk * w * 0.03f),
-            size = Size(mouthW, w * 0.025f + talk * w * 0.06f),
-        )
-    } else {
-        val smile = Path().apply {
-            moveTo(headCx - mouthW, mouthY)
-            quadraticBezierTo(headCx, mouthY + w * 0.07f, headCx + mouthW, mouthY)
+private fun DrawScope.drawArmPose(pose: ArmPose, s: Float, phase: Float, amp: Float) {
+    val shoulderR = Offset(s * 0.73f, s * 0.86f)
+    val shoulderL = Offset(s * 0.27f, s * 0.86f)
+    val wobble = sin(phase * 6f * PI).toFloat()
+    when (pose) {
+        ArmPose.HeadScratch -> {
+            val hand = Offset(s * (0.40f + wobble * 0.025f * amp), s * 0.18f)
+            drawLimb(shoulderR, Offset(s * 0.82f, s * 0.54f), hand, s)
         }
-        drawPath(smile, color = Eye, style = Stroke(w * 0.022f, cap = StrokeCap.Round))
+        ArmPose.Wave -> {
+            val hand = Offset(s * (0.87f + wobble * 0.05f), s * 0.42f)
+            drawLimb(shoulderR, Offset(s * 0.86f, s * 0.66f), hand, s)
+        }
+        ArmPose.Listen -> {
+            drawLimb(shoulderR, Offset(s * 0.85f, s * 0.68f), Offset(s * 0.82f, s * 0.46f), s)
+        }
+        ArmPose.Gesture -> {
+            val hand = Offset(s * (0.78f + wobble * 0.025f), s * 0.74f)
+            drawLimb(shoulderR, Offset(s * 0.83f, s * 0.81f), hand, s)
+        }
+        ArmPose.Cheer -> {
+            drawLimb(shoulderL, Offset(s * 0.20f, s * 0.60f), Offset(s * 0.18f, s * 0.34f), s)
+            drawLimb(shoulderR, Offset(s * 0.80f, s * 0.60f), Offset(s * 0.82f, s * 0.34f), s)
+        }
+        ArmPose.Stretch -> {
+            drawLimb(shoulderL, Offset(s * 0.22f, s * 0.58f), Offset(s * 0.30f, s * 0.27f), s)
+            drawLimb(shoulderR, Offset(s * 0.78f, s * 0.58f), Offset(s * 0.70f, s * 0.27f), s)
+        }
+        ArmPose.Write -> {
+            val hand = Offset(s * (0.62f + wobble * 0.012f), s * (0.90f + wobble * 0.012f))
+            drawLimb(shoulderR, Offset(s * 0.81f, s * 0.80f), hand, s)
+            // 握着的铅笔
+            drawLine(
+                color = BrandBlue,
+                start = hand,
+                end = Offset(hand.x - s * 0.07f, hand.y - s * 0.09f),
+                strokeWidth = s * 0.02f,
+                cap = StrokeCap.Round,
+            )
+            drawCircle(color = Outline, radius = s * 0.012f, center = Offset(hand.x - s * 0.07f, hand.y - s * 0.09f))
+        }
+        ArmPose.None -> Unit
     }
+}
+
+/** 写作业时的桌面、纸、横线与一笔笔长出来的字迹。 */
+private fun DrawScope.drawWritingDesk(s: Float, phase: Float) {
+    val top = s * 0.90f
+    drawRoundRect(
+        color = DeskWood,
+        topLeft = Offset(s * 0.04f, top),
+        size = Size(s * 0.92f, s * 0.13f),
+        cornerRadius = CornerRadius(s * 0.025f),
+    )
+    drawRoundRect(
+        color = PaperWhite,
+        topLeft = Offset(s * 0.26f, top - s * 0.012f),
+        size = Size(s * 0.48f, s * 0.12f),
+        cornerRadius = CornerRadius(s * 0.012f),
+    )
+    val lineColor = Color(0xFFD9E3EC)
+    for (i in 0..2) {
+        val y = top + s * (0.022f + i * 0.032f)
+        drawLine(color = lineColor, start = Offset(s * 0.29f, y), end = Offset(s * 0.71f, y), strokeWidth = s * 0.006f)
+    }
+    val strokes = (phase * 9f).roundToInt()
+    for (i in 0 until strokes) {
+        val x = s * (0.30f + i * 0.044f)
+        drawLine(
+            color = Outline.copy(alpha = 0.55f),
+            start = Offset(x, top + s * 0.038f),
+            end = Offset(x + s * 0.024f, top + s * 0.018f),
+            strokeWidth = s * 0.009f,
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+/** 聆听时耳机旁一圈圈扩散的声波。 */
+private fun DrawScope.drawSoundWaves(s: Float, phase: Float) {
+    for (i in 0..2) {
+        val r = s * (0.07f + i * 0.035f + phase * 0.02f)
+        drawArc(
+            color = BrandBlue.copy(alpha = 0.8f - i * 0.2f),
+            startAngle = -55f,
+            sweepAngle = 110f,
+            useCenter = false,
+            topLeft = Offset(s * 0.88f - r / 2f, s * 0.45f - r / 2f),
+            size = Size(r, r),
+            style = Stroke(s * 0.012f),
+        )
+    }
+}
+
+private fun DrawScope.drawSparkles(s: Float, phase: Float) {
+    val a = 0.35f + 0.65f * abs(sin(phase * 4f * PI).toFloat())
+    drawCircle(color = BrandBlue.copy(alpha = a), radius = s * 0.018f, center = Offset(s * 0.18f, s * 0.22f))
+    drawCircle(color = BrandBlue.copy(alpha = a), radius = s * 0.013f, center = Offset(s * 0.83f, s * 0.30f))
+    drawCircle(color = BrandBlue.copy(alpha = a), radius = s * 0.015f, center = Offset(s * 0.72f, s * 0.12f))
+}
+
+/** 说话/打哈欠时张合的小嘴。 */
+private fun DrawScope.drawTalkingMouth(s: Float, phase: Float) {
+    val h = s * (0.010f + 0.020f * abs(sin(phase * 6f * PI).toFloat()))
+    drawOval(color = MouthPink, topLeft = Offset(s * 0.475f, s * 0.694f), size = Size(s * 0.05f, h))
+}
+
+/** 闭眼:用肤色盖住原来的大眼睛,再画两道上弯的弧。 */
+private fun DrawScope.drawBlink(s: Float) {
+    drawOval(color = Skin, topLeft = Offset(s * 0.345f, s * 0.515f), size = Size(s * 0.11f, s * 0.115f))
+    drawOval(color = Skin, topLeft = Offset(s * 0.545f, s * 0.515f), size = Size(s * 0.11f, s * 0.115f))
+    val style = Stroke(s * 0.013f, cap = StrokeCap.Round)
+    drawArc(
+        color = Outline, startAngle = 195f, sweepAngle = 150f, useCenter = false,
+        topLeft = Offset(s * 0.355f, s * 0.545f), size = Size(s * 0.09f, s * 0.05f), style = style,
+    )
+    drawArc(
+        color = Outline, startAngle = 195f, sweepAngle = 150f, useCenter = false,
+        topLeft = Offset(s * 0.555f, s * 0.545f), size = Size(s * 0.09f, s * 0.05f), style = style,
+    )
 }

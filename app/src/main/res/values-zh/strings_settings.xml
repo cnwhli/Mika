@@ -182,5 +182,5 @@
     <string name="mascot_reset">恢复默认形象</string>
     <string name="mascot_reset_action">恢复</string>
     <string name="mascot_row_sub">诺伊的自定义形象</string>
-    <string name="mascot_hint">提示:用 docs/mascot-prompts.md 里的提示词在豆包 / 即梦 / 通义万相等平台生成吉祥物,再在此上传。建议透明背景、正方形、1024×1024 的 PNG。</string>
+    <string name="mascot_hint">默认形象是内置的小女孩:后台有任务时会低头写作业,空闲时会摸摸头、转一转、张望、伸懒腰。想换成自己的图,可用 docs/mascot-prompts.md 里的提示词生成后在此上传,建议透明背景、正方形 1024×1024 的 PNG;点「恢复」随时换回默认形象。</string>
 </resources>

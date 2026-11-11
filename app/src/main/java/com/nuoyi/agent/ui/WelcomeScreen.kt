@@ -53,7 +53,7 @@ fun WelcomeScreen(onStart: () -> Unit) {
                 Column(Modifier.fillMaxWidth().padding(top = 40.dp, start = 8.dp, end = 8.dp, bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     val custom = rememberMascotBitmap()
                     Image(
-                        painter = custom?.let { BitmapPainter(it) } ?: painterResource(R.drawable.ic_mascot), null,
+                        painter = custom?.let { BitmapPainter(it) } ?: painterResource(R.drawable.nuoyi_girl), null,
                         Modifier.size(76.dp).shadow(14.dp, LogoShape, clip = false).clip(LogoShape),
                         contentScale = ContentScale.Fit,
                     )

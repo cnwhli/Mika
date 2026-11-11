@@ -11,10 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
 
 /**
- * 吉祥物图片:默认用内置的矢量 / Canvas 形象;用户可以在「设置 › 吉祥物」里上传一张自己生成的图片
+ * 吉祥物图片:默认用随包内置的 Q 版小女孩插画(R.drawable.nuoyi_girl,透明背景);
+ * 用户可以在「设置 › 吉祥物」里上传一张自己生成的图片
  * (去豆包 / 即梦 / 通义万相等平台生成,见 docs/mascot-prompts.md),App 把它复制到私有目录,
  * 所有用到吉祥物的地方都改画这张图。上传的图建议是透明背景、正方形、1024×1024 的 PNG;
- * 不传就退回内置形象。
+ * 不传或点「恢复默认」就退回内置的小女孩形象。
  */
 class MascotStore(private val prefs: SharedPreferences) {
     private val _path = MutableStateFlow(prefs.getString(KEY_PATH, null))

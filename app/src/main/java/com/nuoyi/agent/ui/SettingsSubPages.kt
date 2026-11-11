@@ -749,7 +749,8 @@ fun appearanceLabel(mode: ThemeMode): String = tr(
 // ---------- 吉祥物 ----------
 
 /**
- * 设置 › 吉祥物:上传一张自己生成的图片(去豆包 / 即梦 / 通义万相等平台生成,见 docs/mascot-prompts.md)替换内置形象,
+ * 设置 › 吉祥物:内置形象是随包的 Q 版小女孩插画;可以上传一张自己生成的图片
+ * (去豆包 / 即梦 / 通义万相等平台生成,见 docs/mascot-prompts.md)替换它,
  * 或一键恢复默认。上传的图存到 App 私有目录,所有用吉祥物的地方都会改画它。
  */
 @Composable

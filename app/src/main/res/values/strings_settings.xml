@@ -196,5 +196,5 @@
     <string name="mascot_reset">Restore default</string>
     <string name="mascot_reset_action">Restore</string>
     <string name="mascot_row_sub">Custom image for Nuoyi</string>
-    <string name="mascot_hint">Tip: generate a mascot on Doubao / 即梦 / 通义万相 with the prompts in docs/mascot-prompts.md, then upload it here. A transparent-background, square, 1024×1024 PNG works best.</string>
+    <string name="mascot_hint">The built-in girl mascot does homework while a task runs and idles with little motions. To use your own image, generate one with the prompts in docs/mascot-prompts.md and upload it here; a transparent square 1024x1024 PNG works best. Tap Restore to go back.</string>
 </resources>

@@ -180,6 +180,10 @@ class RootfsInstaller(
         writeInRootfs("etc/resolv.conf", dnsServers().ifEmpty { FALLBACK_DNS }.joinToString("") { "nameserver $it\n" })
         val client = clientScript() ?: throw IOException(tr(R.string.install_no_client))
         writeInRootfs("usr/local/bin/nuoyi", client, executable = true)
+        // 随包的 rootfs.tar.xz 里还预置着上游名字 usr/local/bin/mika(读的是旧环境变量,必然失败)。
+        // 用同一份桥客户端覆盖它:旧对话 / 第三方技能里若仍写 mika 也能正常走桥,
+        // 不用为了改一个文件名重打 31MB 的运行环境包。
+        writeInRootfs("usr/local/bin/mika", client, executable = true)
         prepareDev(dirs.rootfs)
         writeProcStandIns()
     }

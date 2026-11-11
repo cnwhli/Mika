@@ -38,7 +38,7 @@ LOCK = os.path.join(HERE, "sources.lock")
 MANIFEST = os.path.join(ROOT, "app", "src", "main", "assets", "runtime", "packages.json")
 ASSET = os.path.join(ROOT, "app", "src", "main", "assets", "runtime", "rootfs.tar.xz")
 KOTLIN = os.path.join(ROOT, "app", "src", "main", "java", "com", "wangzan101", "mika", "cap", "sandbox", "BundledRuntime.kt")
-CLIENT = os.path.join(ROOT, "app", "src", "main", "assets", "sandbox", "mika")
+CLIENT = os.path.join(ROOT, "app", "src", "main", "assets", "sandbox", "nuoyi")
 CACHE = os.path.join(ROOT, "build", "sandbox-runtime", "dl")
 CDN = "https://dl-cdn.alpinelinux.org/alpine"
 ARCH = "aarch64"
@@ -445,7 +445,7 @@ def build(out_asset):
     b = branch(alpine["version"])
     gen("etc/apk/repositories", f"{CDN}/{b}/main\n{CDN}/{b}/community\n".encode())
     gen("etc/hosts", b"127.0.0.1 localhost\n::1 localhost\n")
-    gen("usr/local/bin/mika", open(CLIENT, "rb").read(), 0o755)
+    gen("usr/local/bin/nuoyi", open(CLIENT, "rb").read(), 0o755)
 
     buf = io.BytesIO()
     total = 0

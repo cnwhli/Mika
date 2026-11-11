@@ -45,8 +45,8 @@ android {
         applicationId = brandApplicationId
         minSdk = 30
         targetSdk = 35
-        versionCode = 44
-        versionName = "0.1.43"
+        versionCode = 45
+        versionName = "0.1.44"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
         buildConfigField("String", "BRAND_NAME", "\"$brandName\"")
@@ -179,3 +179,12 @@ dependencies {
 tasks.withType<Test>().configureEach {
     inputs.file(rootProject.file("licenses/THIRD_PARTY_NOTICES.md")).withPropertyName("thirdPartyNotices")
 }
+
+// 沙箱桥客户端必须随包。品牌替换时把代码里的读取路径改成了 assets/sandbox/nuoyi,
+// 却漏改了磁盘上的文件名,真机安装到 Configure 阶段才报「缺少 nuoyi 命令(安装包不完整)」;
+// 而单元测试注入的是假脚本字节,全绿发现不了。这里在每次构建前直接卡住,避免再漏。
+val verifySandboxClient = tasks.register("verifySandboxClient") {
+    val client = file("src/main/assets/sandbox/nuoyi")
+    doLast { check(client.isFile) { "缺少沙箱桥客户端: ${client.absolutePath}" } }
+}
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(verifySandboxClient) }

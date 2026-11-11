@@ -1,22 +1,22 @@
 {
-  "tag_name": "v0.1.44",
-  "name": "诺伊 0.1.44",
-  "body": "### 本次更新（修复版）\n\n真机诊断里 `arm64 sandbox: supported (Broken: 缺少 nuoyi 命令(安装包不完整))` 暴露了一个从品牌替换时就存在的故障：**运行环境（沙箱）一直没装起来**，所有「处理文件 / 运行脚本 / 沙箱里调手机工具」都不可用。本版修好。\n\n**根因**：品牌替换时把代码里读的路径改成了 `assets/sandbox/nuoyi`、环境变量改成了 `NUOYI_BRIDGE / NUOYI_TOKEN`、命令改成了 `nuoyi`，但**磁盘上那个桥客户端脚本的文件名还叫 `mika`，脚本内部也还在读 `MIKA_*`**。于是安装器解完 31MB 运行环境后，在配置阶段找不到脚本，直接报「安装包不完整」。单元测试因为注入的是假脚本字节，从来没读过真实 assets，所以一直全绿没发现。\n\n修复内容：\n\n- `assets/sandbox/mika` → **`assets/sandbox/nuoyi`**，脚本内命令名、用法提示、错误信息统一为 `nuoyi`；环境变量改为 `NUOYI_BRIDGE / NUOYI_TOKEN`，与 `ProcRunner.env()` 注入的一致（原来会连不上本地桥，报 \"not running inside a Nuoyi sandbox command\"）。保留上游 Apache-2.0 版权声明。\n- 发给模型的 `run_command` 工具提示词里 3 处 `mika phone` → `nuoyi phone`；`tools/sandbox/build-runtime.py` 重建运行环境时也生成 `usr/local/bin/nuoyi`。\n- 随包 `rootfs.tar.xz` 里还预置着上游的 `usr/local/bin/mika`（读旧环境变量、必然失败）。安装时用同一份桥客户端把它覆盖掉，旧对话 / 第三方技能里若仍写 `mika` 也能正常走桥，不必为了一个文件名重打 31MB 运行环境包。\n- 加了一个构建期校验 `verifySandboxClient`：每次 `preBuild` 都检查 `assets/sandbox/nuoyi` 存在，缺文件直接构建失败，杜绝再次漏改。\n- 版本号升至 0.1.44（versionCode 45），签名证书不变，v0.1.43 可直接覆盖安装。\n\n**升级后**：App 启动会自动重试准备运行环境，诊断里 `arm64 sandbox` 应从 `Broken: ...` 变成 `Ready`。若仍是 Broken，去「设置 → 文件与计算环境 → 重置运行环境」手动重置一次（会删掉之前失败的半成品，对话记录和设置不受影响）。\n\n### 诊断里另外几项（不是 App 故障）\n\n- `helper: Connecting` / `no wireless debugging port found`：荣耀等 ROM 会屏蔽无线调试端口的 mDNS 广播，App 自动发现不到端口。打开「开发者选项 → 无线调试」，看页面上「IP 地址和端口」冒号后面的数字（例如 41235），在第 6 步的「填无线调试的端口」里手填即可；端口每次重启 / 重开无线调试都会变。也可以关掉再打开无线调试、换个 Wi-Fi 再试。\n- `write secure settings: not granted` / `[Recovery] ... not applied`：这些高级开关需要 `adb shell pm grant ... android.permission.WRITE_SECURE_SETTINGS`，而 ADB 助手又依赖上面的连接，属于先有鸡还是先有蛋。用电脑 USB 连一次授权，或在系统设置里手动把 App 加进「不受电池优化限制」和自启动白名单。\n- `battery optimization: restricted`：会影响常驻与后台自恢复，建议手动放行。\n- `android: 17 (SDK 37)` 高于本 App 的 `targetSdk 35`，`restricted settings: may block` 时需在系统「应用信息」里允许受限设置，否则无障碍 / 辅助权限可能被拦。\n\n### 下载与校验\n\n官网下载页：https://noy.127068.xyz/download/ 。自用选「个人版 · arm64 专用」，装不上再换「个人版 · 全架构」。\n\n签名证书 SHA-256：`97:BF:C9:61:14:CA:00:E7:87:51:10:FB:CF:CD:4A:90:A4:68:99:AC:00:64:BC:B7:B5:96:3C:6D:85:E1:2B:06`。App 内更新会自动校验大小、摘要、包名、版本与签名证书，任何一项不符都会拒绝安装。\n\n本项目基于 wangzan101/Mika（Apache-2.0）二次开发，保留原版权与许可声明，详见仓库 LICENSE、NOTICE 与 licenses 目录。\n",
-  "published_at": "2026-11-11T06:00:43Z",
+  "tag_name": "v0.1.45",
+  "name": "诺伊 0.1.45",
+  "body": "## 这版针对「软件闪退」\n\n收到闪退反馈后先做了静态排查，但**此前的版本没有任何崩溃记录能力**，真机上拿不到堆栈，盲修不可靠。所以本版先把「闪退可定位」补上，同时修掉排查中发现的几处确凿启动崩溃风险。\n\n### 新增：崩溃日志 + 安全启动\n\n- 未捕获异常会**同步落盘**（`filesDir/crashes/latest.txt`，保留最近 5 份），并自动附到「关于 › 反馈 › 诊断信息」的新增 **`[Crash]` 段落**，不需要电脑、adb 或 logcat。\n- **连续崩溃 2 次自动进入安全启动**：跳过浮窗前台服务、运行环境准备、内置助手恢复等后台重活，保证至少能进主界面把诊断信息发出来；升级到新版本后自动解除。\n- `NuoyiApp.onCreate` 里原本全是裸调用，任意一项抛异常都会「一打开就闪退」；现在逐项隔离，单项失败只记日志。\n\n### 修掉的启动崩溃风险\n\n- **`DynamicIslandService` / `SandboxService` 的 `startForeground` 没有异常保护**。Android 14+（反馈机型是 Android 17）在系统拒绝前台服务、通知渠道或 `specialUse` 校验失败时会抛异常，而 `Service.onCreate` / `onStartCommand` 跑在主线程，异常冒出去会直接打崩整个 App 进程。现在进不了前台就安静停掉该服务：胶囊 / 准备通知不显示，App 其余功能照常用。\n- **自定义吉祥物图片用裸 `decodeFile`**。一张 4000×3000 的照片约 48MB，欢迎页 / Logo / 聊天页 / 关于页 / 设置页各自解码一份，内存吃紧时容易 OOM 闪退。现在按最长边 1024 采样、全进程只缓存一份、兜住 `OutOfMemoryError`，读不出就退回内置小女孩。内置图解也加了同样的保护。\n- 诊断信息新增 `[Crash]` 段落并加了单元测试；双 flavor 编译与诊断 / 沙箱单测均通过。\n\n### 需要你帮忙确认\n\n装上后**如果还会闪退**，请再打开一次（连续两次会自动进安全启动），到「关于 › 反馈 › 诊断信息」复制整段发给我。`[Crash]` 里有异常类型、线程、完整堆栈和是否已进入安全启动，能精确定位到具体代码行。也请顺带说明是哪个版本、一打开就闪退还是点某个功能才闪退。\n\n### 其他\n\n版本 `0.1.45 / versionCode 46`，签名证书不变，v0.1.44 可直接覆盖安装、数据保留。Q 版小女孩形象与动作、纪要收件箱、灵动胶囊、沙箱桥客户端修复等功能均保持不变。\n",
+  "published_at": "2026-11-11T06:27:30Z",
   "html_url": "https://noy.127068.xyz/download/",
   "prerelease": false,
   "assets": [
     {
-      "name": "Nuoyi-v0.1.44-personal-arm64.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal-arm64.apk",
-      "size": 82670367,
-      "digest": "sha256:4026a90bfafdf280cf7432ed152728e9c918cc83df4af8e5026683b7a4c7e9bd"
+      "name": "Nuoyi-v0.1.45-personal-arm64.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-personal-arm64.apk",
+      "size": 82680151,
+      "digest": "sha256:472d0a03634b04ec8fcb8f3e02dd97eb6e2693938c20bbcb723b1631756df836"
     },
     {
-      "name": "Nuoyi-v0.1.44-personal.apk",
-      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal.apk",
-      "size": 95266510,
-      "digest": "sha256:543c2bf6c1b7f58b7b04b0db3b3c7862ad432b844d827ed2f837e30f8557cade"
+      "name": "Nuoyi-v0.1.45-personal.apk",
+      "browser_download_url": "https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-personal.apk",
+      "size": 95276294,
+      "digest": "sha256:35c433e37567506c32cd8383f96dfebca385a258798408935e9618266c0a0042"
     }
   ]
 }

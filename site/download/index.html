@@ -33,7 +33,7 @@
   <section class="page-head">
     <div class="wrap">
       <span class="eyebrow">官方发布渠道</span>
-      <div class="release-head"><h1>下载诺伊</h1><span class="tag">v0.1.44</span><span class="tag">2026-11-11</span></div>
+      <div class="release-head"><h1>下载诺伊</h1><span class="tag">v0.1.45</span><span class="tag">2026-11-11</span></div>
       <p class="lead">只从本页或自有 GitHub Releases 下载。下面每个安装包都给出大小与 SHA-256，装之前请核对；App 内更新也会做同样的校验。</p>
     </div>
   </section>
@@ -42,7 +42,7 @@
     <div class="wrap">
       <h2 class="title" style="font-size:28px">选择安装包</h2>
       <p class="lead">普通用户选「公版 · 全架构」。设备是 arm64（绝大多数现代安卓机）可以选体积更小的专用包。个人版仅供自用侧载。</p>
-      <div class="apk-grid" id="apk-grid"><p class="lead">正在读取版本清单…… 若长时间没有内容，请前往 <a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.44" target="_blank" rel="noopener">GitHub Releases</a> 下载。</p></div>
+      <div class="apk-grid" id="apk-grid"><p class="lead">正在读取版本清单…… 若长时间没有内容，请前往 <a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.45" target="_blank" rel="noopener">GitHub Releases</a> 下载。</p></div>
       <div class="notice">公版与个人版包名不同，可以并排安装；但请用同一版本系列的更新包覆盖安装，不要拿另一版的 APK 当更新，App 会拒绝包名不符的安装包。</div>
     </div>
   </section>
@@ -53,7 +53,7 @@
       <p>本版使用自有证书签名。签名证书 SHA-256 指纹：</p>
       <div class="pre mono">97:BF:C9:61:14:CA:00:E7:87:51:10:FB:CF:CD:4A:90:A4:68:99:AC:00:64:BC:B7:B5:96:3C:6D:85:E1:2B:06</div>
       <p>下载完成后，在电脑上核对文件摘要（把文件名换成你下载的那一个）：</p>
-      <div class="pre"><code>shasum -a 256 Nuoyi-v0.1.44-public.apk</code><br /><code>apksigner verify --print-certs Nuoyi-v0.1.44-public.apk</code></div>
+      <div class="pre"><code>shasum -a 256 Nuoyi-v0.1.45-public.apk</code><br /><code>apksigner verify --print-certs Nuoyi-v0.1.45-public.apk</code></div>
       <p>摘要应与卡片上的 SHA-256 一致，证书指纹应与上面一致。App 内更新会自动完成大小、摘要、包名、版本与签名证书校验，任何一项不符都会拒绝安装。</p>
       <div class="callout">系统要求：Android 11（API 30）及以上。安装包为正式签名 release 包，未开启调试；首次侧载需要在系统设置里允许「安装未知应用」。</div>
     </div>
@@ -79,7 +79,7 @@
         <li>公版清单：<a href="../api/latest.json">api/latest.json</a></li>
         <li>个人版清单：<a href="../api/latest-personal.json">api/latest-personal.json</a></li>
         <li>镜像：<code>raw.githubusercontent.com/cnwhli/nuoyi/main/site/api/</code></li>
-        <li>发布页：<a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.44" target="_blank" rel="noopener">GitHub Releases</a></li>
+        <li>发布页：<a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.45" target="_blank" rel="noopener">GitHub Releases</a></li>
       </ul>
       <p>两个版本各用各的清单，避免个人版被公版 APK 覆盖。清单里的 APK 直链只允许落在官网下载目录或自有仓库的发布附件路径，其它域名的链接一律拒绝。</p>
     </div>
@@ -89,13 +89,13 @@
     <div class="wrap article">
       <h2>本版更新说明</h2>
       <ul>
-        <li>修复运行环境安装失败：品牌替换漏改的沙箱桥客户端文件名与环境变量已补齐，「处理文件 / 运行脚本 / 沙箱调手机工具」恢复可用。</li>
-        <li>诊断中 <code>arm64 sandbox: Broken: 缺少 nuoyi 命令(安装包不完整)</code> 升级后应变为 <code>Ready</code>；必要时在设置里重置一次运行环境。</li>
-        <li>新增构建期校验，缺桥客户端脚本直接构建失败，避免再次漏改；单元测试同步通过。</li>
-        <li>Q 版小女孩形象、独立头部动作、通话纪要收件箱、灵动胶囊等功能保持不变。</li>
-        <li>版本 0.1.44（versionCode 45），签名证书不变，旧版可直接覆盖安装。</li>
+        <li>修复闪退：前台服务进不了前台时不再打崩整个进程（Android 14+ 常见），启动初始化逐项隔离。</li>
+        <li>新增崩溃日志与 <code>[Crash]</code> 诊断段落：闪退后到「关于 › 反馈 › 诊断信息」复制即可拿到完整堆栈，无需 adb。</li>
+        <li>连续崩溃两次自动进入安全启动，保证能进主界面；升级到新版本自动解除。</li>
+        <li>自定义吉祥物大图改为采样解码并缓存，避免相册照片导致内存溢出闪退。</li>
+        <li>版本 0.1.45（versionCode 46），签名证书不变，旧版可直接覆盖安装。</li>
       </ul>
-      <p style="margin-top:16px">完整变更请看 <a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.44" target="_blank" rel="noopener">Release 说明</a> 或 <a href="https://github.com/cnwhli/nuoyi/commits/main" target="_blank" rel="noopener">提交历史</a>。</p>
+      <p style="margin-top:16px">完整变更请看 <a href="https://github.com/cnwhli/nuoyi/releases/tag/v0.1.45" target="_blank" rel="noopener">Release 说明</a> 或 <a href="https://github.com/cnwhli/nuoyi/commits/main" target="_blank" rel="noopener">提交历史</a>。</p>
     </div>
   </section>
 </main>
@@ -108,10 +108,10 @@
       <a href="https://github.com/cnwhli/nuoyi" target="_blank" rel="noopener">源码</a><a href="https://github.com/cnwhli/nuoyi/issues/new" target="_blank" rel="noopener">反馈问题</a>
     </div>
   </div>
-  <div class="wrap"><p class="footer-note">基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。请只从本页或自有 GitHub Releases 下载并核对 SHA-256。</p><p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · v0.1.44</p></div>
+  <div class="wrap"><p class="footer-note">基于 <a href="https://github.com/wangzan101/Mika" target="_blank" rel="noopener">wangzan101/Mika</a>（Apache-2.0）二次开发，保留原版权与许可声明。请只从本页或自有 GitHub Releases 下载并核对 SHA-256。</p><p class="footer-note">© <span id="year">2026</span> 诺伊 Nuoyi · Android 11+ · v0.1.45</p></div>
 </footer>
 
-<script id="release-data" type="application/json">{"version":"0.1.44","date":"2026-11-11","tag":"v0.1.44","apks":[{"edition":"public","abi":"arm64-v8a","name":"Nuoyi-v0.1.44-public-arm64.apk","size":82657199,"digest":"sha256:9cc48844c8b36ff8a0e955626b76209241a29e71cafe7cd5e94d82f160900746","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-public-arm64.apk","title":"公版 · arm64 专用","abiLabel":"arm64-v8a 专用","packageName":"com.nuoyi.agent","note":"对外分发，唤醒词固定为「诺伊」，无常驻热词","featured":false},{"edition":"public","abi":"universal","name":"Nuoyi-v0.1.44-public.apk","size":95253342,"digest":"sha256:289b1fa9e93c6cff20eaeda066dd81ba216dcf28c0652b00af917043603b5974","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-public.apk","title":"公版 · 全架构","abiLabel":"全架构 universal","packageName":"com.nuoyi.agent","note":"对外分发，唤醒词固定为「诺伊」，无常驻热词","featured":true},{"edition":"personal","abi":"arm64-v8a","name":"Nuoyi-v0.1.44-personal-arm64.apk","size":82670367,"digest":"sha256:4026a90bfafdf280cf7432ed152728e9c918cc83df4af8e5026683b7a4c7e9bd","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal-arm64.apk","title":"个人版 · arm64 专用","abiLabel":"arm64-v8a 专用","packageName":"com.nuoyi.agent.personal","note":"自用侧载，可自定义唤醒词与本地常驻热词","featured":false},{"edition":"personal","abi":"universal","name":"Nuoyi-v0.1.44-personal.apk","size":95266510,"digest":"sha256:543c2bf6c1b7f58b7b04b0db3b3c7862ad432b844d827ed2f837e30f8557cade","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.44/Nuoyi-v0.1.44-personal.apk","title":"个人版 · 全架构","abiLabel":"全架构 universal","packageName":"com.nuoyi.agent.personal","note":"自用侧载，可自定义唤醒词与本地常驻热词","featured":false}]}</script>
+<script id="release-data" type="application/json">{"version":"0.1.45","date":"2026-11-11","tag":"v0.1.45","apks":[{"edition":"public","abi":"arm64-v8a","name":"Nuoyi-v0.1.45-public-arm64.apk","size":82666763,"digest":"sha256:7df4e837b78ed9b0a5badb08b817688b6e660f63fbea4b8bef235107451976fc","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-public-arm64.apk","title":"公版 · arm64 专用","abiLabel":"arm64-v8a 专用","packageName":"com.nuoyi.agent","note":"对外分发，唤醒词固定为「诺伊」，无常驻热词","featured":false},{"edition":"public","abi":"universal","name":"Nuoyi-v0.1.45-public.apk","size":95262906,"digest":"sha256:8e632b94b59998ba03e016378d0bda60486db47b70476752f4456c7e745e1b68","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-public.apk","title":"公版 · 全架构","abiLabel":"全架构 universal","packageName":"com.nuoyi.agent","note":"对外分发，唤醒词固定为「诺伊」，无常驻热词","featured":true},{"edition":"personal","abi":"arm64-v8a","name":"Nuoyi-v0.1.45-personal-arm64.apk","size":82680151,"digest":"sha256:472d0a03634b04ec8fcb8f3e02dd97eb6e2693938c20bbcb723b1631756df836","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-personal-arm64.apk","title":"个人版 · arm64 专用","abiLabel":"arm64-v8a 专用","packageName":"com.nuoyi.agent.personal","note":"自用侧载，可自定义唤醒词与本地常驻热词","featured":false},{"edition":"personal","abi":"universal","name":"Nuoyi-v0.1.45-personal.apk","size":95276294,"digest":"sha256:35c433e37567506c32cd8383f96dfebca385a258798408935e9618266c0a0042","url":"https://github.com/cnwhli/nuoyi/releases/download/v0.1.45/Nuoyi-v0.1.45-personal.apk","title":"个人版 · 全架构","abiLabel":"全架构 universal","packageName":"com.nuoyi.agent.personal","note":"自用侧载，可自定义唤醒词与本地常驻热词","featured":false}]}</script>
 <script src="../assets/app.js"></script>
 </body>
 </html>

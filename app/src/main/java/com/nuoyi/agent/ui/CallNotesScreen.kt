@@ -295,7 +295,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                NuoyiButton("粘贴剪贴板", onClick = {
+                NuoyiButton("粘贴纪要", onClick = {
                     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                     val t = runCatching {
                         cm?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.text?.toString().orEmpty()
@@ -307,7 +307,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                         status = if (added == null) "这段文字已经收过了，未重复收录" else "已收录，共 ${inbox.list().size} 段"
                     }
                 }, size = ButtonSize.Small, kind = ButtonKind.Primary)
-                NuoyiButton("抓取别的 App 屏幕", onClick = {
+                NuoyiButton("抓屏收录", onClick = {
                     MinutesCapture.postNotice(context)
                     status = "已发常驻通知：切到厂商纪要页面，下拉通知点「抓取当前屏」，可连续抓多页"
                 }, size = ButtonSize.Small, kind = ButtonKind.Tonal)
@@ -323,9 +323,9 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
                     if (t.isBlank()) status = "收件箱还是空的，先收一段纪要"
                     else scope.launch { analyze(t) }
                 }, size = ButtonSize.Small, kind = ButtonKind.Primary)
-                NuoyiButton("导出全部 TXT", onClick = { exportInboxTxt.launch("nuoyi-全部通话纪要.txt") },
+                NuoyiButton("导出 TXT", onClick = { exportInboxTxt.launch("nuoyi-全部通话纪要.txt") },
                     size = ButtonSize.Small, kind = ButtonKind.Tonal)
-                NuoyiButton("导出全部 JSON", onClick = { exportInboxJson.launch("nuoyi-全部通话纪要.json") },
+                NuoyiButton("导出 JSON", onClick = { exportInboxJson.launch("nuoyi-全部通话纪要.json") },
                     size = ButtonSize.Small, kind = ButtonKind.Secondary)
                 NuoyiButton(if (clearArmed) "再点一次清空" else "清空", onClick = {
                     if (clearArmed) {
@@ -353,7 +353,7 @@ fun CallNotesScreen(store: ProviderStore, onBack: () -> Unit) {
             FooterNote(
                 "厂商的「通话纪要」是系统 App 里的私有数据：既没有对外文件夹，也不生成 .txt 文件，更不给批量导出，" +
                     "第三方应用无法读它的数据库。可用的三条通道：① 在纪要页点分享 → 选「诺伊 · 收进纪要库」；" +
-                    "② 长按复制纪要文字 → 回来点「粘贴剪贴板」；③ 点「抓取别的 App 屏幕」，" +
+                    "② 长按复制纪要文字 → 回来点「粘贴纪要」；③ 点「抓屏收录」，" +
                     "切到纪要页后下拉通知点「抓取当前屏」（需开启诺伊的无障碍服务）。" +
                     "攒够后点「整理全部」或「导出全部」，这就是诺伊自己的批量导出。",
             )

@@ -70,6 +70,14 @@ import kotlinx.coroutines.withContext
 /** 设置里能进入的子页面;[Home] 是设置首页,[Advanced] 集中放置连接、维护和工程能力。 */
 private enum class SettingsPage { Home, Advanced, AppAccess, PhoneOps, Wechat, DuringWork, Capsule, Language, Notifications, CallNotes, Sandbox, Recovery, SelfCheck, ComputerAccess, McpServers, Root, Developer, RunStats, Mascot }
 
+/** 深链字符串 → 设置子页;认不出的路由不跳子页,只保持设置首页。 */
+private fun settingsPageFor(route: String): SettingsPage? = when (route) {
+    OpenRoutes.NOTIFICATIONS -> SettingsPage.Notifications
+    OpenRoutes.CAPSULE -> SettingsPage.Capsule
+    OpenRoutes.SETTINGS -> SettingsPage.Home
+    else -> null
+}
+
 /**
  * 设置页:总状态卡 + 常用 / 我的数据 / 其他。高级与其他只增加一层,各子页返回来时的页面。
  * 模型页由 [onOpenModels]、记忆与数据由 [onOpenMemory]、关于页由 [onOpenAbout] 交给 Activity。
@@ -92,12 +100,21 @@ fun SettingsScreen(
     onOpenAbout: () -> Unit = {},
     /** 外部 MCP server 设置(outbound);为空时不显示入口。 */
     mcpServers: com.nuoyi.agent.settings.McpServerStore? = null,
+    /** 通知深链要直接打开的设置子页(见 OpenRoutes);消费完调 onTargetHandled,避免重建时重复跳。 */
+    targetPage: String? = null,
+    onTargetHandled: () -> Unit = {},
 ) {
     val configs by store.configs.collectAsState()
     val roles by store.roles.collectAsState()
     // 开发者选项里的「看图定位已验证」跟着看图模型(看图用主模型时是主模型那条配置)
     val visionConfig = remember(configs, roles) { store.configFor(ModelRole.Vision) }
     var page by rememberSaveable { mutableStateOf(SettingsPage.Home) }
+    // 从状态栏通知 / 灵动岛卡片点进来时,直接落到对应子页(如「通知与灵动岛」「系统授权」)。
+    LaunchedEffect(targetPage) {
+        val target = targetPage ?: return@LaunchedEffect
+        settingsPageFor(target)?.let { page = it }
+        onTargetHandled()
+    }
     var explaining by remember { mutableStateOf<Problem?>(null) }
     // 「完全退出」先问一句:任务、胶囊和通知都会停
     var confirmingQuit by remember { mutableStateOf(false) }

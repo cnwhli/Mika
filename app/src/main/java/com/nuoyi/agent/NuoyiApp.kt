@@ -422,9 +422,10 @@ class NuoyiApp : Application(), WebOwner, SandboxOwner, TaskEnvironment.Owner, P
                     NotificationCenter.post(this@NuoyiApp, NuoyiNotification(
                         id = "island-perm-hint-${System.currentTimeMillis()}",
                         title = "灵动岛胶囊还没生效",
-                        text = "缺少「${missing.joinToString("、")}」权限，到 设置 → 通知 → 系统授权 开启即可",
+                        text = "缺少「${missing.joinToString("、")}」权限，点这条通知可直接到设置里开启",
                         tone = Tone.Warn,
                         timeoutMillis = 0,
+                        openRoute = com.nuoyi.agent.ui.OpenRoutes.NOTIFICATIONS,
                     ))
                 }
             }

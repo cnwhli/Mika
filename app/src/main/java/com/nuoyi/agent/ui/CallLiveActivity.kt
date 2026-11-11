@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nuoyi.agent.callnotes.CallNote
 import com.nuoyi.agent.callnotes.CallSessionStore
@@ -45,6 +46,8 @@ import com.nuoyi.agent.callnotes.MinutesAnalyzer
 import com.nuoyi.agent.callnotes.applyMinutesActions
 import com.nuoyi.agent.callnotes.readMinutesFromTree
 import com.nuoyi.agent.callnotes.readMinutesFromUri
+import com.nuoyi.agent.callnotes.MinutesFile
+import com.nuoyi.agent.callnotes.discoverMinutes
 import com.nuoyi.agent.settings.FeatureFlags
 import com.nuoyi.agent.settings.ProviderStore
 import com.nuoyi.agent.ui.components.ButtonKind
@@ -57,6 +60,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * 通话中的轻量速记台(AI 通话助理)。从灵动岛胶囊点「记一笔」进来:
@@ -138,11 +144,26 @@ private fun CallLiveScreen(onClose: () -> Unit) {
     // 上次选过的纪要文件夹,下次打开选择器直接定位到那里
     val lastTree = remember { flags.lastMinutesTree()?.let { runCatching { Uri.parse(it) }.getOrNull() } }
 
+    // 自动发现:已授权过的纪要文件夹会在打开页面时静默列出,不用每次重新选目录;
+    // MediaStore 能读到的系统纪要文件也一起补进来,查不到(机型限制)时退回手动选择。
+    var candidates by remember { mutableStateOf(emptyList<MinutesFile>()) }
+    var scanning by remember { mutableStateOf(false) }
+    suspend fun refreshCandidates() {
+        scanning = true
+        val since = call.startMs.takeIf { it > 0 } ?: (System.currentTimeMillis() - 7L * 24 * 3600 * 1000)
+        candidates = discoverMinutes(context, since)
+        scanning = false
+    }
+    LaunchedEffect(Unit) { refreshCandidates() }
+
     val treeLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
             flags.setLastMinutesTree(uri.toString())
-            scope.launch { ingest { readMinutesFromTree(context, uri) } }
+            scope.launch {
+                ingest { readMinutesFromTree(context, uri) }
+                refreshCandidates()
+            }
         }
     }
     val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -194,6 +215,45 @@ private fun CallLiveScreen(onClose: () -> Unit) {
                 NuoyiButton("整理纪要文件夹", onClick = { treeLauncher.launch(lastTree) }, kind = ButtonKind.Secondary)
                 NuoyiButton("选单个文件", onClick = { fileLauncher.launch(arrayOf("text/plain", "text/markdown", "application/json", "*/*")) }, kind = ButtonKind.Tonal)
             }
+
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "自动发现的纪要（${candidates.size}）",
+                    style = NuoyiType.Caption, color = NuoyiTheme.colors.ink2,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = { scope.launch { refreshCandidates() } }) {
+                    Text("刷新", color = NuoyiTheme.colors.accent)
+                }
+            }
+            when {
+                scanning -> Text("正在查找通话纪要…", style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3)
+                candidates.isEmpty() -> Text(
+                    "暂时没找到可自动读取的纪要。第一次用请先点「整理纪要文件夹」授权一次目录，之后这里会自动列出；部分机型只允许读自己授权过的文件夹。",
+                    style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3,
+                )
+                else -> Column(Modifier.fillMaxWidth()) {
+                    candidates.take(6).forEach { f ->
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .clickable { scope.launch { ingest { readMinutesFromUri(context, f.uri) } } }
+                                .padding(vertical = 7.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("· ", color = NuoyiTheme.colors.ink2)
+                            Column(Modifier.weight(1f)) {
+                                Text(f.name, style = NuoyiType.Body, color = NuoyiTheme.colors.ink,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text("${fmtMinutesTime(f.lastModified)} · ${f.source}",
+                                    style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3)
+                            }
+                            Text("整理", style = NuoyiType.Hint, color = NuoyiTheme.colors.accent)
+                        }
+                    }
+                    if (candidates.size > 6) Text("还有 ${candidates.size - 6} 个…", style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3)
+                }
+            }
+
             Text(
                 "系统通话纪要常见位置：小米/红米「录音机 › 通话录音」、华为/荣耀「实用工具 › 通话纪要」、OPPO/vivo「录音 › 通话」。也可直接选导出的 .txt / .md / .json 文件。",
                 style = NuoyiType.Hint, color = NuoyiTheme.colors.ink3,
@@ -223,3 +283,6 @@ private fun formatDuration(ms: Long): String {
     val s = total % 60
     return "%02d:%02d".format(m, s)
 }
+
+private fun fmtMinutesTime(ms: Long): String =
+    if (ms <= 0L) "时间未知" else SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()).format(Date(ms))

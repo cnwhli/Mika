@@ -12,6 +12,18 @@ import androidx.compose.runtime.setValue
 enum class Route { Chat, Settings, Memory, Plans, Browser, Run, Source, PhoneSetup, Models, Usage, SpeechModel, Welcome, ModelSetup, About, License, Screens, Teach, CallNotes }
 
 /**
+ * 通知 / 灵动岛胶囊点进来时用的路由字符串(写在 Intent extra 里,由 MainActivity 的 requestedRoute 分发)。
+ * 带 `settings:` 前缀的会先打开设置页,再直接落到对应子页,省得用户自己一层层找。
+ */
+object OpenRoutes {
+    const val CALL_NOTES = "callnotes"
+    const val SETTINGS = "settings"
+    const val NOTIFICATIONS = "settings:notifications"
+    const val CAPSULE = "settings:capsule"
+    const val ABOUT = "about"
+}
+
+/**
  * 页面栈:最底下永远是对话页。[push] 进一页,[back] 回上一页(已在对话页时返回 false,交给系统退出)。
  * 返回键和页面上的返回按钮走同一个 [back],所以两者总是一致。
  */

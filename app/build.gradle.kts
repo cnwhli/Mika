@@ -51,7 +51,7 @@ android {
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
         buildConfigField("String", "BRAND_NAME", "\"$brandName\"")
         // 关于页版本号后的 Beta 标记;出正式版时改成 false
-        buildConfigField("boolean", "BETA", "true")
+        buildConfigField("boolean", "BETA", "false")
     }
 
     // 两个发行版本。

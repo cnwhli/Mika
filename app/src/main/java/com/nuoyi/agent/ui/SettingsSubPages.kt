@@ -304,8 +304,9 @@ fun NotificationsScreen(
                         NotificationCenter.post(context, NuoyiNotification(
                             id = "island-preview-$t-2",
                             title = "需要你确认",
-                            text = "日程里有两个时间冲突，请选一个保留",
+                            text = "点这一行可直接跳到通知与灵动岛设置页",
                             tone = Tone.Warn,
+                            openRoute = OpenRoutes.NOTIFICATIONS,
                             timeoutMillis = 0,
                         ))
                         NotificationCenter.post(context, NuoyiNotification(

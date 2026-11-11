@@ -424,13 +424,24 @@ private fun NuoyiRoot(
             onTeachOpened()
         }
     }
-    // 通知/胶囊点进来要跳的页面(如「通话已结束,整理纪要」→ 通话纪要)
+    // 通知/胶囊点进来要跳的页面:「通话已结束」→ 通话纪要;权限引导 → 设置里的通知/胶囊子页。
+    // 深链带 settings: 前缀时,先把目标子页交给 SettingsScreen,再压设置页,避免用户自己一层层找。
+    var settingsTarget by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(requestedRoute.value) {
-        val r = requestedRoute.value
-        if (r == "callnotes") {
-            nav.push(Route.CallNotes)
-            requestedRoute.value = null
+        val r = requestedRoute.value ?: return@LaunchedEffect
+        when (r) {
+            OpenRoutes.CALL_NOTES -> nav.push(Route.CallNotes)
+            OpenRoutes.ABOUT -> nav.push(Route.About)
+            OpenRoutes.SETTINGS -> {
+                settingsTarget = OpenRoutes.SETTINGS
+                nav.push(Route.Settings)
+            }
+            OpenRoutes.NOTIFICATIONS, OpenRoutes.CAPSULE -> {
+                settingsTarget = r
+                nav.push(Route.Settings)
+            }
         }
+        requestedRoute.value = null
     }
     // 第一次打开:欢迎 → 配置模型 → 手机操作;配过模型的跳过前两步,手机操作已就绪或看过引导的跳过最后一步
     val onboardingState = remember { OnboardingState(context) }
@@ -560,7 +571,8 @@ private fun NuoyiRoot(
                 onOpenModels = { nav.push(Route.Models) },
                 autonomous = autonomous, onAutonomous = app.approvalControl::setAutonomous,
                 updateVersion = updateState.update?.version, onOpenAbout = { nav.push(Route.About) },
-                mcpServers = app.mcpServers)
+                mcpServers = app.mcpServers,
+                targetPage = settingsTarget, onTargetHandled = { settingsTarget = null })
         }
         Route.Models -> ModelsScreen(store, onBack = back, onOpenSpeech = { nav.push(Route.SpeechModel) }, onOpenUsage = { nav.push(Route.Usage) })
         Route.Usage -> UsageScreen(app.usage, store.providers, onBack = back)
